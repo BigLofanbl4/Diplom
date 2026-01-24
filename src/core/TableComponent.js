@@ -6,7 +6,9 @@ export default class TableComponent {
 
     this.data = null;
     this.template = null;
-    this.rows = null;
+    this.rowsHTML = null;
+    this.tbody = null;
+    this.boundClickHandler = null;
     this.elements = {};
   }
 
