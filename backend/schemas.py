@@ -20,10 +20,10 @@ class TeacherOut(TeacherBase):
         from_attributes = True
 
 class TeacherUpdate(BaseModel):
-    login: Optional[str] = None
-    password: Optional[str] = None
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    age: Optional[int] = None
-    is_ovz: Optional[bool] = None
-    phone: Optional[str] = None
+    login: str
+    password: str
+    first_name: str
+    last_name: str
+    age: int
+    is_ovz: bool
+    phone: str

@@ -27,3 +27,17 @@ def read_teacher(teacher_id: int, db: Session = Depends(get_db)):
     if db_teacher is None:
         raise HTTPException(status_code=404, detail="Teacher not found")
     return db_teacher
+
+@app.put("/api/teachers/{teacher_id}", response_model=schemas.TeacherOut)
+def update_teacher(teacher_id: int, teacher_data: schemas.TeacherUpdate, db: Session = Depends(get_db)):
+    db_teacher = crud.update_teacher(db, teacher_id, teacher_data)
+    if not db_teacher:
+        raise HTTPException(status_code=404, detail="Teacher not found")
+    return db_teacher
+
+@app.delete("/api/teacher/{teacher_id}", status_code=204)
+def delete_teacher(teacher_id: int, db: Session = Depends(get_db)):
+    success = crud.delete_teacher(db, teacher_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Teacher not found")
+    return None
