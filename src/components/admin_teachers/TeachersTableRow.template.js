@@ -14,9 +14,9 @@ export const TeacherRow = (teacher) => {
     <td class="table__col table__small-col" data-label="ОВЗ">${ovz}</td>
     <td class="table__col table__small-col" data-label="Действия">
       <div class="table__actions">
-        <button class="table__action-btn" data-action="update" title="Редактировать">
+        <a href="/admin/teachers/update/${teacher.id}" class="table__action-btn" data-action="update" data-spa-link title="Редактировать">
           ✏️
-        </button>
+        </a>
         <button class="table__action-btn table__action-btn--danger" data-action="delete" title="Удалить">
           🗑️
         </button>

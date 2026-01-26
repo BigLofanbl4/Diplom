@@ -1,4 +1,4 @@
-import template from './TeachersList.html?raw';
+import template from './TeachersTable.html?raw';
 import { TeacherRow } from './TeachersTableRow.template';
 import TableComponent from '../../core/TableComponent';
 import TeacherService from '../../services/TeacherService';
@@ -31,10 +31,6 @@ export default class TeachersList extends TableComponent {
     this.boundClickHandler = (event) => {
       const btn = event.target.closest("[data-action]");
       if (!btn) return;
-
-      if (btn.dataset.action === "update") {
-        alert(`Edit ${btn.closest("tr").dataset.teacherId}`);
-      }
 
       if (btn.dataset.action === "delete") {
         alert(`Delete ${btn.closest("tr").dataset.teacherId}`);
