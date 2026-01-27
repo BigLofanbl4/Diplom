@@ -36,14 +36,14 @@ export default class FormComponent {
   async fillData() {
     try {
       this.data = await this.Service.getById(this.id);
-      this.setFormValues(this.data);
+      this.setFormValues();
     } catch (error) {
       // Уведомление об ошибке 
       console.error("Ошибка загрузки данных:", error);
     }
   }
 
-  setFormValues(data) {
+  setFormValues() {
     for (const [key, value] of Object.entries(this.data)) {
       const input = this.form.elements[key];
       if (input) {
@@ -61,11 +61,12 @@ export default class FormComponent {
   handleEvents() {
     this.boundHandler = async (event) => {
       if (event.target.closest("[data-action='cancel']")) {
-        history.back();
+        window.router.back();
       } else if (event.target.closest("[data-action='submit']")) {
         event.preventDefault();
         const formData = this.getFormData();
         await this.submit(formData);
+        if (this.successUrl) window.router.navigate(this.successUrl);
       }
     };
 

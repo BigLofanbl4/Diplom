@@ -27,13 +27,22 @@ export default class TeachersList extends TableComponent {
   }
 
   handleEvents() {
-
-    this.boundClickHandler = (event) => {
+    this.boundClickHandler = async (event) => {
       const btn = event.target.closest("[data-action]");
+      const tr = event.target.closest("tr");
       if (!btn) return;
 
       if (btn.dataset.action === "delete") {
-        alert(`Delete ${btn.closest("tr").dataset.teacherId}`);
+        const accept = confirm(`Удалить преподавателя ID: ${tr.dataset.teacherId}?`);
+        if (!accept) return;
+
+        try {
+          const success = await this.Service.delete(tr.dataset.teacherId)
+          if (success) tr.remove();
+        } catch (error) {
+          // Уведомление об ошибке
+          console.error("Возникла ошибка при удалении:", error);
+        }
       }
     };
 

@@ -22,4 +22,4 @@ const ROUTES = {
   }
 };
 
-const router = new Router(ROUTES);
+window.router = new Router(ROUTES);

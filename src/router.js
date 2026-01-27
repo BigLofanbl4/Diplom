@@ -57,6 +57,16 @@ export class Router {
     return params;
   }
 
+  back() {
+    history.back();
+  }
+
+  navigate(url) {
+    history.pushState(null, null, url);
+
+    this.resolvePath(url);
+  }
+
   async resolvePath(url) {
     let route = null;
     let params = {};

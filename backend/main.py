@@ -35,7 +35,7 @@ def update_teacher(teacher_id: int, teacher_data: schemas.TeacherUpdate, db: Ses
         raise HTTPException(status_code=404, detail="Teacher not found")
     return db_teacher
 
-@app.delete("/api/teacher/{teacher_id}", status_code=204)
+@app.delete("/api/teachers/{teacher_id}", status_code=204)
 def delete_teacher(teacher_id: int, db: Session = Depends(get_db)):
     success = crud.delete_teacher(db, teacher_id)
     if not success:
