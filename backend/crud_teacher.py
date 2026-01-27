@@ -1,8 +1,6 @@
 from sqlalchemy.orm import Session
 import models, schemas
 
-def get_teacher(db: Session, teacher_id: int):
-    return db.query(models.Teacher).filter(models.Teacher.id == teacher_id).first()
 
 def get_teacher_by_login(db: Session, login: str):
     return db.query(models.Teacher).filter(models.Teacher.login == login).first()
