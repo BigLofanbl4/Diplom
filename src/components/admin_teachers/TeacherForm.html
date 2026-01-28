@@ -1,0 +1,55 @@
+<form class="teacher-form">
+  <div class="form-grid">
+    <div class="form-group">
+      <label for="first_name" class="form-label">Имя</label>
+      <input type="text" id="first_name" name="first_name" class="form-input" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="last_name" class="form-label">Фамилия</label>
+      <input type="text" id="last_name" name="last_name" class="form-input" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="login" class="form-label">Логин</label>
+      <input type="text" id="login" name="login" class="form-input" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="password" class="form-label">Пароль</label>
+      <input type="password" id="password" name="password" class="form-input" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="phone" class="form-label">Телефон</label>
+      <input type="tel" id="phone" name="phone" class="form-input" placeholder="+7 (999) 999-99-99">
+    </div>
+    
+    <div class="form-group">
+      <label for="age" class="form-label">Возраст</label>
+      <input type="number" id="age" name="age" class="form-input" min="18" max="100">
+    </div>
+    
+    <div class="form-group">
+      <label for="organization" class="form-label">Организация</label>
+      <select id="organization" name="organization" class="form-select">
+        <option value="">Выберите организацию</option>
+        <option value="1">Изикод</option>
+        <option value="2">IT Academy</option>
+        <option value="3">Технопарк</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <div class="form-checkbox">
+        <input type="checkbox" id="is_ovz" name="is_ovz" class="form-checkbox-input">
+        <label for="is_ovz" class="form-checkbox-label">ОВЗ</label>
+      </div>
+    </div>
+  </div>
+  
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary" data-action="submit">Сохранить</button>
+    <button type="button" class="btn btn-secondary" data-action="cancel">Отмена</button>
+  </div>
+</form>

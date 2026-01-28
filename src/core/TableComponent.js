@@ -1,5 +1,5 @@
 export default class TableComponent {
-  constructor() {
+  constructor(Service) {
     if (new.target === TableComponent) {
       throw new Error('TableComponent is an abstract class and cannot be instantiated directly');
     }
@@ -10,6 +10,7 @@ export default class TableComponent {
     this.tbody = null;
     this.boundClickHandler = null;
     this.elements = {};
+    this.Service = Service;
   }
 
   async fetchData() {
@@ -43,7 +44,7 @@ export default class TableComponent {
   }
 
   async draw() {
-    await this.fetchData();
+    await this.fetchData(this.Service);
     this.render();
     this.mount();
     this.handleEvents();
