@@ -1,10 +1,10 @@
 import models
 import schemas
+import crud_teacher
+import crud_group
+import crud_students
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-from backend import crud_teacher
-from backend import crud_group
-from backend import crud_students
 from database import engine, get_db
 
 models.Base.metadata.create_all(bind=engine)
