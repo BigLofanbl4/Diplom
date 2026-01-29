@@ -1,10 +1,11 @@
 export default class MultiSelect {
-  constructor(element, options = [], defaultOptions = [], placeholder = "Поиск") {
+  constructor(element, options = [], defaultOptions = [], placeholder = "Поиск", name = "") {
     this.container = typeof(element) === "string" ? document.querySelector(element) : element;
     this.options = options;
     this.defaultOptions = defaultOptions;
     this.selected = new Set(defaultOptions.map(v => v.value));
     this.placeholder = placeholder;
+    this.name = name;
 
     this.init();
   }
@@ -19,6 +20,7 @@ export default class MultiSelect {
   _renderLayout() {
     this.container.innerHTML = `
       <div class="ms">
+        <select name="${this.name}" multiplet style="display: none;"></select>
         <div class="ms__values">
           <input class="ms__input" type="text" placeholder="${this.placeholder}">
         </div>
@@ -31,11 +33,13 @@ export default class MultiSelect {
   _cacheElements() {
     this.optionsContainer = this.container.querySelector(".ms__options");
     this.valuesContainer = this.container.querySelector(".ms__values");
+    this.hiddenSelect = this.container.querySelector("select");
     this.input = this.container.querySelector(".ms__input");
   }
 
   _renderSelected() {
     this.valuesContainer.querySelectorAll(".ms__value").forEach(el => el.remove());
+    this.hiddenSelect = "";
 
     this.options.forEach(opt => {
       if (this.selected.has(opt.value)) {
@@ -44,6 +48,11 @@ export default class MultiSelect {
         chip.dataset.value = opt.value;
         chip.textContent = opt.text;
         this.input.before(chip);
+
+        const option = document.createElement("option");
+        option.value = opt.value;
+        option.selected = true;
+        this.hiddenSelect.appendChild(option);
       }
     });
   }
