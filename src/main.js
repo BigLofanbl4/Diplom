@@ -3,6 +3,7 @@ import { Router } from "./router";
 import { AdminLayout } from "./layouts/AdminLayout";
 import TeachersTable from './components/admin_teachers/TeachersTable';
 import TeacherForm from './components/admin_teachers/TeacherForm';
+import StudentsTable from './components/admin_students/StudentsTable';
 
 const ROUTES = {
   "/admin": {
@@ -19,6 +20,10 @@ const ROUTES = {
   "/admin/teachers/update/:id": {
     Layout: AdminLayout,
     Component: TeacherForm
+  },
+  "/admin/students": {
+    Layout: AdminLayout,
+    Component: StudentsTable
   }
 };
 
