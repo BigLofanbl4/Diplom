@@ -4,6 +4,7 @@ import { AdminLayout } from "./layouts/AdminLayout";
 import TeachersTable from './components/admin_teachers/TeachersTable';
 import TeacherForm from './components/admin_teachers/TeacherForm';
 import StudentsTable from './components/admin_students/StudentsTable';
+import StudentForm from './components/admin_students/StudentForm';
 
 const ROUTES = {
   "/admin": {
@@ -24,7 +25,7 @@ const ROUTES = {
   "/admin/students": {
     Layout: AdminLayout,
     Component: StudentsTable
-  }
+  },
 };
 
 window.router = new Router(ROUTES);
