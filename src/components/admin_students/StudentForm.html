@@ -1,0 +1,33 @@
+<form class="student-form">
+  <div class="form-grid">
+    <div class="form-group">
+      <label for="first_name" class="form-label">Имя</label>
+      <input type="text" id="first_name" name="first_name" class="form-input" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="last_name" class="form-label">Фамилия</label>
+      <input type="text" id="last_name" name="last_name" class="form-input" required>
+    </div>
+  
+    <div class="form-group">
+      <label for="phone" class="form-label">Телефон</label>
+      <input type="tel" id="phone" name="phone" class="form-input" placeholder="+7 (999) 999-99-99">
+    </div>
+    
+    <div class="form-group">
+      <label for="age" class="form-label">Дата рождения</label>
+      <input type="date" id="age" name="" class="form-input">
+    </div>
+
+    <div class="form-group">
+      <label for="ms_input" class="form-label">Группы</label>
+      <div id="ms"></div>
+    </div>
+    
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary" data-action="submit">Сохранить</button>
+    <button type="button" class="btn btn-secondary" data-action="cancel">Отмена</button>
+  </div>
+</form>

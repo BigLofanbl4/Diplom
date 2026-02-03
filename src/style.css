@@ -496,6 +496,10 @@ main .container {
   main .container {
     flex-direction: column;
   }
+  .app__nav {
+    flex: none;
+    width: 100%;
+  }
 }
 
 @media (max-width: 1024px) {
@@ -511,8 +515,6 @@ main .container {
 
 @media (max-width: 768px) {
   .app__nav {
-    flex: none;
-    width: 100%;
     margin-bottom: var(--mg-500);
   }
   

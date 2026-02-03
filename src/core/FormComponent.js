@@ -15,11 +15,13 @@ export default class FormComponent {
   }
 
   async draw() {
+    await this.fetchData();
     this.render();
     this.mount();
     if (this.id && this.mode === "update") {
-      await this.fillData();
+      this.setFormValues();
     }
+    this.initCustomFields();
     this.handleEvents();
   }
 
@@ -33,13 +35,16 @@ export default class FormComponent {
     this.form = componentContainer.querySelector("form");
   }
 
-  async fillData() {
-    try {
-      this.data = await this.Service.getById(this.id);
-      this.setFormValues();
-    } catch (error) {
-      // Уведомление об ошибке 
-      console.error("Ошибка загрузки данных:", error);
+  initCustomFields() {}
+
+  async fetchData() {
+    if (this.id && this.Service) {
+      try {
+        this.data = await this.Service.getById(this.id);
+      } catch (error) {
+        // Уведомление об ошибке 
+        console.error("Ошибка загрузки данных:", error);
+      }
     }
   }
 
@@ -54,8 +59,30 @@ export default class FormComponent {
   }
 
   getFormData() {
+    const data = {};
     const formData = new FormData(this.form);
-    return Object.fromEntries(formData);
+    const allKeys = [...new Set(Array.from(this.form.elements))]
+      .map(element => element.name)
+      .filter(key => key);
+
+    allKeys.forEach(key => {
+      const element = this.form.elements[key];
+
+      if (key.endsWith("[]")) {
+        const value = formData.getAll(key);
+        const cleanKey = key.slice(0, -2);
+        data[cleanKey] = value;
+      } else {
+        if (element.type === "checkbox") {
+          data[key] = element.checked;
+        } else if (element.type === "number") {
+          data[key] = Number(formData.get(key));
+        } else {
+          data[key] = formData.get(key);
+        }
+      }
+    });
+    return data;
   }
 
   handleEvents() {

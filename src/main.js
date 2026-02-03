@@ -5,6 +5,8 @@ import TeachersTable from './components/admin_teachers/TeachersTable';
 import TeacherForm from './components/admin_teachers/TeacherForm';
 import StudentsTable from './components/admin_students/StudentsTable';
 import StudentForm from './components/admin_students/StudentForm';
+import GroupsTable from './components/admin_groups/GroupsTable';
+import GroupForm from './components/admin_groups/GroupForm';
 
 const ROUTES = {
   "/admin": {
@@ -26,6 +28,26 @@ const ROUTES = {
     Layout: AdminLayout,
     Component: StudentsTable
   },
+  "/admin/students/create": {
+    Layout: AdminLayout,
+    Component: StudentForm
+  },
+  "/admin/students/update/:id": {
+    Layout: AdminLayout,
+    Component: StudentForm
+  },
+  "/admin/groups": {
+    Layout: AdminLayout,
+    Component: GroupsTable
+  },
+  "/admin/groups/create": {
+    Layout: AdminLayout,
+    Component: GroupForm
+  },
+  "/admin/groups/update/:id": {
+    Layout: AdminLayout,
+    Comment: GroupForm
+  }
 };
 
 window.router = new Router(ROUTES);

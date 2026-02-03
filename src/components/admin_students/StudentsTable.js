@@ -9,7 +9,11 @@ export default class StudentsTable extends TableComponent {
   }
 
   async fetchData() {
-    this.data = await this.Service.getAll();
+    try {
+      this.data = await this.Service.getAll();
+    } catch (error) {
+      console.error("Возникла ошибка:", error?.detail);
+    }
   }
 
   render() {
@@ -29,7 +33,6 @@ export default class StudentsTable extends TableComponent {
   handleEvents() {
     this.boundClickHandler = async (event) => {
       const btn = event.target.closest("[data-action]");
-      console.log(btn);
       const tr = event.target.closest("tr");
 
       if (!btn) return;
@@ -39,7 +42,7 @@ export default class StudentsTable extends TableComponent {
         if (!accept) return;
         
         try {
-          const success = await StudentService.delete(tr.dataset.studentId);
+          const success = await this.Service.delete(tr.dataset.studentId);
           if (success) tr.remove();
         } catch (error) {
           console.error("Возникла ошибка при удалении: ", error);

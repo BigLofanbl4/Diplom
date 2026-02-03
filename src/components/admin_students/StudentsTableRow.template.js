@@ -1,7 +1,7 @@
 export const StudentRow = (student) => {
   const groups = student.groups.map(group => {
     return `<a href="/admin/groups/${group.id}">${group.group_number}</a>`
-  }).join("");
+  }).join(", ");
   const fullName = `${student.last_name} ${student.first_name}`;
   return `
     <tr class="table__row" data-student-id="${student.id}">
