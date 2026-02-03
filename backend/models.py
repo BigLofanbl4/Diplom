@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, Table, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, Table, ForeignKey, true
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -21,6 +21,8 @@ class Teacher(Base):
 
     organization_id = Column(Integer, nullable=True)
 
+    groups = relationship("Group", back_populates="teacher")
+
 student_group = Table("student_group", Base.metadata,
     Column('student_id', Integer, ForeignKey('students.id'), primary_key=True),
     Column('group_id', Integer, ForeignKey('groups.id'), primary_key=True)
@@ -39,5 +41,7 @@ class Group(Base):
     __tablename__ = "groups"
     id = Column(Integer, primary_key=True, index=True)
     group_number = Column(Integer, unique=True, index=True, nullable=False)
+    teacher_id = Column(Integer, ForeignKey('teachers.id'))
+    teacher = relationship("Teacher", back_populates="groups")
     students = relationship("Student", secondary=student_group, back_populates="groups")
 

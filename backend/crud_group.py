@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from fastapi import HTTPException
 import models, schemas
 
 
@@ -14,6 +15,7 @@ def get_group_by_number(db: Session, group_number: int):
 def create_group(db: Session, group: schemas.GroupCreate):
   db_group = models.Group(
     group_number=group.group_number,
+    teacher_id=group.teacher_id
   )
   if group.student_ids:
     students = db.query(models.Student).filter(
@@ -40,7 +42,7 @@ def update_group(db: Session, group_id: int, group_data: schemas.GroupUpdate):
     ids = update_data["student_ids"]
     if ids:
       students = db.query(models.Student).filter(
-        models.Student.id._in == ids
+        models.Student.id.in_ == ids
       ).all()
       db_group.students = students
     else:

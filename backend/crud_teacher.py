@@ -22,6 +22,10 @@ def create_teacher(db: Session, teacher: schemas.TeacherCreate):
         is_ovz=teacher.is_ovz,
         organization_id=teacher.organization_id
     )
+    if teacher.group_ids:
+        groups = db.query(models.Group).filter(models.Group.id.in_(teacher.group_ids)).all()
+        db_teacher.groups = groups
+
     db.add(db_teacher)          # Добавляем в сессию
     db.commit()                 # Сохраняем в базу
     db.refresh(db_teacher)      # Подгружаем ID, созданный базой
@@ -34,7 +38,16 @@ def update_teacher(db: Session, teacher_id: int, teacher_data: schemas.TeacherUp
     update_data = teacher_data.model_dump(exclude_unset=True)
 
     for key, value in update_data.items():
+        if key == "group_ids": continue
         setattr(db_teacher, key, value)
+
+    if "group_ids" in update_data:
+        ids = update_data["group_ids"]
+        if ids:
+            groups = db.query(models.Group).filter(models.Group.id.in_(ids)).all()
+            db_teacher.groups = groups
+        else:
+            db_teacher.groups = []
 
     db.commit()
     db.refresh(db_teacher)
