@@ -18,7 +18,7 @@ export default class TeacherService extends BaseService {
 
   static async update(id, data) {
     return await this.request(`/teachers/${id}`, {
-      method: "PUT",
+      method: "PATCH",
       body: JSON.stringify(data)
     });
   }

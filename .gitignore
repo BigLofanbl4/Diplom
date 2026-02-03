@@ -27,3 +27,4 @@ backend/database.db
 backend/__pycache__
 
 .vite/
+venv/

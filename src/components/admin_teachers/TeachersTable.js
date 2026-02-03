@@ -9,7 +9,11 @@ export default class TeachersList extends TableComponent {
   }
 
   async fetchData() {
-    this.data = await this.Service.getAll();
+    try {
+      this.data = await this.Service.getAll();
+    } catch (error) {
+      console.error("Возникла ошибка:", error);
+    }
   }
 
   render() {

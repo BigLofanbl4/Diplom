@@ -32,7 +32,7 @@ def read_teacher(teacher_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Teacher not found")
     return db_teacher
 
-@app.put("/api/teachers/{teacher_id}", response_model=schemas.TeacherOut)
+@app.patch("/api/teachers/{teacher_id}", response_model=schemas.TeacherOut)
 def update_teacher(teacher_id: int, teacher_data: schemas.TeacherUpdate, db: Session = Depends(get_db)):
     db_teacher = crud_teacher.update_teacher(db, teacher_id, teacher_data)
     if not db_teacher:

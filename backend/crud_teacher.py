@@ -31,7 +31,7 @@ def update_teacher(db: Session, teacher_id: int, teacher_data: schemas.TeacherUp
     db_teacher = get_teacher_by_id(db, teacher_id)
     if not db_teacher:
         return None
-    update_data = teacher_data.model_dump()
+    update_data = teacher_data.model_dump(exclude_unset=True)
 
     for key, value in update_data.items():
         setattr(db_teacher, key, value)

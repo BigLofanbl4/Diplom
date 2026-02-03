@@ -20,9 +20,9 @@ export default class MultiSelect {
   _renderLayout() {
     this.container.innerHTML = `
       <div class="ms">
-        <select name="${this.name}" multiplet style="display: none;"></select>
+        <select name="${this.name}" multiple style="display: none;"></select>
         <div class="ms__values">
-          <input class="ms__input" type="text" placeholder="${this.placeholder}">
+          <input class="ms__input" id="ms_input" type="text" placeholder="${this.placeholder}">
         </div>
         <div class="ms__options">
         </div>
@@ -39,7 +39,7 @@ export default class MultiSelect {
 
   _renderSelected() {
     this.valuesContainer.querySelectorAll(".ms__value").forEach(el => el.remove());
-    this.hiddenSelect = "";
+    this.hiddenSelect.innerHTML = "";
 
     this.options.forEach(opt => {
       if (this.selected.has(opt.value)) {

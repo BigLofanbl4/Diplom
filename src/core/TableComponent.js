@@ -44,7 +44,7 @@ export default class TableComponent {
   }
 
   async draw() {
-    await this.fetchData(this.Service);
+    await this.fetchData();
     this.render();
     this.mount();
     this.handleEvents();
