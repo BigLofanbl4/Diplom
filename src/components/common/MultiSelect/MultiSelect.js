@@ -1,6 +1,6 @@
 export default class MultiSelect {
   constructor(element, options = [], defaultOptions = [], placeholder = "Поиск", name = "", required = false) {
-    this.container = typeof(element) === "string" ? document.querySelector(element) : element;
+    this.container = typeof(element) === "string" ? document.getElementById(element) : element;
     this.options = options;
     this.defaultOptions = defaultOptions;
     this.selected = new Set(defaultOptions.map(v => v.value));

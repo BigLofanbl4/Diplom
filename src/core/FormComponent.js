@@ -26,7 +26,9 @@ export default class FormComponent {
   }
 
   render() {
-    throw new Error("render() must be implemented");
+    if (!this.template) {
+      throw new Error("render() must be implemented");
+    }
   }
 
   mount() {

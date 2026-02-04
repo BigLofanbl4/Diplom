@@ -1,101 +1,29 @@
-import template from './TeacherForm.html?raw';
-import TeacherService from '../../services/TeacherService';
-import FormComponent from '../../core/FormComponent';
-import GroupService from '../../services/GroupService';
-import MultiSelect from "../common/MultiSelect/MultiSelect.js";
+import template from "./TeacherForm.html?raw";
+import TeacherService from "../../services/TeacherService";
+import GroupService from "../../services/GroupService";
+import SelectFormComponent from "../../core/SelectFormComponent";
 
-export default class TeacherForm extends FormComponent {
+export default class TeacherForm extends SelectFormComponent {
   constructor({ id = null }) {
-    const mode = id ? "update" : "create";
-    super(TeacherService, mode, id);
-    this.successUrl = "/admin/teachers";
-    this.allGroups = null;
-  }
+    const msConfigs = [
+      {
+        elementId: "ms",
+        listService: GroupService,
+        dataField: "groups",
+        listKey: "group_ids",
+        name: "group_ids[]",
+        label: group => `${group.group_number}`,
+        placeholder: "Выберите группы",
+      },
+    ];
 
-  async fetchData() {
-    try {
-      if (this.id && this.mode === "update") {
-        this.data = await this.Service.getById(this.id);
-      }
-      this.allGroups = await GroupService.getAll();
-    } catch (error) {
-      console.error("Произошла ошибка", error);
-    }
+    super(TeacherService, id, msConfigs);
+    this.template = template;
+    this.successUrl = "/admin/teachers";
   }
 
   mount() {
-    const componentContainer = document.getElementById("component");
-    componentContainer.innerHTML = this.template;
-    this.form = componentContainer.querySelector("form");
-    this.multiSelectElem = document.getElementById("ms");
+    super.mount();
     this.form.querySelector('[name="password"]').required = this.mode === "create";
-  }
-
-  getFormData() {
-    const data = super.getFormData();
-
-    data.group_ids = data.group_ids.map(id => Number(id));
-
-    return data;
-  }
-
-  async submit(data) {
-    try {
-      if (this.mode === "create") {
-        await this.Service.create(data);
-      } else if (this.mode === "update") {
-        const payload = this._calculateDiff(this.data, data);
-        await this.Service.update(this.id, payload);
-      }
-    } catch (error) {
-      // Уведомление об ошибке
-      console.error("Ошибка отправки данных:", error);
-    }
-  }
-
-  _calculateDiff(original, current) {
-    const diff = {};
-
-    const currentGroupIds = current.group_ids;
-    const inititalGroupIds = original.groups.map(g => g.id);
-
-    const isGroupsChanged = currentGroupIds.length !== inititalGroupIds.length ||
-        !currentGroupIds.every(id => inititalGroupIds.includes(id));
-
-    if (isGroupsChanged) {
-      diff.group_ids = currentGroupIds;
-    }
-
-    for (const key in current) {
-      if (key === "group_ids") continue;
-      if (current[key] !== original[key]) {
-        diff[key] = current[key];
-      }
-    }
-    return diff;
-  }
-
-  initCustomFields() {
-    const options = this.allGroups.map(group => ({
-      value: group.id,
-      text: `${group.group_number}`
-    }));
-
-    const defaultOptions = (this.data?.groups ?? []).map(group => ({
-      value: group.id,
-      text: `${group.group_number}`
-    }));
-
-    new MultiSelect(
-        this.multiSelectElem,
-        options,
-        defaultOptions,
-        "Выберите группы",
-        "group_ids[]"
-    );
-  }
-
-  render() {
-    this.template = template;
   }
 }

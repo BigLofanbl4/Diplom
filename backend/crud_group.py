@@ -42,7 +42,7 @@ def update_group(db: Session, group_id: int, group_data: schemas.GroupUpdate):
     ids = update_data["student_ids"]
     if ids:
       students = db.query(models.Student).filter(
-        models.Student.id.in_ == ids
+        models.Student.id.in_(ids)
       ).all()
       db_group.students = students
     else:
