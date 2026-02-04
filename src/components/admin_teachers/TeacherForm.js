@@ -14,7 +14,7 @@ export default class TeacherForm extends FormComponent {
 
   async fetchData() {
     try {
-      if (this.id && this.mode == "update") {
+      if (this.id && this.mode === "update") {
         this.data = await this.Service.getById(this.id);
       }
       this.allGroups = await GroupService.getAll();
@@ -28,6 +28,7 @@ export default class TeacherForm extends FormComponent {
     componentContainer.innerHTML = this.template;
     this.form = componentContainer.querySelector("form");
     this.multiSelectElem = document.getElementById("ms");
+    this.form.querySelector('[name="password"]').required = this.mode === "create";
   }
 
   getFormData() {

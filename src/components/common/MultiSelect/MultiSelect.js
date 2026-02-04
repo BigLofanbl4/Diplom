@@ -1,11 +1,12 @@
 export default class MultiSelect {
-  constructor(element, options = [], defaultOptions = [], placeholder = "Поиск", name = "") {
+  constructor(element, options = [], defaultOptions = [], placeholder = "Поиск", name = "", required = false) {
     this.container = typeof(element) === "string" ? document.querySelector(element) : element;
     this.options = options;
     this.defaultOptions = defaultOptions;
     this.selected = new Set(defaultOptions.map(v => v.value));
     this.placeholder = placeholder;
     this.name = name;
+    this.required = required;
 
     this.init();
   }
@@ -20,7 +21,7 @@ export default class MultiSelect {
   _renderLayout() {
     this.container.innerHTML = `
       <div class="ms">
-        <select name="${this.name}" multiple style="display: none;"></select>
+        <select name="${this.name}" multiple style="display: none;" ${this.required ? "required" : ""}></select>
         <div class="ms__values">
           <input class="ms__input" id="ms_input" type="text" placeholder="${this.placeholder}">
         </div>

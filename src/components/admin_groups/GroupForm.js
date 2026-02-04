@@ -37,10 +37,10 @@ export default class GroupForm extends FormComponent {
   async submit(data) {
     try {
       if (this.mode === "create") {
-        console.log(data);
         await this.Service.create(data);
       } else if (this.mode === "update") {
         const payload = this._calculateDiff(this.data, data);
+        console.log(payload);
         await this.Service.update(this.id, payload);
       }
     } catch (error) {
@@ -59,10 +59,10 @@ export default class GroupForm extends FormComponent {
     const diff = {};
 
     const currentStudentIds = current.student_ids;
-    const inititalStudetIds = original.students.map(s => s.id);
+    const initialStudentIds = original.students.map(s => s.id);
 
-    const isStudentsChanged = currentStudentIds.length !== inititalStudetIds.length ||
-                            !currentStudentIds.every(id => inititalStudetIds.includes(id));
+    const isStudentsChanged = currentStudentIds.length !== initialStudentIds.length ||
+                            !currentStudentIds.every(id => initialStudentIds.includes(id));
 
     if (isStudentsChanged) {
       diff.student_ids = currentStudentIds;

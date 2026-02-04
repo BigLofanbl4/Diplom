@@ -642,6 +642,17 @@ main .container {
   margin-bottom: var(--mg-200);
 }
 
+.form-error {
+  color: var(--cl-danger);
+  font-size: var(--fz-100);
+  display: none;
+}
+
+.form-input.invalid + .form-error,
+.form-select.invalid + .error {
+  display: block;
+}
+
 .form-input,
 .form-select {
   padding: var(--pd-300) var(--pd-400);
@@ -652,6 +663,11 @@ main .container {
   background: var(--cl-surface);
   color: var(--cl-text-primary);
   transition: all var(--transition-fast);
+}
+
+.form-input.invalid,
+.form-select.invalid {
+  border-color: var(--cl-danger);
 }
 
 .form-input:focus,

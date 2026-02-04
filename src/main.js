@@ -46,7 +46,7 @@ const ROUTES = {
   },
   "/admin/groups/update/:id": {
     Layout: AdminLayout,
-    Comment: GroupForm
+    Component: GroupForm
   }
 };
 

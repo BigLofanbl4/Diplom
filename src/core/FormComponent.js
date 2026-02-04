@@ -92,6 +92,10 @@ export default class FormComponent {
       } else if (event.target.closest("[data-action='submit']")) {
         event.preventDefault();
         const formData = this.getFormData();
+        if (!this.isFormValid()) {
+          this.highlightInvalidFields();
+          return;
+        }
         await this.submit(formData);
         if (this.successUrl) window.router.navigate(this.successUrl);
       }
@@ -102,6 +106,23 @@ export default class FormComponent {
 
   removeEventListeners() {
     this.form.removeEventListener("click", this.boundHandler);
+  }
+
+  isFormValid() {
+    return this.form.checkValidity();
+  }
+
+  highlightInvalidFields() {
+    const fields = Array.from(this.form.elements);
+    fields.forEach((field) => {
+      if (!field.name && !field.validity.valid) {
+        field.classList.add("invalid");
+      } else {
+        field.classList.remove("invalid");
+      }
+    });
+
+    this.form.reportValidity();
   }
 
   async submit(data) {
