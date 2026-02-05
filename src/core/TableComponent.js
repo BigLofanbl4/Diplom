@@ -1,11 +1,12 @@
 export default class TableComponent {
-  constructor(Service) {
-    if (new.target === TableComponent) {
-      throw new Error('TableComponent is an abstract class and cannot be instantiated directly');
-    }
+  constructor({Service, template, rowRenderer, idAttr, entityName, emptyRow = ""} ) {
 
     this.data = null;
-    this.template = null;
+    this.template = template;
+    this.rowRenderer = rowRenderer;
+    this.idAttr = idAttr;
+    this.entityName = entityName;
+    this.emptyRow = emptyRow;
     this.rowsHTML = null;
     this.tbody = null;
     this.boundClickHandler = null;
@@ -14,23 +15,58 @@ export default class TableComponent {
   }
 
   async fetchData() {
-    throw new Error("fetchData() must be implemented");
+    try {
+      this.data = await this.Service.getAll();
+    } catch (error) {
+      this.data = [];
+      console.error(error);
+    }
   }
 
   render() {
-    throw new Error("render() must be implemented");
+    this.rowsHTML = this.data.map(entity => this.rowRenderer(entity)).join("");
+    if (!this.rowsHTML) {
+      this.rowsHTML = this.emptyRow;
+    }
   }
 
   mount() {
-    throw new Error("mount() must be implemented");
+    const componentContainer = document.getElementById("component");
+    componentContainer.innerHTML = this.template;
+    this.tbody = componentContainer.querySelector(".table__body");
+    if (this.tbody) {
+      this.tbody.innerHTML = this.rowsHTML;
+    }
   }
 
   handleEvents() {
-    throw new Error("handleEvents() must be implemented");
+    this.boundClickHandler = async (event) => {
+      const btn = event.target.closest("[data-action]");
+      const tr = event.target.closest("tr");
+
+      if (!btn) return;
+
+      if (btn.dataset.action === "delete") {
+        const id = tr.dataset[this.idAttr];
+        const accept = confirm(`Удалить ${this.entityName} ID: ${id}`);
+        if (!accept) return;
+
+        try {
+          const success = await this.Service.delete(id);
+          if (success) tr.remove();
+        } catch (error) {
+          console.error("Возникла ошибка при удалении: ", error);
+        }
+      }
+    };
+
+    this.tbody.addEventListener("click", this.boundClickHandler);
   }
 
   removeEventListeners() {
-    console.warn("removeGlobalEventListeners() must be implemented");
+    if (this.boundClickHandler) {
+      this.tbody.removeEventListener("click", this.boundClickHandler);
+    }
   }
 
   destroy() {
