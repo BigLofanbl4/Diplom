@@ -24,6 +24,11 @@ class StudentBase(BaseModel):
     phone: str
     model_config = ConfigDict(from_attributes=True)
 
+class CourseBase(BaseModel):
+    title: str
+    description: Optional[str] = None
+    model_config = ConfigDict(from_attributes=True)
+
 # =========== SIMPLE ===========
 class TeacherSimple(TeacherBase):
     id: int
@@ -32,6 +37,9 @@ class GroupSimple(GroupBase):
     id: int
 
 class StudentSimple(StudentBase):
+    id: int
+
+class CourseSimple(CourseBase):
     id: int
 
 # =========== CREATE ===========
@@ -45,6 +53,39 @@ class GroupCreate(GroupBase):
 
 class StudentCreate(StudentBase):
     group_ids: Optional[List[int]] = []
+
+class CourseCreate(CourseBase):
+    pass
+
+class CourseModuleBase(BaseModel):
+    title: str
+    module_number: int
+    course_id: int
+    model_config = ConfigDict(from_attributes=True)
+
+class CourseLessonBase(BaseModel):
+    title: str
+    lesson_number: int
+    description: Optional[str] = None
+    course_id: int
+    module_id: Optional[int] = None
+    model_config = ConfigDict(from_attributes=True)
+
+class CourseMaterialBase(BaseModel):
+    homework_file: Optional[str] = None
+    homework_text: Optional[str] = None
+    course_id: int
+    lesson_id: int
+    model_config = ConfigDict(from_attributes=True)
+
+class CourseModuleCreate(CourseModuleBase):
+    pass
+
+class CourseLessonCreate(CourseLessonBase):
+    pass
+
+class CourseMaterialCreate(CourseMaterialBase):
+    pass
 
 # =========== UPDATE ===========
 class TeacherUpdate(BaseModel):
@@ -71,6 +112,32 @@ class StudentUpdate(BaseModel):
     group_ids: Optional[List[int]] = None
     model_config = ConfigDict(from_attributes=True)
 
+class CourseUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    model_config = ConfigDict(from_attributes=True)
+
+class CourseModuleUpdate(BaseModel):
+    title: Optional[str] = None
+    module_number: Optional[int] = None
+    course_id: Optional[int] = None
+    model_config = ConfigDict(from_attributes=True)
+
+class CourseLessonUpdate(BaseModel):
+    title: Optional[str] = None
+    lesson_number: Optional[int] = None
+    description: Optional[str] = None
+    course_id: Optional[int] = None
+    module_id: Optional[int] = None
+    model_config = ConfigDict(from_attributes=True)
+
+class CourseMaterialUpdate(BaseModel):
+    homework_file: Optional[str] = None
+    homework_text: Optional[str] = None
+    course_id: Optional[int] = None
+    lesson_id: Optional[int] = None
+    model_config = ConfigDict(from_attributes=True)
+
 # =========== OUT ===========
 class TeacherOut(TeacherSimple):
     groups: List[GroupSimple] = []
@@ -82,8 +149,18 @@ class GroupOut(GroupSimple):
 class StudentOut(StudentSimple):
     groups: List[GroupSimple] = []
 
+class CourseModuleSimple(CourseModuleBase):
+    id: int
 
+class CourseLessonSimple(CourseLessonBase):
+    id: int
 
+class CourseMaterialSimple(CourseMaterialBase):
+    id: int
+
+class CourseOut(CourseSimple):
+    modules: List[CourseModuleSimple] = []
+    lessons: List[CourseLessonSimple] = []
 
 
 
