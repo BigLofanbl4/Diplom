@@ -25,5 +25,6 @@ dist-ssr
 
 backend/database.db
 backend/__pycache__
+app/__pycache__
 
 .vite/
