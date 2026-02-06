@@ -1,0 +1,121 @@
+.createBtn {
+  background: var(--cl-primary);
+  color: #fff;
+  font-family: var(--primary-font);
+  font-size: var(--fz-400);
+  font-weight: 600;
+  padding: var(--pd-200) var(--pd-400);
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all 0.4s;
+}
+
+.createBtn:hover {
+  background: var(--cl-primary-hover);
+}
+
+.btn {
+  padding: var(--pd-300) var(--pd-600);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--fz-300);
+  font-weight: 600;
+  font-family: var(--primary-font);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+}
+
+.btn-primary {
+  background-color: var(--cl-primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--cl-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+  background-color: var(--cl-bg-secondary);
+  color: var(--cl-text-secondary);
+  border: 2px solid var(--cl-border-medium);
+}
+
+.btn-secondary:hover {
+  background-color: var(--cl-bg-tertiary);
+  border-color: var(--cl-border-strong);
+  color: var(--cl-text-primary);
+}
+
+.btn-danger {
+  background-color: var(--cl-danger-medium);
+  color: var(--cl-surface);
+}
+
+.btn-danger:hover {
+  background-color: var(--cl-danger);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+/* Icon-only buttons */
+.modules__item-btn,
+.lesson__item-btn,
+.modules__create-btn {
+  min-width: auto;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modules__item-btn,
+.lesson__item-btn {
+  border: 1px solid var(--cl-border-light);
+  background: var(--cl-surface);
+  color: var(--cl-text-secondary);
+}
+
+.modules__item-btn:hover,
+.lesson__item-btn:hover {
+  background: var(--cl-bg-secondary);
+  border-color: var(--cl-border-strong);
+  color: var(--cl-text-primary);
+}
+
+.btn-danger.modules__item-btn,
+.btn-danger.lesson__item-btn {
+  color: var(--cl-danger);
+}
+
+.btn-danger.modules__item-btn:hover,
+.btn-danger.lesson__item-btn:hover {
+  background: var(--cl-danger-light);
+  border-color: var(--cl-danger-medium);
+  color: var(--cl-danger);
+}
+
+.modules__create-btn {
+  border-radius: 999px;
+  min-width: 36px;
+  background: var(--cl-primary);
+  color: var(--cl-surface);
+  border: none;
+}
+
+.modules__create-btn:hover {
+  background: var(--cl-primary-hover);
+  box-shadow: var(--shadow-sm);
+}

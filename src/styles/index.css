@@ -1,0 +1,10 @@
+@import './01-variables.css';
+@import './02-reset.css';
+@import './03-base.css';
+@import './layout.css';
+@import './table.css';
+@import './buttons.css';
+@import './cards.css';
+@import './forms.css';
+@import './multiselect.css';
+@import './course.css';

@@ -1,0 +1,172 @@
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 var(--pd-400);
+}
+
+/* Шапка */
+.header {
+  background-color: var(--cl-surface);
+  border-bottom: 1px solid var(--cl-border-light);
+  padding: var(--pd-400) 0;
+  margin-bottom: var(--mg-600);
+  box-shadow: var(--shadow-sm);
+}
+
+.header .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header__logo h3 a {
+  color: var(--cl-text-primary);
+  font-size: var(--fz-600);
+  font-weight: 700;
+  margin: 0;
+}
+
+.account {
+  display: flex;
+  align-items: center;
+  gap: var(--mg-400);
+}
+
+.account__profile {
+  color: var(--cl-text-secondary);
+  font-weight: 500;
+  padding: var(--pd-200) var(--pd-400);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.account__profile:hover {
+  background-color: var(--cl-bg-secondary);
+  color: var(--cl-text-primary);
+}
+
+.account__logout {
+  color: var(--cl-danger);
+  font-size: var(--fz-200);
+  font-weight: 500;
+  padding: var(--pd-200) var(--pd-400);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.account__logout:hover {
+  background-color: var(--cl-danger-light);
+  color: var(--cl-danger);
+}
+
+/* Основной контент */
+main {
+  padding: 0 var(--pd-400);
+}
+
+main .container {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--mg-700);
+  padding: 0;
+}
+
+/* Боковая навигация */
+.app__nav {
+  background: var(--cl-surface);
+  flex: 0 0 280px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.app__nav-title {
+  padding: var(--pd-500);
+  background-color: var(--cl-bg-secondary);
+  border-bottom: 1px solid var(--cl-border-light);
+  margin: 0;
+  font-size: var(--fz-400);
+  font-weight: 600;
+  color: var(--cl-text-primary);
+}
+
+.app__menu {
+  list-style: none;
+  padding: var(--pd-300);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mg-100);
+}
+
+.app__menu a {
+  text-decoration: none;
+  display: block;
+  width: 100%;
+  padding: var(--pd-300) var(--pd-400);
+  color: var(--cl-text-secondary);
+  transition: all var(--transition-fast);
+  font-size: var(--fz-300);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+}
+
+.app__menu a:hover {
+  background-color: var(--cl-primary-light);
+  color: var(--cl-primary);
+}
+
+.app__menu a.active {
+  background-color: var(--cl-primary);
+  color: white;
+}
+
+#component {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 1200px) {
+  main .container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .app__nav {
+    flex: none;
+    width: 100%;
+  }
+
+  #component {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .app__nav {
+    margin-bottom: var(--mg-500);
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 var(--pd-200);
+  }
+
+  .header {
+    padding: var(--pd-300) 0;
+  }
+
+  .header__logo h3 {
+    font-size: var(--fz-500);
+  }
+
+  .account {
+    gap: var(--mg-200);
+  }
+
+  .account__profile,
+  .account__logout {
+    padding: var(--pd-200) var(--pd-300);
+    font-size: var(--fz-200);
+  }
+}

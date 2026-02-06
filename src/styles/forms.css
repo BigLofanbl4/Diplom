@@ -1,0 +1,143 @@
+/* Стили форм */
+.teacher-form,
+.student-form {
+  background: var(--cl-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--pd-700);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--mg-500);
+  margin-bottom: var(--mg-700);
+  align-items: start;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  font-size: var(--fz-200);
+  font-weight: 600;
+  color: var(--cl-text-primary);
+  margin-bottom: var(--mg-200);
+}
+
+.form-error {
+  color: var(--cl-danger);
+  font-size: var(--fz-100);
+  display: none;
+}
+
+.form-input.invalid + .form-error,
+.form-select.invalid + .error {
+  display: block;
+}
+
+.form-input,
+.form-select {
+  width: 100%;
+  min-width: 0;
+  padding: var(--pd-300) var(--pd-400);
+  border: 2px solid var(--cl-border-light);
+  border-radius: var(--radius-md);
+  font-size: var(--fz-300);
+  font-family: var(--primary-font);
+  background: var(--cl-surface);
+  color: var(--cl-text-primary);
+  transition: all var(--transition-fast);
+}
+
+textarea.form-input {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-input.invalid,
+.form-select.invalid {
+  border-color: var(--cl-danger);
+}
+
+.form-input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: var(--cl-primary);
+  box-shadow: 0 0 0 3px var(--cl-primary-light);
+}
+
+.form-input::placeholder {
+  color: var(--cl-text-muted);
+}
+
+.form-select {
+  cursor: pointer;
+}
+
+.form-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--mg-200);
+  padding-top: var(--pd-300);
+}
+
+.form-checkbox-input {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--cl-border-medium);
+  border-radius: var(--radius-sm);
+  accent-color: var(--cl-primary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.form-checkbox-input:checked {
+  background-color: var(--cl-primary);
+  border-color: var(--cl-primary);
+}
+
+.form-checkbox-label {
+  font-size: var(--fz-300);
+  font-weight: 500;
+  color: var(--cl-text-primary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.form-actions {
+  display: flex;
+  gap: var(--mg-400);
+  justify-content: flex-end;
+  padding-top: var(--pd-500);
+  border-top: 1px solid var(--cl-border-light);
+  grid-column: 1 / -1;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Адаптивность для форм */
+@media (max-width: 768px) {
+  .teacher-form,
+  .student-form {
+    padding: var(--pd-500);
+    margin: var(--mg-400);
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: var(--mg-400);
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}

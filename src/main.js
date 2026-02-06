@@ -1,4 +1,4 @@
-import './style.css'
+import './styles/index.css'
 import { Router } from "./router";
 import { AdminLayout } from "./layouts/AdminLayout";
 import TeachersTable from './components/admin_teachers/TeachersTable';

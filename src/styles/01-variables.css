@@ -1,0 +1,92 @@
+:root {
+  --cl-bg-primary: #F7F8FA;
+  --cl-bg-secondary: #F1F3F6;
+  --cl-bg-tertiary: #E7EBF0;
+
+  --cl-surface: #FFFFFF;
+  --cl-surface-elevated: #FFFFFF;
+
+  --cl-border-light: #E3E7EE;
+  --cl-border-medium: #CDD5E0;
+  --cl-border-strong: #A9B4C4;
+
+  --cl-primary: #4E6FB8;
+  --cl-primary-hover: #415FA4;
+  --cl-primary-light: #EFF3FB;
+  --cl-primary-soft: #DEE6F7;
+
+  --cl-secondary: #64748B;
+  --cl-secondary-hover: #475569;
+
+  --cl-text-primary: #1E293B;
+  --cl-text-secondary: #475569;
+  --cl-text-muted: #64748B;
+  --cl-text-disabled: #94A3B8;
+
+  --cl-success: #2F8A6A;
+  --cl-success-light: #DCEFE7;
+
+  --cl-warning: #C9821A;
+  --cl-warning-light: #F7E9CC;
+
+  --cl-danger: #D05C59;
+  --cl-danger-medium: #E07A77;
+  --cl-danger-light: #F6E2E1;
+
+  --cl-info: #3B8DB3;
+  --cl-info-light: #DDEBF5;
+
+  /* Тени */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+  /* Типографика */
+  --primary-font: "Inter", "Roboto", -apple-system, BlinkMacSystemFont, sans-serif;
+  --heading-font: "Inter", "Merriweather Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono-font: "JetBrains Mono", "Fira Code", monospace;
+
+  --fz-100: 1.2rem; /* 12px - мелкие подписи, метки */
+  --fz-200: 1.4rem; /* 14px - вспомогательный текст */
+  --fz-300: 1.6rem; /* 16px - БАЗОВЫЙ РАЗМЕР (body text) */
+  --fz-400: 1.8rem; /* 18px - увеличенный текст */
+  --fz-500: 2.0rem; /* 20px - подзаголовки */
+  --fz-600: 2.4rem; /* 24px - H4 / заголовки карточек */
+  --fz-700: 2.8rem; /* 28px - H3 / средние заголовки */
+  --fz-800: 3.2rem; /* 32px - H2 / крупные заголовки */
+  --fz-900: 4.0rem; /* 40px - H1 / главный заголовок */
+  --fz-1000: 4.8rem; /* 48px - H1 на десктопе */
+
+  /* Отступы и размеры */
+  --pd-100: 0.4rem;  /* 4px  - микро-отступы */
+  --pd-200: 0.8rem;  /* 8px  - маленькие отступы */
+  --pd-300: 1.2rem;  /* 12px - стандартные маленькие */
+  --pd-400: 1.6rem;  /* 16px - БАЗОВЫЙ отступ */
+  --pd-500: 2.0rem;  /* 20px */
+  --pd-600: 2.4rem;  /* 24px */
+  --pd-700: 2.8rem;  /* 28px */
+  --pd-800: 3.2rem;  /* 32px */
+  --pd-900: 4.0rem;  /* 40px - крупные отступы */
+
+  --mg-100: 0.4rem;  /* 4px  */
+  --mg-200: 0.8rem;  /* 8px  */
+  --mg-300: 1.2rem;  /* 12px */
+  --mg-400: 1.6rem;  /* 16px - БАЗОВЫЙ межэлементный */
+  --mg-500: 2.0rem;  /* 20px */
+  --mg-600: 2.4rem;  /* 24px */
+  --mg-700: 2.8rem;  /* 28px */
+  --mg-800: 3.2rem;  /* 32px */
+  --mg-900: 4.0rem;  /* 40px */
+
+  /* Радиусы скругления */
+  --radius-sm: 0.4rem;
+  --radius-md: 0.6rem;
+  --radius-lg: 0.8rem;
+  --radius-xl: 1.2rem;
+
+  /* Переходы */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 350ms ease;
+}
