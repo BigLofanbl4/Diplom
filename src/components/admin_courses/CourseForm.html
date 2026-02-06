@@ -1,0 +1,19 @@
+<form class="student-form">
+    <div class="form-grid">
+        <div class="form-group">
+            <label for="title" class="form-label">Название курса</label>
+            <input type="text" id="title" name="title" class="form-input" required>
+            <span class="form-error">Название курса обязательно для заполнения</span>
+        </div>
+
+        <div class="form-group">
+            <label for="description" class="form-label">Описание курса</label>
+            <textarea id="description" name="description" class="form-input" style="resize: vertical;"></textarea>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary" data-action="submit">Сохранить</button>
+            <button type="button" class="btn btn-secondary" data-action="cancel">Отмена</button>
+        </div>
+    </div>
+</form>

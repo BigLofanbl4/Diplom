@@ -21,6 +21,13 @@ class CourseCard {
       <footer class="card__footer">
           <a href="/admin/courses/${this.cardData.id}" class="btn btn-primary" data-spa-link data-course-link>Перейти на страницу курса</a>
           <button class="btn btn-primary" data-action="delete">Удалить курс</button>
+          <a href="/admin/courses/update/${this.cardData.id}" 
+             class="btn btn-primary"
+             data-spa-link
+             data-action="update"
+             title="Редактировать">
+            Редактировать курс
+          </a>
       </footer>
     </article>
    `

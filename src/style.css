@@ -699,7 +699,8 @@ main .container {
 }
 
 /* Стили форм */
-.teacher-form {
+.teacher-form,
+.student-form {
   background: var(--cl-surface);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
@@ -713,6 +714,7 @@ main .container {
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: var(--mg-500);
   margin-bottom: var(--mg-700);
+  align-items: start;
 }
 
 .form-group {
@@ -740,6 +742,8 @@ main .container {
 
 .form-input,
 .form-select {
+  width: 100%;
+  min-width: 0;
   padding: var(--pd-300) var(--pd-400);
   border: 2px solid var(--cl-border-light);
   border-radius: var(--radius-md);
@@ -748,6 +752,11 @@ main .container {
   background: var(--cl-surface);
   color: var(--cl-text-primary);
   transition: all var(--transition-fast);
+}
+
+textarea.form-input {
+  min-height: 120px;
+  resize: vertical;
 }
 
 .form-input.invalid,
@@ -806,6 +815,9 @@ main .container {
   justify-content: flex-end;
   padding-top: var(--pd-500);
   border-top: 1px solid var(--cl-border-light);
+  grid-column: 1 / -1;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .btn {
@@ -853,7 +865,8 @@ main .container {
 
 /* Адаптивность для форм */
 @media (max-width: 768px) {
-  .teacher-form {
+  .teacher-form,
+  .student-form {
     padding: var(--pd-500);
     margin: var(--mg-400);
   }
@@ -873,6 +886,7 @@ main .container {
 }
 
 .ms {
+  width: 100%;
   max-width: 100%;
   position: relative;
 }
