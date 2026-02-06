@@ -32,7 +32,7 @@ class CourseCard {
       if (!courseCard) return;
       const id = Number(courseCard.dataset.courseId);
       if (e.target.dataset.action === "delete") {
-        const success = await CourseService.deleteCourse(id);
+        const success = await CourseService.delete(id);
         if (success) courseCard.remove();
       }
     });
@@ -50,7 +50,7 @@ export default class CoursesList extends CardListComponent {
 
   async fetchCardData() {
     try {
-      this.cardsData = await CourseService.getAllCourses();
+      this.cardsData = await CourseService.getAll();
     } catch (error) {
       console.error(error);
     }

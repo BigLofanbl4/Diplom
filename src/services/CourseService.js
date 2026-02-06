@@ -1,17 +1,15 @@
 import BaseService from './BaseService';
 
 export default class CourseService extends BaseService {
-  // ======= COURSES =======
-
-  static async getAllCourses() {
+  static async getAll() {
     return this.request("/courses");
   }
 
-  static async getCourseById(id) {
+  static async getById(id) {
     return this.request(`/courses/${id}`);
   }
 
-  static async createCourse(course) {
+  static async create(course) {
     return this.request(
       `/courses`,
       {
@@ -20,7 +18,7 @@ export default class CourseService extends BaseService {
       });
   }
 
-  static async updateCourse(id, course) {
+  static async update(id, course) {
     return this.request(
       `/courses/${id}`,
       {
@@ -30,74 +28,7 @@ export default class CourseService extends BaseService {
     );
   }
 
-  static async deleteCourse(id) {
+  static async delete(id) {
     return this.request(`/courses/${id}`, { method: "DELETE" });
-  }
-
-  // ======= MODULES =======
-
-  static async getAllCourseModules() {
-    return this.request("/course-modules");
-  }
-
-  static async getCourseModuleById(id) {
-    return this.request(`/course-modules/${id}`);
-  }
-
-  static async createCourseModule(module) {
-    return this.request(
-      `/course-modules`,
-      {
-        method: "POST",
-        body: JSON.stringify(module),
-      }
-    );
-  }
-
-  static async updateCourseModule(id, module) {
-    return this.request(
-      `/course-modules/${id}`,
-      {
-        method: "PATCH",
-        body: JSON.stringify(module),
-      }
-    )
-  }
-
-  static async deleteCourseModule(id) {
-    return this.request(`/course-modules/${id}`, { method: "DELETE" });
-  }
-
-  // ======= LESSONS =======
-
-  static async getAllCourseLessons() {
-    return this.request("/course-lessons");
-  }
-
-  static async getCourseLessonById(id) {
-    return this.request(`/course-lessons/${id}`);
-  }
-
-  static async createCourseLesson(lesson) {
-    return this.request(
-      '/course-lessons',
-      {
-        method: "POST",
-        body: JSON.stringify(lesson),
-      }
-    )
-  }
-
-  static async updateCourseLesson(id, lesson) {
-    return this.request(
-      `/course-lessons/${id}`,
-      {
-        method: "PATCH",
-        body: JSON.stringify(lesson),
-      })
-  }
-
-  static async deleteCourseLesson(id) {
-    return this.request(`/course-lessons/${id}`, { method: "DELETE" });
   }
 }
