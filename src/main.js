@@ -9,6 +9,7 @@ import GroupsTable from './components/admin_groups/GroupsTable';
 import GroupForm from './components/admin_groups/GroupForm';
 import CoursesList from "./components/admin_courses/CoursesList.js";
 import CourseForm from "./components/admin_courses/CourseForm.js";
+import CoursePage from "./components/admin_courses/CoursePage.js";
 
 const ROUTES = {
   "/admin": {
@@ -61,6 +62,10 @@ const ROUTES = {
   "/admin/courses/update/:id": {
     Layout: AdminLayout,
     Component: CourseForm
+  },
+  "/admin/courses/:id": {
+    Layout: AdminLayout,
+    Component: CoursePage
   }
 };
 
