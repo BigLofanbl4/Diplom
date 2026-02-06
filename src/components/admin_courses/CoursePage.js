@@ -33,7 +33,7 @@ export default class CoursePage {
 
     this.modulesContainer.addEventListener("click", (e) => {
       const target = e.target;
-      if (!target.dataset.action && target.closest(".modules__item-top")) {
+      if (!target.closest("[data-action]") && target.closest(".modules__item-top")) {
         const moduleContainer = target.closest("[data-module-id]");
         if (!moduleContainer) return;
         moduleContainer.dataset.lessonsHidden = moduleContainer.dataset.lessonsHidden === "true" ? "false" : "true";

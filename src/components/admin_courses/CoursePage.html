@@ -1,13 +1,20 @@
 <article class="course">
   <header class="course__header">
+    <h1 class="course__header-title">Курс ID: 1</h1>
     <form class="course__general-form" id="course-general-form">
       <div class="form-group course__general-form-group">
         <label for="course-title">Изменить название:</label>
-        <input type="text" value="Курс Frontend-разработка" id="course-title" name="title" class="course__title">
+        <input
+          type="text"
+          value="Курс Frontend-разработка"
+          id="course-title"
+          name="title"
+          class="course__title"
+        >
       </div>
       <div class="form-group course__general-form-group">
         <label for="course-description">Изменить описание:</label>
-        <textarea  class="course__description" id="course-description" name="description">Курс по HTML, CSS, JS, Vue.js</textarea>
+        <textarea class="course__description" id="course-description" name="description">Курс по HTML, CSS, JS, Vue.js</textarea>
       </div>
       <div class="course__general-form-controls">
         <button class="btn btn-primary" data-action="save">Сохранить</button>
@@ -15,77 +22,94 @@
       </div>
     </form>
   </header>
-  <div class="course__modules modules">
-    <ul class="course__modules-items modules__items">
-      <li class="course__modules-item modules__item" data-module-id="1" data-lessons-hidden="true">
-        <div class="course__module-item-top modules__item-top">
-          <h4 class="course__module-item-name modules__item-name">
-            <span class="modules__item-number">Модуль 1:</span>
-            <span class="modules__item-title">Введение в HTML</span>
-          </h4>
-          <div class="modules__item-controls">
-            <button class="btn btn-danger modules__item-delete-btn" data-action="delete">Удалить</button>
-            <button class="btn btn-secondary modules__item-edit-btn" data-action="update">Редактировать</button>
-            <button class="course__module-item-dropdown modules__item-dropdown">
-              <i class="fa-solid fa-caret-down"></i>
-            </button>
-          </div>
-
-        </div>
-        <div class="lessons-wrap">
-          <ul class="course__module-item-lessons lessons">
-            <li class="course__module-item-lesson lessons__item" data-lesson-id="1">
-              <h5 class="course__module-item-lesson-name lessons__item-name">
-                <span class="lessons__item-number">Урок 1:</span>
-                <span class="lessons-lits__item-title">Что такое HTML?</span>
-              </h5>
-              <p class="lessons__item-desc">Узнаем, что такое HTML и выучим первые теги!</p>
-              <div class="lessons__item-badges">
-              <span class="lessons__item-badge lessons__item-badge-danger">
-                <i class="fa-regular fa-rectangle-list"></i>
-                Отсутствуют тесты
-              </span>
-                <span class="lessons__item-badge lessons__item-badge-danger">
-                <i class="fa-regular fa-file-lines"></i>
-                Отсутствуют материалы
-              </span>
-              </div>
-              <div class="lessons__item-controls">
-                <button class="btn btn-secondary lessons__item-edit-btn">Редактировать</button>
-                <button class="btn btn-danger lessons__item-del-btn" data-action="delete">Удалить</button>
-              </div>
-            </li>
-            <li class="course__module-item-lesson lessons__item" data-lesson-id="1">
-              <h5 class="course__module-item-lesson-name lessons__item-name">
-                <span class="lessons__item-number">Урок 1:</span>
-                <span class="lessons-lits__item-title">Что такое HTML?</span>
-              </h5>
-              <p class="lessons__item-desc">Узнаем, что такое HTML и выучим первые теги!</p>
-              <div class="lessons__item-badges">
-              <span class="lessons__item-badge lessons__item-badge-danger">
-                <i class="fa-regular fa-rectangle-list"></i>
-                Отсутствуют тесты
-              </span>
-                <span class="lessons__item-badge lessons__item-badge-danger">
-                <i class="fa-regular fa-file-lines"></i>
-                Отсутствуют материалы
-              </span>
-              </div>
-              <div class="lessons__item-controls">
-                <button class="btn btn-secondary lessons__item-edit-btn">Редактировать</button>
-                <button class="btn btn-danger lessons__item-del-btn" data-action="delete">Удалить</button>
-              </div>
-            </li>
-          </ul>
-          <div class="lessons-controls">
-            <button class="btn btn-primary lessons-controls__create-btn">Создать урок</button>
-          </div>
-        </div>
-
-      </li>
-    </ul>
+  <div class="modules-wrap">
     <div class="modules__controls">
-      <button class="btn btn-primary" data-action="create">Создать модуль</button>
+      <h2>Модули</h2>
+      <button class="btn btn-primary modules__create-btn" data-action="create">
+        <i class="fa-solid fa-plus"></i>
+      </button>
+    </div>
+    <div class="course__modules modules">
+      <ul class="course__modules-items modules__items">
+        <li class="course__modules-item modules__item" data-module-id="1" data-lessons-hidden="true">
+          <div class="course__module-item-top modules__item-top">
+            <h4 class="course__module-item-name modules__item-name">
+              <span class="modules__item-number">Модуль 1:</span>
+              <span class="modules__item-title">Введение в HTML</span>
+            </h4>
+            <div class="modules__item-controls">
+              <button class="btn btn-secondary modules__item-edit-btn modules__item-btn" data-action="update">
+                <i class="fa-solid fa-pen"></i>
+              </button>
+              <button class="btn btn-danger modules__item-delete-btn modules__item-btn" data-action="delete">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+              <button class="course__module-item-dropdown modules__item-dropdown">
+                <i class="fa-solid fa-caret-down"></i>
+              </button>
+            </div>
+          </div>
+          <div class="lessons-wrap">
+            <ul class="course__module-item-lessons lessons">
+              <li class="course__module-item-lesson lessons__item" data-lesson-id="1">
+                <h5 class="course__module-item-lesson-name lessons__item-name">
+                  <span class="lessons__item-number">Урок 1:</span>
+                  <span class="lessons-lits__item-title">Что такое HTML?</span>
+                </h5>
+                <p class="lessons__item-desc">Узнаем, что такое HTML и выучим первые теги!</p>
+                <div class="lessons__item-badges">
+                  <span class="lessons__item-badge lessons__item-badge-danger">
+                    <i class="fa-regular fa-rectangle-list"></i>
+                    Отсутствуют тесты
+                  </span>
+                  <span class="lessons__item-badge lessons__item-badge-danger">
+                    <i class="fa-regular fa-file-lines"></i>
+                    Отсутствуют материалы
+                  </span>
+                </div>
+                <div class="lessons__item-controls">
+                  <button class="btn btn-secondary lessons__item-edit-btn lesson__item-btn">
+                    <i class="fa-solid fa-pen"></i>
+                  </button>
+                  <button class="btn btn-danger lessons__item-del-btn lesson__item-btn" data-action="delete">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </li>
+              <li class="course__module-item-lesson lessons__item" data-lesson-id="1">
+                <h5 class="course__module-item-lesson-name lessons__item-name">
+                  <span class="lessons__item-number">Урок 1:</span>
+                  <span class="lessons-lits__item-title">Что такое HTML?</span>
+                </h5>
+                <p class="lessons__item-desc">Узнаем, что такое HTML и выучим первые теги!</p>
+                <div class="lessons__item-badges">
+                  <span class="lessons__item-badge lessons__item-badge-danger">
+                    <i class="fa-regular fa-rectangle-list"></i>
+                    Отсутствуют тесты
+                  </span>
+                  <span class="lessons__item-badge lessons__item-badge-danger">
+                    <i class="fa-regular fa-file-lines"></i>
+                    Отсутствуют материалы
+                  </span>
+                </div>
+                <div class="lessons__item-controls">
+                  <button class="btn btn-secondary lessons__item-edit-btn lesson__item-btn">
+                    <i class="fa-solid fa-pen"></i>
+                  </button>
+                  <button class="btn btn-danger lessons__item-del-btn lesson__item-btn" data-action="delete">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </li>
+            </ul>
+            <div class="lessons-controls">
+              <button class="btn btn-primary lessons-controls__create-btn">
+                Создать урок
+              </button>
+            </div>
+          </div>
+        </li>
+      </ul>
     </div>
   </div>
 </article>
