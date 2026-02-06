@@ -613,6 +613,91 @@ main .container {
   background: var(--cl-primary-hover);
 }
 
+/* Карточные списки */
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mg-400);
+}
+
+.cards__controls {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.cards__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mg-400);
+}
+
+.cards__list-empty-title {
+  color: var(--cl-text-disabled);
+  text-align: center;
+  font-weight: 500;
+}
+
+.card {
+  width: 100%;
+  background: var(--cl-surface);
+  border: 1px solid var(--cl-border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--pd-600);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mg-300);
+}
+
+.card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--mg-400);
+  flex-wrap: wrap;
+}
+
+.card__title {
+  font-size: var(--fz-600);
+  font-weight: 600;
+}
+
+.card__badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--mg-200);
+}
+
+.card__badge {
+  background: var(--cl-primary-light);
+  color: var(--cl-primary);
+  padding: var(--pd-100) var(--pd-300);
+  border-radius: var(--radius-xl);
+  font-size: var(--fz-200);
+  font-weight: 600;
+}
+
+.card__description {
+  color: var(--cl-text-secondary);
+  font-size: var(--fz-300);
+}
+
+.card__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--mg-200);
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: var(--pd-500);
+  }
+
+  .card__footer .btn {
+    width: 100%;
+  }
+}
+
 /* Стили форм */
 .teacher-form {
   background: var(--cl-surface);
@@ -947,4 +1032,3 @@ main .container {
     transform: translateY(0);
   }
 }
-

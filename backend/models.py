@@ -112,6 +112,5 @@ class CourseMaterial(Base):
     course_id: Mapped[int] = mapped_column(ForeignKey("courses.id", ondelete="CASCADE"), nullable=False)
     lesson_id: Mapped[int] = mapped_column(ForeignKey("course_lessons.id", ondelete="CASCADE"), nullable=False)
 
-    files: Mapped[list["File"]] = relationship("File", back_populates='material', cascade="all, delete-orphan")
     course: Mapped["Course"] = relationship("Course", back_populates="materials")
     lesson: Mapped["CourseLesson"] = relationship("CourseLesson", back_populates="materials")
