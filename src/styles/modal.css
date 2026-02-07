@@ -1,0 +1,105 @@
+@keyframes modalBgShow {
+    from {
+        opacity: 0;
+        background: rgba(0,0,0,0.0);
+    }
+
+    to {
+        opacity: 1;
+        background: rgba(0,0,0,0.3);
+    }
+}
+
+@keyframes modalContentSlide {
+    from {
+        transform: translateY(-100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes modalBgHide {
+    from { opacity: 1; background: rgba(0,0,0,0.3); }
+    to   { opacity: 0; background: rgba(0,0,0,0); }
+}
+
+@keyframes modalContentHide {
+    from { transform: translateY(0); }
+    to   { transform: translateY(-100%); }
+}
+
+.modal {
+    background: rgba(0,0,0,0.0);
+    position: fixed;
+    justify-content: center;
+    align-items: center;
+    inset: 0;
+    z-index: 10;
+    transition: all var(--transition-normal);
+    overflow: hidden;
+    display: flex;
+}
+
+.modal[data-hidden="false"] {
+    animation-name: modalBgShow;
+    animation-duration: 0.3s;
+    animation-iteration-count: 1;
+    animation-timing-function: ease;
+    animation-fill-mode: forwards;
+}
+
+.modal[data-hidden="true"] {
+    opacity: 0;
+    visibility: hidden;
+    animation-name: modalBgHide;
+    animation-duration: 0.3s;
+    animation-iteration-count: 1;
+    animation-timing-function: ease;
+    animation-fill-mode: forwards;
+}
+
+.modal__content {
+    background: var(--cl-surface);
+    padding: var(--pd-600) var(--pd-900);
+    padding-right: 60px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--mg-700);
+    position: relative;
+}
+
+.modal[data-hidden="false"] .modal__content {
+    animation-name: modalContentSlide;
+    animation-duration: 0.3s;
+    animation-iteration-count: 1;
+    animation-timing-function: ease;
+}
+
+.modal[data-hidden="true"] .modal__content {
+    animation-name: modalContentHide;
+    animation-duration: 0.3s;
+    animation-iteration-count: 1;
+    animation-timing-function: ease;
+}
+
+.modal__top {
+    gap: var(--mg-400);
+}
+
+.modal__title {
+    text-align: center;
+}
+
+.modal__close-btn {
+    background: none;
+    border: none;
+    font-size: var(--fz-500);
+    cursor: pointer;
+    position: absolute;
+    right: 15px;
+    top: 15px;
+}
