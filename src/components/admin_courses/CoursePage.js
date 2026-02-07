@@ -1,4 +1,4 @@
-import { CoursePageTemplate } from "./CoursePage.template.js";
+import {CoursePageTemplate} from "./CoursePage.template.js";
 import ModuleForm from "./ModuleForm";
 import LessonForm from "./LessonForm";
 import ModalWithComponent from "../common/ModalWithComponent/ModalWithComponent";
@@ -75,7 +75,7 @@ function moduleRenderer(module, lessons, isModuleHidden = true) {
 }
 
 export default class CoursePage {
-  constructor({ id }) {
+  constructor({id}) {
     this.template = null;
     this.id = Number(id);
     this.data = {};
@@ -89,8 +89,7 @@ export default class CoursePage {
     try {
       this.data = await CourseService.getById(this.id);
       console.log(this.data);
-    }
-    catch (error) {
+    } catch (error) {
       console.error(error);
     }
   }
@@ -174,7 +173,7 @@ export default class CoursePage {
         moduleContainer.dataset.lessonsHidden = moduleContainer.dataset.lessonsHidden === "true" ? "false" : "true";
       }
 
-      if (target.closest("[data-module-id]") && target.closest('[data-action="update"]')) {
+      if (target.closest("[data-module-id]") && target.closest('[data-action="update"]') && !target.closest('[data-lesson-id]')) {
         const moduleId = Number(target.closest("[data-module-id]").dataset.moduleId);
         const modalInstance = new ModalWithComponent({
           Component: ModuleForm,
@@ -193,7 +192,7 @@ export default class CoursePage {
         await modalInstance.draw();
       }
 
-      if (target.closest("[data-module-id]") && target.closest('[data-action="delete"]')) {
+      if (target.closest("[data-module-id]") && target.closest('[data-action="delete"]') && !target.closest('[data-lesson-id]')) {
         const moduleContainer = target.closest('[data-module-id]');
         const moduleId = Number(target.closest("[data-module-id]").dataset.moduleId);
 
