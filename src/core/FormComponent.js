@@ -1,5 +1,5 @@
 export default class FormComponent {
-  constructor(Service, mode = "create", id = null) {
+  constructor({Service, mode = "create", id = null, containerElementId = "component"}) {
     if (new.target === FormComponent) {
       throw new Error("FormComponent is an abstract class and cannot be instantiated directly");
     }
@@ -9,9 +9,12 @@ export default class FormComponent {
     this.mode = mode;
     this.template = "";
     this.data = {};
-    this.successUrl = "";
+    this.successHandler = null;
+    this.cancelHandler = null;
     this.boundHandler = null;
     this.form = null;
+    this.containerElementId = containerElementId;
+    this.containerElement = null;
   }
 
   async draw() {
@@ -32,12 +35,14 @@ export default class FormComponent {
   }
 
   mount() {
-    const componentContainer = document.getElementById("component");
-    componentContainer.innerHTML = this.template;
-    this.form = componentContainer.querySelector("form");
+    this.containerElement = document.getElementById(this.containerElementId);
+    if (!this.containerElement) return;
+    this.containerElement.innerHTML = this.template;
+    this.form = this.containerElement.querySelector("form");
   }
 
-  initCustomFields() {}
+  initCustomFields() {
+  }
 
   async fetchData() {
     if (this.id && this.Service) {
@@ -55,7 +60,7 @@ export default class FormComponent {
       const input = this.form.elements[key];
       if (input) {
         if (input.type === "checkbox") input.checked = value
-        else input.value = value || ""; 
+        else input.value = value || "";
       }
     }
   }
@@ -90,7 +95,7 @@ export default class FormComponent {
   handleEvents() {
     this.boundHandler = async (event) => {
       if (event.target.closest("[data-action='cancel']")) {
-        window.router.back();
+        if (this.cancelHandler) this.cancelHandler();
       } else if (event.target.closest("[data-action='submit']")) {
         event.preventDefault();
         const formData = this.getFormData();
@@ -99,7 +104,7 @@ export default class FormComponent {
           return;
         }
         await this.submit(formData);
-        if (this.successUrl) window.router.navigate(this.successUrl);
+        if (this.successHandler) this.successHandler();
       }
     };
 
@@ -141,8 +146,11 @@ export default class FormComponent {
   }
 
   destroy() {
-    const componentContainer = document.getElementById("component");
-    componentContainer.innerHTML = "";
+    if (this.containerElement.getAttribute("id") !== "component") {
+      this.containerElement.remove();
+    } else {
+      this.containerElement.innerHTML = "";
+    }
 
     this.removeEventListeners();
   }
