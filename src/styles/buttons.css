@@ -68,9 +68,9 @@
 }
 
 /* Icon-only buttons */
-.modules__item-btn,
-.lesson__item-btn,
-.modules__create-btn {
+.course-module__action-btn,
+.course-lesson__action-btn,
+.course-modules__add-btn {
   min-width: auto;
   width: 36px;
   height: 36px;
@@ -81,33 +81,33 @@
   justify-content: center;
 }
 
-.modules__item-btn,
-.lesson__item-btn {
+.course-module__action-btn,
+.course-lesson__action-btn {
   border: 1px solid var(--cl-border-light);
   background: var(--cl-surface);
   color: var(--cl-text-secondary);
 }
 
-.modules__item-btn:hover,
-.lesson__item-btn:hover {
+.course-module__action-btn:hover,
+.course-lesson__action-btn:hover {
   background: var(--cl-bg-secondary);
   border-color: var(--cl-border-strong);
   color: var(--cl-text-primary);
 }
 
-.btn-danger.modules__item-btn,
-.btn-danger.lesson__item-btn {
+.btn-danger.course-module__action-btn,
+.btn-danger.course-lesson__action-btn {
   color: var(--cl-danger);
 }
 
-.btn-danger.modules__item-btn:hover,
-.btn-danger.lesson__item-btn:hover {
+.btn-danger.course-module__action-btn:hover,
+.btn-danger.course-lesson__action-btn:hover {
   background: var(--cl-danger-light);
   border-color: var(--cl-danger-medium);
   color: var(--cl-danger);
 }
 
-.modules__create-btn {
+.course-modules__add-btn {
   border-radius: 999px;
   min-width: 36px;
   background: var(--cl-primary);
@@ -115,7 +115,7 @@
   border: none;
 }
 
-.modules__create-btn:hover {
+.course-modules__add-btn:hover {
   background: var(--cl-primary-hover);
   box-shadow: var(--shadow-sm);
 }

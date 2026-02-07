@@ -15,7 +15,7 @@ export default class CoursePage {
     const componentContainer = document.getElementById("component");
     componentContainer.innerHTML = this.template;
     this.generalForm = componentContainer.querySelector("#course-general-form");
-    this.modulesContainer = componentContainer.querySelector(".course__modules");
+    this.modulesContainer = componentContainer.querySelector(".course-modules__body");
   }
 
   handleEvents() {
@@ -33,7 +33,7 @@ export default class CoursePage {
 
     this.modulesContainer.addEventListener("click", (e) => {
       const target = e.target;
-      if (!target.closest("[data-action]") && target.closest(".modules__item-top")) {
+      if (!target.closest("[data-action]") && target.closest(".course-module__header")) {
         const moduleContainer = target.closest("[data-module-id]");
         if (!moduleContainer) return;
         moduleContainer.dataset.lessonsHidden = moduleContainer.dataset.lessonsHidden === "true" ? "false" : "true";
@@ -51,4 +51,3 @@ export default class CoursePage {
     componentContainer.innerHTML = "";
   }
 }
-

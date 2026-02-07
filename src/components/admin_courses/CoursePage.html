@@ -22,88 +22,88 @@
       </div>
     </form>
   </header>
-  <div class="modules-wrap">
-    <div class="modules__controls">
+  <div class="course-modules">
+    <div class="course-modules__header">
       <h2>Модули</h2>
-      <button class="btn btn-primary modules__create-btn" data-action="create">
+      <button class="btn btn-primary course-modules__add-btn" data-action="create">
         <i class="fa-solid fa-plus"></i>
       </button>
     </div>
-    <div class="course__modules modules">
-      <ul class="course__modules-items modules__items">
-        <li class="course__modules-item modules__item" data-module-id="1" data-lessons-hidden="true">
-          <div class="course__module-item-top modules__item-top">
-            <h4 class="course__module-item-name modules__item-name">
-              <span class="modules__item-number">Модуль 1:</span>
-              <span class="modules__item-title">Введение в HTML</span>
+    <div class="course-modules__body">
+      <ul class="course-modules__list">
+        <li class="course-module" data-module-id="1" data-lessons-hidden="true">
+          <div class="course-module__header">
+            <h4 class="course-module__title">
+              <span class="course-module__number">Модуль 1:</span>
+              <span class="course-module__name">Введение в HTML</span>
             </h4>
-            <div class="modules__item-controls">
-              <button class="btn btn-secondary modules__item-edit-btn modules__item-btn" data-action="update">
+            <div class="course-module__actions">
+              <button class="btn btn-secondary course-module__edit-btn course-module__action-btn" data-action="update">
                 <i class="fa-solid fa-pen"></i>
               </button>
-              <button class="btn btn-danger modules__item-delete-btn modules__item-btn" data-action="delete">
+              <button class="btn btn-danger course-module__delete-btn course-module__action-btn" data-action="delete">
                 <i class="fa-solid fa-trash"></i>
               </button>
-              <button class="course__module-item-dropdown modules__item-dropdown">
+              <button class="course-module__toggle">
                 <i class="fa-solid fa-caret-down"></i>
               </button>
             </div>
           </div>
-          <div class="lessons-wrap">
-            <ul class="course__module-item-lessons lessons">
-              <li class="course__module-item-lesson lessons__item" data-lesson-id="1">
-                <h5 class="course__module-item-lesson-name lessons__item-name">
-                  <span class="lessons__item-number">Урок 1:</span>
-                  <span class="lessons-lits__item-title">Что такое HTML?</span>
+          <div class="course-lessons">
+            <ul class="course-lessons__list">
+              <li class="course-lesson" data-lesson-id="1">
+                <h5 class="course-lesson__title">
+                  <span class="course-lesson__number">Урок 1:</span>
+                  <span class="course-lesson__name">Что такое HTML?</span>
                 </h5>
-                <p class="lessons__item-desc">Узнаем, что такое HTML и выучим первые теги!</p>
-                <div class="lessons__item-badges">
-                  <span class="lessons__item-badge lessons__item-badge-danger">
+                <p class="course-lesson__desc">Узнаем, что такое HTML и выучим первые теги!</p>
+                <div class="course-lesson__badges">
+                  <span class="course-lesson__badge course-lesson__badge--danger">
                     <i class="fa-regular fa-rectangle-list"></i>
                     Отсутствуют тесты
                   </span>
-                  <span class="lessons__item-badge lessons__item-badge-danger">
+                  <span class="course-lesson__badge course-lesson__badge--danger">
                     <i class="fa-regular fa-file-lines"></i>
                     Отсутствуют материалы
                   </span>
                 </div>
-                <div class="lessons__item-controls">
-                  <button class="btn btn-secondary lessons__item-edit-btn lesson__item-btn">
+                <div class="course-lesson__actions">
+                  <button class="btn btn-secondary course-lesson__edit-btn course-lesson__action-btn">
                     <i class="fa-solid fa-pen"></i>
                   </button>
-                  <button class="btn btn-danger lessons__item-del-btn lesson__item-btn" data-action="delete">
+                  <button class="btn btn-danger course-lesson__delete-btn course-lesson__action-btn" data-action="delete">
                     <i class="fa-solid fa-trash"></i>
                   </button>
                 </div>
               </li>
-              <li class="course__module-item-lesson lessons__item" data-lesson-id="1">
-                <h5 class="course__module-item-lesson-name lessons__item-name">
-                  <span class="lessons__item-number">Урок 1:</span>
-                  <span class="lessons-lits__item-title">Что такое HTML?</span>
+              <li class="course-lesson" data-lesson-id="1">
+                <h5 class="course-lesson__title">
+                  <span class="course-lesson__number">Урок 1:</span>
+                  <span class="course-lesson__name">Что такое HTML?</span>
                 </h5>
-                <p class="lessons__item-desc">Узнаем, что такое HTML и выучим первые теги!</p>
-                <div class="lessons__item-badges">
-                  <span class="lessons__item-badge lessons__item-badge-danger">
+                <p class="course-lesson__desc">Узнаем, что такое HTML и выучим первые теги!</p>
+                <div class="course-lesson__badges">
+                  <span class="course-lesson__badge course-lesson__badge--danger">
                     <i class="fa-regular fa-rectangle-list"></i>
                     Отсутствуют тесты
                   </span>
-                  <span class="lessons__item-badge lessons__item-badge-danger">
+                  <span class="course-lesson__badge course-lesson__badge--danger">
                     <i class="fa-regular fa-file-lines"></i>
                     Отсутствуют материалы
                   </span>
                 </div>
-                <div class="lessons__item-controls">
-                  <button class="btn btn-secondary lessons__item-edit-btn lesson__item-btn">
+                <div class="course-lesson__actions">
+                  <button class="btn btn-secondary course-lesson__edit-btn course-lesson__action-btn">
                     <i class="fa-solid fa-pen"></i>
                   </button>
-                  <button class="btn btn-danger lessons__item-del-btn lesson__item-btn" data-action="delete">
+                  <button class="btn btn-danger course-lesson__delete-btn course-lesson__action-btn" data-action="delete">
                     <i class="fa-solid fa-trash"></i>
                   </button>
                 </div>
               </li>
             </ul>
-            <div class="lessons-controls">
-              <button class="btn btn-primary lessons-controls__create-btn">
+            <div class="course-lessons__controls">
+              <button class="btn btn-primary course-lessons__add-btn">
                 Создать урок
               </button>
             </div>
