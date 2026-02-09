@@ -17,14 +17,13 @@ export default class TeacherForm extends SelectFormComponent {
       },
     ];
 
-    super({ Service: TeacherService, id, msConfigs });
+    super({ Service: TeacherService, id, msConfigs});
     this.template = template;
+    this.successUrl = "/admin/teachers";
+    this.cancelUrl = "/admin/teachers";
 
-    const defaultSuccessHandler = () => window.router.navigate("/admin/teachers");
-    const defaultCancelHandler = () => window.router.navigate("/admin/teachers");
-
-    this.successHandler = successHandler ? successHandler : defaultSuccessHandler;
-    this.cancelHandler = cancelHandler ? cancelHandler : defaultCancelHandler;
+    this.successHandler = successHandler ? successHandler : this.successHandler;
+    this.cancelHandler = cancelHandler ? cancelHandler : this.cancelHandler;
   }
 
   mount() {

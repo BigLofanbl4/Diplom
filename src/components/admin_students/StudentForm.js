@@ -19,10 +19,10 @@ export default class StudentForm extends SelectFormComponent {
 
     super({ Service: StudentService, id, msConfigs });
     this.template = template;
-    const defaultSuccessHandler = () => window.router.navigate("/admin/students");
-    const defaultCancelHandler = () => window.router.navigate("/admin/students");
+    this.successUrl = "/admin/students";
+    this.cancelUrl = "/admin/students";
 
-    this.successHandler = successHandler ? successHandler : defaultSuccessHandler;
-    this.cancelHandler = cancelHandler ? cancelHandler : defaultCancelHandler;
+    this.successHandler = successHandler ? successHandler : this.successHandler;
+    this.cancelHandler = cancelHandler ? cancelHandler : this.cancelHandler;
   }
 }

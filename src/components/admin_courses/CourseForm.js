@@ -7,10 +7,10 @@ export default class CourseForm extends FormComponent {
     const mode = id ? "update" : "create";
     super({Service: CourseService, mode, id});
     this.template = template;
-    const defaultSuccessHandler = () => window.router.navigate("/admin/courses");
-    const defaultCancelHandler = () => window.router.navigate("/admin/courses");
+    this.successUrl = "/admin/courses";
+    this.cancelUrl = "/admin/courses";
 
-    this.successHandler = successHandler ? successHandler : defaultSuccessHandler;
-    this.cancelHandler = cancelHandler ? cancelHandler : defaultCancelHandler;
+    this.successHandler = successHandler ? successHandler : this.successHandler;
+    this.cancelHandler = cancelHandler ? cancelHandler : this.cancelHandler;
   }
 }

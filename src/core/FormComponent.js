@@ -1,7 +1,9 @@
+import FormValidator from "./FormValidator";
+
 export default class FormComponent {
-  constructor({Service, mode = "create", id = null, containerElementId = "component"}) {
+  constructor({Service, mode = "create", id = null, containerElementId = "component" }) {
     if (new.target === FormComponent) {
-      throw new Error("FormComponent is an abstract class and cannot be instantiated directly");
+      throw new Error('FormComponent is an abstract class and cannot be instantiated directly');
     }
 
     this.id = id;
@@ -9,18 +11,35 @@ export default class FormComponent {
     this.mode = mode;
     this.template = "";
     this.data = {};
-    this.successHandler = null;
-    this.cancelHandler = null;
-    this.boundHandler = null;
+
+    this.successUrl = null;
+    this.cancelUrl = null;
+    this.successHandler = () => {
+      if (this.successUrl) window.router.navigate(this.successUrl)
+    };
+    this.cancelHandler = () => {
+      if (this.cancelUrl) window.router.navigate(this.cancelUrl)
+    };
+
+    this.boundClickHandler = null;
+    this.boundSubmitHandler = null;
+
     this.form = null;
     this.containerElementId = containerElementId;
     this.containerElement = null;
+
+    this.validatorClass = FormValidator;
+    this.validator = null;
   }
 
   async draw() {
     await this.fetchData();
     this.render();
     this.mount();
+    if (!this.form) {
+      alert("Ошибка при загрузке формы!");
+      throw new Error("Произошла ошибка при загрузке формы!");
+    }
     if (this.id && this.mode === "update") {
       this.setFormValues();
     }
@@ -39,10 +58,10 @@ export default class FormComponent {
     if (!this.containerElement) return;
     this.containerElement.innerHTML = this.template;
     this.form = this.containerElement.querySelector("form");
+    this.validator = new this.validatorClass(this.form);
   }
 
-  initCustomFields() {
-  }
+  initCustomFields() {}
 
   async fetchData() {
     if (this.id && this.Service) {
@@ -80,12 +99,13 @@ export default class FormComponent {
         const cleanKey = key.slice(0, -2);
         data[cleanKey] = value;
       } else {
+        const value = formData.get(key);
         if (element.type === "checkbox") {
           data[key] = element.checked;
         } else if (element.type === "number") {
-          data[key] = Number(formData.get(key));
+          data[key] = value === "" ? null : Number(value);
         } else {
-          data[key] = formData.get(key);
+          data[key] = value;
         }
       }
     });
@@ -93,65 +113,59 @@ export default class FormComponent {
   }
 
   handleEvents() {
-    this.boundHandler = async (event) => {
+    this.boundClickHandler = async (event) => {
       if (event.target.closest("[data-action='cancel']")) {
-        if (this.cancelHandler) this.cancelHandler();
-      } else if (event.target.closest("[data-action='submit']")) {
         event.preventDefault();
-        const formData = this.getFormData();
-        if (!this.isFormValid()) {
-          this.highlightInvalidFields();
-          return;
-        }
-        await this.submit(formData);
-        if (this.successHandler) this.successHandler();
+        if (this.cancelHandler) this.cancelHandler();
       }
     };
 
-    this.form.addEventListener("click", this.boundHandler);
+    this.boundSubmitHandler = async (event) => {
+      event.preventDefault();
+      const formData = this.getFormData();
+      if (!this.isFormValid()) {
+        this.highlightInvalidFields();
+        return;
+      }
+      try {
+        await this.submit(formData);
+        this.successHandler?.();
+      } catch (error) {
+        alert("Произошла ошибка при отправке формы");
+        this.cancelHandler?.();
+      }
+    }
+
+    this.form.addEventListener("submit", this.boundSubmitHandler);
+    this.form.addEventListener("click", this.boundClickHandler);
   }
 
   removeEventListeners() {
-    this.form.removeEventListener("click", this.boundHandler);
+    if (!this.form) return;
+    this.form.removeEventListener("submit", this.boundSubmitHandler);
+    this.form.removeEventListener("click", this.boundClickHandler);
   }
 
   isFormValid() {
-    return this.form.checkValidity();
+    return this.validator.isValid();
   }
 
   highlightInvalidFields() {
-    const fields = Array.from(this.form.elements);
-    fields.forEach((field) => {
-      if (!field.name && !field.validity.valid) {
-        field.classList.add("invalid");
-      } else {
-        field.classList.remove("invalid");
-      }
-    });
-
-    this.form.reportValidity();
+    this.validator.highlightInvalidFields();
   }
 
   async submit(data) {
-    try {
-      if (this.mode === "create") {
-        await this.Service.create(data);
-      } else if (this.mode === "update") {
-        await this.Service.update(this.id, data);
-      }
-    } catch (error) {
-      // Уведомление об ошибке
-      console.error("Ошибка отправки данных:", error);
+    if (this.mode === "create") {
+      await this.Service.create(data);
+    } else if (this.mode === "update") {
+      await this.Service.update(this.id, data);
     }
   }
 
   destroy() {
-    if (this.containerElement.getAttribute("id") !== "component") {
-      this.containerElement.remove();
-    } else {
+    if (this.containerElement) {
       this.containerElement.innerHTML = "";
     }
-
     this.removeEventListeners();
   }
 }

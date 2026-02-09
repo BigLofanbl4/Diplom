@@ -15,11 +15,11 @@ export default class LessonForm extends FormComponent {
     super({Service: LessonService, id, mode, containerElementId});
     this.template = template;
 
-    const defaultSuccessHandler = () => window.router.navigate("/admin/lessons");
-    const defaultCancelHandler = () => window.router.navigate("/admin/lessons");
+    this.successUrl = "/admin/lessons";
+    this.cancelUrl = "/admin/lessons";
 
-    this.successHandler = successHandler ? successHandler : defaultSuccessHandler;
-    this.cancelHandler = cancelHandler ? cancelHandler : defaultCancelHandler;
+    this.successHandler = successHandler ? successHandler : this.successHandler;
+    this.cancelHandler = cancelHandler ? cancelHandler : this.cancelHandler;
 
     this.moduleId = moduleId;
     this.courseId = courseId;

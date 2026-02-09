@@ -8,11 +8,11 @@ export default class ModuleForm extends FormComponent {
     super({Service: ModuleService, mode, id, containerElementId});
     this.template = template;
 
-    const defaultSuccessHandler = () => window.router.navigate("/admin/modules");
-    const defaultCancelHandler = () => window.router.navigate("/admin/modules");
+    this.successUrl = "/admin/modules";
+    this.cancelUrl = "/admin/modules";
 
-    this.successHandler = successHandler ? successHandler : defaultSuccessHandler;
-    this.cancelHandler = cancelHandler ? cancelHandler : defaultCancelHandler;
+    this.successHandler = successHandler ? successHandler : this.successHandler;
+    this.cancelHandler = cancelHandler ? cancelHandler : this.cancelHandler;
 
     this.courseId = courseId;
   }

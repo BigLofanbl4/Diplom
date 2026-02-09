@@ -84,16 +84,11 @@ export default class SelectFormComponent extends FormComponent {
   }
 
   async submit(formData) {
-    try {
-      if (this.mode === "create") {
-        await this.Service.create(formData);
-      } else if (this.mode === "update") {
-        const payload = this._calculateDiff(this.data, formData);
-        await this.Service.update(this.id, payload);
-      }
-    } catch (error) {
-      // Уведомление об ошибке
-      console.error("Ошибка отправки данных:", error);
+    if (this.mode === "create") {
+      await this.Service.create(formData);
+    } else if (this.mode === "update") {
+      const payload = this._calculateDiff(this.data, formData);
+      await this.Service.update(this.id, payload);
     }
   }
 }

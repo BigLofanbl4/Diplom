@@ -37,7 +37,7 @@ function lessonRenderer(lesson) {
   `
 }
 
-function moduleRenderer(module, lessons, isModuleHidden = true) {
+function moduleRenderer(module, lessons) {
   const moduleLessons = lessons.filter(lesson => module.id === lesson.module_id);
   const lessonsHTML = moduleLessons.map(lesson => lessonRenderer(lesson)).join("");
   console.log(module);
