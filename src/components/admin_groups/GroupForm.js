@@ -7,7 +7,7 @@ export default class GroupForm extends SelectFormComponent {
   constructor({ id = null, successHandler = null, cancelHandler = null, containerElement = null }) {
     const msConfigs = [
       {
-        elementId: "ms",
+        dataKey: "students",
         listService: StudentService,
         dataField: "students",
         listKey: "student_ids",

@@ -1,19 +1,20 @@
 export default class MultiSelect {
   constructor(
-    element,
+    container = null,
     options = [],
     defaultOptions = [],
     placeholder = "Поиск",
     name = "",
     required = false
   ) {
-    this.container = typeof (element) === "string" ? document.getElementById(element) : element;
+    this.container = container;
     this.options = options;
-    this.defaultOptions = defaultOptions;
     this.selected = new Set(defaultOptions.map(v => v.value));
     this.placeholder = placeholder;
     this.name = name;
     this.required = required;
+    this._onOutsideClick = null;
+    this._onMouseDown = null;
 
     this.init();
   }
@@ -25,7 +26,25 @@ export default class MultiSelect {
     this._bindEvents();
   }
 
+  getSelectedValues() {
+    return Array.from(this.selected);
+  }
+
+  destroy() {
+    if (this._onOutsideClick) {
+      document.removeEventListener("click", this._onOutsideClick);
+      this._onOutsideClick = null;
+    }
+
+    if (!this.container) return;
+    this.container.removeEventListener("click", this._onMouseDown);
+    this.container.remove();
+    this.container = null;
+    this._onMouseDown = null;
+  }
+
   _renderLayout() {
+    if (!this.container) throw new Error("Отсутствует контейнер для мультиселекта");
     this.container.innerHTML = `
       <div class="ms">
         <select name="${this.name}" multiple style="display: none;" ${this.required ? "required" : ""}></select>
@@ -45,10 +64,14 @@ export default class MultiSelect {
     this.input = this.container.querySelector(".ms__input");
   }
 
-  _renderSelected() {
+
+  _clearSelected() {
     this.valuesContainer.querySelectorAll(".ms__value").forEach(el => el.remove());
     this.hiddenSelect.innerHTML = "";
+  }
 
+  _renderSelected() {
+    this._clearSelected();
     this.options.forEach(opt => {
       if (this.selected.has(opt.value)) {
         const chip = document.createElement("span");
@@ -85,6 +108,12 @@ export default class MultiSelect {
   }
 
   _bindEvents() {
+    this._handleInput();
+    this._handleSelect();
+    this._handleClose();
+  }
+
+  _handleInput() {
     this.input.addEventListener("input", (e) => this._renderDropdown(e.target.value.trim()));
     this.input.addEventListener("focus", () => this._renderDropdown());
     this.input.addEventListener("keydown", (e) => {
@@ -95,15 +124,19 @@ export default class MultiSelect {
         this._renderDropdown();
       }
     });
+  }
 
+  _handleClose() {
     this._onOutsideClick = (e) => {
       if (!this.container.contains(e.target)) {
         this.optionsContainer.style.display = "none";
       }
     }
     document.addEventListener("click", this._onOutsideClick);
+  }
 
-    this.container.addEventListener("mousedown", (e) => {
+  _handleSelect() {
+    this._onMouseDown = (e) => {
       const optionEl = e.target.closest(".ms__option");
       const chipEl = e.target.closest(".ms__value");
 
@@ -121,14 +154,8 @@ export default class MultiSelect {
         this.selected.delete(Number(val) || val);
         this._renderSelected();
       }
-    });
-  }
+    }
 
-  getSelectedValues() {
-    return Array.from(this.selected);
-  }
-
-  destroy() {
-    document.removeEventListener("click", this._onOutsideClick);
+    this.container.addEventListener("mousedown", this._onMouseDown);
   }
 }

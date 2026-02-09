@@ -37,8 +37,9 @@ export default class SelectFormComponent extends FormComponent {
         text: config.label(entity)
       }));
 
+      const msContainer = this.form.querySelector(`[data-ms=${config.dataKey}]`);
       new MultiSelect(
-        config.elementId,
+        msContainer,
         options,
         defaultOptions,
         config.placeholder,
