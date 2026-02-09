@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from typing import Annotated
 from ..database import get_db
 from sqlalchemy.orm import Session
-from ..schemas import TokenOut
+from ..schemas import UserOut, TokenOut
 from ..utils.auth import decode_jwt, encode_jwt
 from ..repositories import TeacherRepository, AdminRepository
 from jwt.exceptions import InvalidTokenError
@@ -16,19 +16,17 @@ from ..utils.security import verify_password
 router = APIRouter(prefix="/auth", tags=["auth"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
-@router.post('/current_user')
+
 def get_current_user(
         token: Annotated[str, Depends(oauth2_scheme)],
         db: Annotated[Session, Depends(get_db)]
 ):
-    print(token)
     try:
         data = decode_jwt(token)
     except InvalidTokenError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"invalid token error",
-            # detail=f"invalid token error",
         )
     if not token:
         raise HTTPException(
@@ -36,10 +34,22 @@ def get_current_user(
         )
     if data['is_admin']:
         admin = AdminRepository(db).get_admin(admin_id=data["sub"])
-        return admin
+        return admin, 'admin'
 
     teacher = TeacherRepository(db).get_teacher(teacher_id=data["sub"])
-    return teacher
+    return teacher, 'teacher'
+
+@router.get('/current_user', response_model=UserOut)
+def current_user(
+        answer = Depends(get_current_user),
+):
+    user, role = answer
+    return UserOut(
+        id = user.id,
+        username = user.login,
+        organization_id = user.organization_id,
+        role = role
+    )
 
 
 @router.post("/login", response_model=TokenOut)

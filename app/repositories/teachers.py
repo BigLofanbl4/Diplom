@@ -1,9 +1,10 @@
 from datetime import date
 
-from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import select
-from app.models.teachers import Teacher
+from sqlalchemy.orm import Session, selectinload
+
 import app.utils.security as security
+from app.models.teachers import Teacher
 
 
 class TeacherRepository:
@@ -31,7 +32,6 @@ class TeacherRepository:
         self.db.delete(teacher)
         self.db.commit()
 
-
     def get_teacher(self, teacher_login: str = None, teacher_id: int = None):
         if teacher_id is not None:
             teacher = self.db.get(Teacher, teacher_id)
@@ -43,11 +43,6 @@ class TeacherRepository:
             if teacher is not None:
                 return teacher
         return None
-
-    def list(self):
-        stmt = select(Teacher)
-        teachers = self.db.scalars(stmt).all()
-        return teachers
 
     def verify_password(self, login: str, password: str):
         stmt = select(Teacher).where(Teacher.login == login)

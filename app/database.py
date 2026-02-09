@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import os
-
+from .config import settings
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 # Default to a local SQLite database; override with DATABASE_URL env if needed.
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./app.db")
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", settings.db.url)
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,

@@ -15,7 +15,7 @@ def index():
 
 
 @router.post('/register')
-def register(data: Annotated[TeacherCreate, Form()], db: Session = Depends(get_db)) -> bool:
+def register_teacher(data: Annotated[TeacherCreate, Form()], db: Session = Depends(get_db)) -> bool:
     TeacherRepository(db).create(
         data.login,
         data.password,
@@ -29,17 +29,17 @@ def register(data: Annotated[TeacherCreate, Form()], db: Session = Depends(get_d
     return True
 
 
-@router.post('/list/{teacher_id)')
-def register(data: Annotated[TeacherCreate, Form()], db: Session = Depends(get_db)) -> bool:
-    TeacherRepository(db).create(
-        data.login,
-        data.password,
-        data.organization_id,
-        data.first_name,
-        data.last_name,
-        data.birth_date,
-        data.phone
-    )
-
-    return True
-
+# @router.post('/list/{teacher_id)')
+# def register(data: Annotated[TeacherCreate, Form()], db: Session = Depends(get_db)) -> bool:
+#     TeacherRepository(db).create(
+#         data.login,
+#         data.password,
+#         data.organization_id,
+#         data.first_name,
+#         data.last_name,
+#         data.birth_date,
+#         data.phone
+#     )
+#
+#     return True
+#

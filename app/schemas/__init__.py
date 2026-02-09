@@ -43,7 +43,8 @@ from app.schemas.students import (
     StudentUpdate,
 )
 from app.schemas.teachers import TeacherCreate, TeacherOut, TeacherSimple, TeacherUpdate
-from app.schemas.auth import TokenOut
+from app.schemas.auth import UserOut, TokenOut
+
 __all__ = [
     "AdminCreate",
     "AdminOut",
@@ -90,5 +91,6 @@ __all__ = [
     "TeacherRef",
     "TeacherSimple",
     "TeacherUpdate",
+    "UserOut",
     "TokenOut"
 ]

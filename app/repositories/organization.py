@@ -1,14 +1,16 @@
-from sqlalchemy.orm import Session
 from sqlalchemy import select
-from app.models.organization import Organization, Admin
+from sqlalchemy.orm import Session, selectinload
+
 import app.utils.security as security
+from app.models import Teacher
+from app.models.organization import Organization, Admin
 
 
 class OrganizationRepository:
     def __init__(self, db: Session):
         self.db = db
 
-    def create (self, legal_address: str, payment_start_date, payment_end_date):
+    def create(self, legal_address: str, payment_start_date, payment_end_date):
         organization = Organization(
             payment_start_date=payment_start_date,
             payment_end_date=payment_end_date,
@@ -21,6 +23,18 @@ class OrganizationRepository:
         org = self.db.get(Organization, organization_id)
         self.db.delete(org)
         self.db.commit()
+
+    def get_organization(self, organization_id: int) -> Organization | None:
+        org = self.db.get(Organization, organization_id)
+        if org is not None:
+            return org
+        return None
+
+    def get_all_teachers(self, organization_id: int) -> list[Teacher] | None:
+        stmt = select(Organization).where(Organization.id == organization_id).options(
+            selectinload(Organization.teachers))
+        org = self.db.scalar(stmt)
+        return org.teachers
 
 
 class AdminRepository:
@@ -43,7 +57,7 @@ class AdminRepository:
         self.db.commit()
 
     def get_admin(self, admin_login: str = None, admin_id: int = None):
-        if admin_login is not None:
+        if admin_id is not None:
             teacher = self.db.get(Admin, admin_id)
             if teacher is not None:
                 return teacher
@@ -53,7 +67,6 @@ class AdminRepository:
             if teacher is not None:
                 return teacher
         return None
-
 
     def delete(self, admin_id: int):
         admin = self.db.get(Admin, admin_id)
@@ -69,4 +82,3 @@ class AdminRepository:
 
     def update_password(self, login: str, new_password: str):
         pass
-
