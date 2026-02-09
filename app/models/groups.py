@@ -8,7 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 
 if TYPE_CHECKING:
-    from .courses import CourseModule, Course
+    from .courses import Course, CourseModule
     from .teachers import Teacher
     from .students import Student, StudentHomework
 

@@ -1,11 +1,12 @@
 from typing import Union
-from ..routers import organization, groups, courses, students, teachers
+from ..api import organization, groups, courses, students, teachers, auth
 from fastapi import APIRouter
 
-app = APIRouter(prefix="/api/v1", tags=["api"])
-app.include_router(organization.router)
-app.include_router(groups.router)
-app.include_router(courses.router)
-app.include_router(students.router)
-app.include_router(teachers.router)
+router = APIRouter(prefix="/api/v1", tags=["api"])
+router.include_router(organization.router)
+router.include_router(groups.router)
+router.include_router(courses.router)
+router.include_router(students.router)
+router.include_router(teachers.router)
+router.include_router(auth.router)
 

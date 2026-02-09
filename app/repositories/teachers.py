@@ -1,3 +1,5 @@
+from datetime import date
+
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import select
 from app.models.teachers import Teacher
@@ -10,7 +12,7 @@ class TeacherRepository:
 
     def create(self, login: str, password: str,
                organization_id: int, first_name: str,
-               last_name: str, age: int, phone: str=None):
+               last_name: str, birth_date: date | None = None, phone: str | None = None):
         hashed_password = security.hash_password(password)
         teacher = Teacher(
             login=login,
@@ -18,7 +20,7 @@ class TeacherRepository:
             organization_id=organization_id,
             first_name=first_name,
             last_name=last_name,
-            age=age,
+            birth_date=birth_date,
             phone=phone
         )
         self.db.add(teacher)
@@ -30,15 +32,31 @@ class TeacherRepository:
         self.db.commit()
 
 
+    def get_teacher(self, teacher_login: str = None, teacher_id: int = None):
+        if teacher_id is not None:
+            teacher = self.db.get(Teacher, teacher_id)
+            if teacher is not None:
+                return teacher
+        elif teacher_login is not None:
+            stmt = select(Teacher).where(Teacher.login == teacher_login)
+            teacher = self.db.scalar(stmt)
+            if teacher is not None:
+                return teacher
+        return None
+
     def list(self):
         stmt = select(Teacher)
-        admins = self.db.scalars(stmt).all()
-        return admins
+        teachers = self.db.scalars(stmt).all()
+        return teachers
 
     def verify_password(self, login: str, password: str):
         stmt = select(Teacher).where(Teacher.login == login)
-        admin = self.db.scalar(stmt)
-        return security.verify_password(password, admin.password_hash)
+        teacher = self.db.scalar(stmt)
+        if teacher is None:
+            return False
+        if security.verify_password(password, teacher.password_hash):
+            return teacher
+        return False
 
     def update_password(self, login: str, new_password: str):
         pass

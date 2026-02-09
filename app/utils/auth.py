@@ -1,11 +1,6 @@
-from datetime import datetime, timedelta
-
+from datetime import datetime, timedelta, timezone
 import jwt
-
-from core.config import settings
-
-# >>> private_key = b"-----BEGIN PRIVATE KEY-----\nMIGEAgEAMBAGByqGSM49AgEGBS..."
-# >>> public_key = b"-----BEGIN PUBLIC KEY-----\nMHYwEAYHKoZIzj0CAQYFK4EEAC..."
+from app.config import settings
 
 
 def encode_jwt(
@@ -16,7 +11,7 @@ def encode_jwt(
     expire_timedelta: timedelta | None = None,
 ) -> str:
     to_encode = payload.copy()
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     if expire_timedelta:
         expire = now + expire_timedelta
     else:
@@ -46,19 +41,3 @@ def decode_jwt(
     return decoded
 
 
-def hash_password(
-    password: str,
-) -> bytes:
-    salt = bcrypt.gensalt()
-    pwd_bytes: bytes = password.encode()
-    return bcrypt.hashpw(pwd_bytes, salt)
-
-
-def validate_password(
-    password: str,
-    hashed_password: bytes,
-) -> bool:
-    return bcrypt.checkpw(
-        password=password.encode(),
-        hashed_password=hashed_password,
-    )

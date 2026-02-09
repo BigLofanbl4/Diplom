@@ -2,38 +2,51 @@ from __future__ import annotations
 
 from datetime import date
 
-from sqlalchemy import Date, ForeignKey, String, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from pydantic import BaseModel, ConfigDict, Field
 
-from app.database import Base
-
-
-class Organization(Base):
-    __tablename__ = "organizations"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    legal_address: Mapped[str] = mapped_column(String(255), nullable=False)
-    payment_start_date: Mapped[date | None] = mapped_column(Date, nullable=True)
-    payment_end_date: Mapped[date | None] = mapped_column(Date, nullable=True)
-
-    admins: Mapped[list["Admin"]] = relationship(
-        "Admin", back_populates="organization", cascade="all, delete-orphan"
-    )
-    teachers: Mapped[list["Teacher"]] = relationship(
-        "Teacher", back_populates="organization", cascade="all, delete-orphan"
-    )
+from app.schemas.refs import AdminRef, TeacherRef
 
 
-class Admin(Base):
-    __tablename__ = "admins"
+class OrganizationBase(BaseModel):
+    legal_address: str
+    payment_start_date: date | None = None
+    payment_end_date: date | None = None
+    model_config = ConfigDict(from_attributes=True)
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    login: Mapped[str] = mapped_column(String(100), nullable=False)
-    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
-    organization_id: Mapped[int] = mapped_column(
-        ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False
-    )
 
-    organization: Mapped["Organization"] = relationship("Organization", back_populates="admins")
+class OrganizationCreate(OrganizationBase):
+    pass
 
-    __table_args__ = (UniqueConstraint("organization_id", "login", name="uq_admin_login_org"),)
+
+class OrganizationUpdate(BaseModel):
+    legal_address: str | None = None
+    payment_start_date: date | None = None
+    payment_end_date: date | None = None
+    model_config = ConfigDict(from_attributes=True)
+
+
+class OrganizationOut(OrganizationBase):
+    id: int
+    admins: list[AdminRef] = Field(default_factory=list)
+    teachers: list[TeacherRef] = Field(default_factory=list)
+
+
+class AdminBase(BaseModel):
+    login: str
+    organization_id: int
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AdminCreate(AdminBase):
+    password: str
+
+
+class AdminUpdate(BaseModel):
+    login: str | None = None
+    password: str | None = None
+    organization_id: int | None = None
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AdminOut(AdminBase):
+    id: int

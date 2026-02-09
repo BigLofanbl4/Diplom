@@ -42,16 +42,31 @@ class AdminRepository:
         self.db.add(admin)
         self.db.commit()
 
+    def get_admin(self, admin_login: str = None, admin_id: int = None):
+        if admin_login is not None:
+            teacher = self.db.get(Admin, admin_id)
+            if teacher is not None:
+                return teacher
+        elif admin_login is not None:
+            stmt = select(Admin).where(Admin.login == admin_login)
+            teacher = self.db.scalar(stmt)
+            if teacher is not None:
+                return teacher
+        return None
+
+
     def delete(self, admin_id: int):
         admin = self.db.get(Admin, admin_id)
         self.db.delete(admin)
+        self.db.commit()
 
     def verify_password(self, login: str, password: str):
         stmt = select(Admin).where(Admin.login == login)
         admin = self.db.scalar(stmt)
-        return security.verify_password(password, admin.password)
+        if admin is None:
+            return False
+        return security.verify_password(password, admin.password_hash)
 
     def update_password(self, login: str, new_password: str):
         pass
-
 
