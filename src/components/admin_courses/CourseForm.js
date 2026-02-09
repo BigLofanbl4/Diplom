@@ -3,9 +3,9 @@ import FormComponent from "../../core/FormComponent";
 import CourseService from "../../services/CourseService";
 
 export default class CourseForm extends FormComponent {
-  constructor({ id = null, successHandler = null, cancelHandler = null  }) {
+  constructor({ id = null, successHandler = null, cancelHandler = null, containerElement = null  }) {
     const mode = id ? "update" : "create";
-    super({Service: CourseService, mode, id});
+    super({Service: CourseService, mode, id, containerElement});
     this.template = template;
     this.successUrl = "/admin/courses";
     this.cancelUrl = "/admin/courses";

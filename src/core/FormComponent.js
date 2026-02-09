@@ -1,7 +1,7 @@
 import FormValidator from "./FormValidator";
 
 export default class FormComponent {
-  constructor({Service, mode = "create", id = null, containerElementId = "component" }) {
+  constructor({Service, mode = "create", id = null, containerElement = null }) {
     if (new.target === FormComponent) {
       throw new Error('FormComponent is an abstract class and cannot be instantiated directly');
     }
@@ -25,8 +25,7 @@ export default class FormComponent {
     this.boundSubmitHandler = null;
 
     this.form = null;
-    this.containerElementId = containerElementId;
-    this.containerElement = null;
+    this.containerElement = containerElement;
 
     this.validatorClass = FormValidator;
     this.validator = null;
@@ -54,7 +53,7 @@ export default class FormComponent {
   }
 
   mount() {
-    this.containerElement = document.getElementById(this.containerElementId);
+    this.containerElement = this.containerElement ? this.containerElement : document.getElementById("component");
     if (!this.containerElement) return;
     this.containerElement.innerHTML = this.template;
     this.form = this.containerElement.querySelector("form");

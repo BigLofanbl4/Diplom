@@ -4,7 +4,7 @@ import StudentService from "../../services/StudentService";
 import SelectFormComponent from "../../core/SelectFormComponent";
 
 export default class GroupForm extends SelectFormComponent {
-  constructor({ id = null, successHandler = null, cancelHandler = null }) {
+  constructor({ id = null, successHandler = null, cancelHandler = null, containerElement = null }) {
     const msConfigs = [
       {
         elementId: "ms",
@@ -17,7 +17,7 @@ export default class GroupForm extends SelectFormComponent {
       },
     ];
 
-    super({ Service: GroupService, id, msConfigs });
+    super({ Service: GroupService, id, msConfigs, containerElement });
     this.template = template;
     this.successUrl = "/admin/groups";
     this.cancelUrl = "/admin/groups";

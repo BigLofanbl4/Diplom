@@ -150,7 +150,6 @@ export default class CoursePage {
       const modalInstance = new ModalWithComponent({
         Component: ModuleForm,
         componentProps: {
-          containerElementId: "modal-component",
           successHandler: async () => {
             await this.fetchData();
             this.renderModules();
@@ -158,8 +157,9 @@ export default class CoursePage {
             modalInstance.destroy();
           },
           cancelHandler: () => modalInstance.destroy(),
-          courseId: this.id
-        }
+          courseId: this.id,
+        },
+        title: "Создать модуль"
       });
 
       await modalInstance.draw();
@@ -179,7 +179,6 @@ export default class CoursePage {
           Component: ModuleForm,
           componentProps: {
             id: moduleId,
-            containerElementId: "modal-component",
             successHandler: async () => {
               await this.fetchData();
               this.renderModules();
@@ -187,7 +186,8 @@ export default class CoursePage {
               modalInstance.destroy();
             },
             cancelHandler: () => modalInstance.destroy(),
-          }
+          },
+          title: "Изменить модуль"
         });
         await modalInstance.draw();
       }
@@ -211,7 +211,6 @@ export default class CoursePage {
           Component: LessonForm,
           componentProps: {
             id: lessonId,
-            containerElementId: "modal-component",
             successHandler: async () => {
               await this.fetchData();
               this.renderModules();
@@ -219,7 +218,8 @@ export default class CoursePage {
               modalInstance.destroy();
             },
             cancelHandler: () => modalInstance.destroy(),
-          }
+          },
+          title: "Изменить урок"
         });
         await modalInstance.draw();
       }
@@ -240,7 +240,6 @@ export default class CoursePage {
         const modalInstance = new ModalWithComponent({
           Component: LessonForm,
           componentProps: {
-            containerElementId: "modal-component",
             successHandler: async () => {
               await this.fetchData();
               this.renderModules();
@@ -250,7 +249,8 @@ export default class CoursePage {
             cancelHandler: () => modalInstance.destroy(),
             moduleId: moduleId,
             courseId: this.id,
-          }
+          },
+          title: "Создать урок"
         });
         await modalInstance.draw();
       }

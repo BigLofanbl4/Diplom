@@ -5,14 +5,14 @@ import LessonService from "../../services/LessonService";
 export default class LessonForm extends FormComponent {
   constructor({
                 id = null,
-                containerElementId = "component",
+                containerElement = null,
                 successHandler = null,
                 cancelHandler = null,
                 moduleId = null,
                 courseId = null
               }) {
     const mode = id ? "update" : "create";
-    super({Service: LessonService, id, mode, containerElementId});
+    super({Service: LessonService, id, mode, containerElement});
     this.template = template;
 
     this.successUrl = "/admin/lessons";

@@ -2,9 +2,9 @@ import FormComponent from "./FormComponent";
 import MultiSelect from "../components/common/MultiSelect/MultiSelect.js";
 
 export default class SelectFormComponent extends FormComponent {
-  constructor({ Service, id = null, msConfigs = [] }) {
+  constructor({ Service, id = null, containerElement = null, msConfigs = [] }) {
     const mode = id ? "update" : "create";
-    super({Service: Service, mode, id });
+    super({Service: Service, mode, id, containerElement });
     this.msLists = {};
     this.msConfigs = msConfigs;
   }

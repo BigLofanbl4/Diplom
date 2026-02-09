@@ -1,6 +1,13 @@
 export default class MultiSelect {
-  constructor(element, options = [], defaultOptions = [], placeholder = "Поиск", name = "", required = false) {
-    this.container = typeof(element) === "string" ? document.getElementById(element) : element;
+  constructor(
+    element,
+    options = [],
+    defaultOptions = [],
+    placeholder = "Поиск",
+    name = "",
+    required = false
+  ) {
+    this.container = typeof (element) === "string" ? document.getElementById(element) : element;
     this.options = options;
     this.defaultOptions = defaultOptions;
     this.selected = new Set(defaultOptions.map(v => v.value));
@@ -60,13 +67,12 @@ export default class MultiSelect {
 
   _renderDropdown(filter = "") {
     const filtered = this.options.filter(opt => {
-      return !this.selected.has(opt.value) && 
-      opt.text.toLowerCase().includes(filter.toLowerCase());
+      return !this.selected.has(opt.value) &&
+        opt.text.toLowerCase().includes(filter.toLowerCase());
     });
 
     if (filtered.length === 0) {
       this.optionsContainer.style.display = "none";
-      this.activeIndex = -1;
       return;
     }
 
@@ -119,10 +125,10 @@ export default class MultiSelect {
   }
 
   getSelectedValues() {
-      return Array.from(this.selected);
+    return Array.from(this.selected);
   }
 
   destroy() {
-      document.removeEventListener("click", this._onOutsideClick);
+    document.removeEventListener("click", this._onOutsideClick);
   }
 }

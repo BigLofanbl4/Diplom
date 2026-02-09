@@ -5,35 +5,36 @@ export default class ModalWithComponent {
     {
       Component,
       componentProps = {},
-      modalSelector = ".modal"
+      title = ""
     }) {
     this.template = template;
+    this.title = title;
     this.Component = Component;
     this.componentProps = componentProps;
     this.componentInstance = null;
-    this.modalSelector = modalSelector;
+    this.componentContainer = null;
     this.modal = null;
     this.boundClickHandler = null;
   }
 
   async mount() {
-    document.querySelector("body").insertAdjacentHTML("afterbegin", this.template);
-    this.componentInstance = new this.Component(this.componentProps);
-    await this.componentInstance.draw();
-    this.modal = document.querySelector(this.modalSelector);
+    this._createModal();
+    this._applyTitle();
+    await this._mountComponent();
     this.modal.dataset.hidden = "false";
   }
 
   handleEvents() {
     this.boundClickHandler = (e) => {
-      if (e.target.getAttribute("id") === "modal") {
-        this.destroy();
-      } else if (e.target.closest("[data-action]")?.dataset.action === "close") {
+      const isClose = e.target.closest("[data-action='close']");
+      const isBackdrop = e.target === this.modal;
+
+      if (isClose || isBackdrop) {
         this.destroy();
       }
     };
 
-    document.addEventListener("click", this.boundClickHandler);
+    this.modal.addEventListener("click", this.boundClickHandler);
   }
 
   async draw() {
@@ -42,15 +43,49 @@ export default class ModalWithComponent {
   }
 
   destroy() {
-    if (this.modal) {
-      this.modal.dataset.hidden = "true";
-      this.modal.addEventListener("animationend", () => {
-        if (this.componentInstance) this.componentInstance.destroy();
-        this.modal.remove();
-      });
-    }
-    if (this.boundClickHandler) {
-      document.removeEventListener("click", this.boundClickHandler);
-    }
+    if (!this.modal) return;
+    this.modal.removeEventListener("click", this.boundClickHandler);
+    this._playCloseAnimation(() => {
+      this.componentInstance?.destroy()
+      this.modal.remove();
+    });
+  }
+
+  _playCloseAnimation(onDone) {
+    this.modal.dataset.hidden = "true";
+
+    const handleEnd = (event) => {
+      if (event.target !== this.modal) return;
+      this.modal.removeEventListener("animationend", handleEnd)
+      onDone?.();
+    };
+
+    this.modal.addEventListener("animationend", handleEnd);
+  }
+
+  _createModal() {
+    const modalWrapper = document.createElement("div");
+    modalWrapper.innerHTML = this.template;
+
+    this.modal = modalWrapper.firstElementChild;
+    document.body.appendChild(this.modal);
+
+    this.modal.querySelector(".modal__title").textContent = this.title;
+  }
+
+  _applyTitle() {
+    const titleElement = this.modal.querySelector(".modal__title");
+    if (titleElement) titleElement.textContent = this.title;
+  }
+
+  async _mountComponent() {
+    this.componentContainer = this.modal.querySelector(".modal__component");
+    this.componentInstance = new this.Component({
+      ...this.componentProps,
+      containerElement: this.componentContainer
+    });
+
+    if (!this.componentInstance) return;
+    await this.componentInstance.draw();
   }
 }
