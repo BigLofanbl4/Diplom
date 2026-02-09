@@ -28,3 +28,13 @@ backend/__pycache__
 app/__pycache__
 
 .vite/
+
+certs/
+__pycache__/
+*.pyc
+*.pyo
+
+*.db
+
+.venv/
+.env
