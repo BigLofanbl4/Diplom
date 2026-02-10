@@ -70,6 +70,7 @@
     flex-direction: column;
     gap: var(--mg-700);
     position: relative;
+    min-width: 500px;
 }
 
 .modal[data-hidden="false"] .modal__content {

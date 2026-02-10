@@ -5,120 +5,128 @@ import ModalWithComponent from "../common/ModalWithComponent/ModalWithComponent"
 import CourseService from "../../services/CourseService";
 import ModuleService from "../../services/ModuleService";
 import LessonService from "../../services/LessonService";
-
-
-function lessonRenderer(lesson) {
-  return `
-    <li class="course-lesson" data-lesson-id="${lesson.id}">
-      <h5 class="course-lesson__title">
-        <span class="course-lesson__number">Урок ${lesson.lesson_number}:</span>
-        <span class="course-lesson__name">${lesson.title}</span>
-      </h5>
-      <p class="course-lesson__desc">${lesson.description}</p>
-      <div class="course-lesson__badges">
-        <span class="course-lesson__badge course-lesson__badge--danger">
-          <i class="fa-regular fa-rectangle-list"></i>
-          Отсутствуют тесты
-        </span>
-        <span class="course-lesson__badge course-lesson__badge--danger">
-          <i class="fa-regular fa-file-lines"></i>
-          Отсутствуют материалы
-        </span>
-      </div>
-      <div class="course-lesson__actions">
-        <button class="btn btn-secondary course-lesson__edit-btn course-lesson__action-btn" data-action="update">
-          <i class="fa-solid fa-pen"></i>
-        </button>
-        <button class="btn btn-danger course-lesson__delete-btn course-lesson__action-btn" data-action="delete">
-          <i class="fa-solid fa-trash"></i>
-        </button>
-      </div>
-    </li>
-  `
-}
-
-function moduleRenderer(module, lessons) {
-  const moduleLessons = lessons.filter(lesson => module.id === lesson.module_id);
-  const lessonsHTML = moduleLessons.map(lesson => lessonRenderer(lesson)).join("");
-  console.log(module);
-  return `
-    <li class="course-module" data-module-id="${module.id}" data-lessons-hidden="true">
-          <div class="course-module__header">
-            <h4 class="course-module__title">
-              <span class="course-module__number">Модуль ${module.module_number}:</span>
-              <span class="course-module__name">${module.title}</span>
-            </h4>
-            <div class="course-module__actions">
-              <button class="btn btn-secondary course-module__edit-btn course-module__action-btn" data-action="update">
-                <i class="fa-solid fa-pen"></i>
-              </button>
-              <button class="btn btn-danger course-module__delete-btn course-module__action-btn" data-action="delete">
-                <i class="fa-solid fa-trash"></i>
-              </button>
-              <button class="course-module__toggle">
-                <i class="fa-solid fa-caret-down"></i>
-              </button>
-            </div>
-          </div>
-          <div class="course-lessons">
-            <ul class="course-lessons__list">
-              ${lessonsHTML}
-            </ul>
-            <div class="course-lessons__controls">
-              <button class="btn btn-primary course-lessons__add-btn" data-action="create" data-entity="lesson">
-                Создать урок
-              </button>
-            </div>
-          </div>
-        </li>
-  `;
-}
+import ModuleItem from "./ModuleItem.js";
 
 export default class CoursePage {
-  constructor({id}) {
+  constructor({id, pageContainer = null}) {
     this.template = null;
+    this.pageContainer = pageContainer;
+    this.page = null;
     this.id = Number(id);
     this.data = {};
     this.generalForm = null;
-    this.modulesContainer = null;
+    this.moduleItems = [];
     this.moduleList = null;
-    this.modulesHTML = null;
   }
 
   async fetchData() {
     try {
       this.data = await CourseService.getById(this.id);
-      console.log(this.data);
     } catch (error) {
       console.error(error);
     }
   }
 
   render() {
+    const wrapper = document.createElement("div");
     this.template = CoursePageTemplate(this.data);
-    this.renderModules();
-  }
-
-  renderModules() {
-    this.modulesHTML = this.data.modules.map(module => moduleRenderer(module, this.data.lessons)).join("");
+    wrapper.innerHTML = this.template;
+    this.page = wrapper.querySelector("[data-course-id]");
+    this.generalForm = wrapper.querySelector(".course__general-form");
+    this.moduleList = wrapper.querySelector(".course-modules__list");
+    this._renderModules();
+    this.pageContainer = this.pageContainer || document.getElementById("component");
+    if (!this.pageContainer) throw new Error("No pageContainer found.");
   }
 
   mount() {
-    const componentContainer = document.getElementById("component");
-    componentContainer.innerHTML = this.template;
-    this.generalForm = componentContainer.querySelector("#course-general-form");
-    this.modulesContainer = componentContainer.querySelector(".course-modules__body");
-    this.moduleList = componentContainer.querySelector(".course-modules__list");
-    this.mountModules();
-  }
-
-  mountModules() {
-    if (this.modulesHTML && this.moduleList) {
-      this.moduleList.innerHTML = this.modulesHTML;
-    }
+    this.pageContainer.appendChild(this.page);
+    this._mountModules();
   }
 
   handleEvents() {
+    this._handleGeneralForm();
+
+    this.page.addEventListener("click", async (e) => {
+      const action = e.target.closest("[data-action]")?.dataset.action;
+      switch (action) {
+        case "openModule":
+          return this._onOpenModule(e);
+        case "createModule":
+          return await this._onCreateModule(e);
+        case "updateModule":
+          return await this._onUpdateModule(e);
+        case "deleteModule":
+          return await this._onDeleteModule(e);
+
+        case "createLesson":
+          return await this._onCreateLesson(e);
+        case "updateLesson":
+          return await this._onUpdateLesson(e);
+        case "deleteLesson":
+          return await this._onDeleteLesson(e);
+      }
+    });
+  }
+
+  async draw() {
+    await this.fetchData();
+    this.render();
+    this.mount();
+    this.handleEvents();
+  }
+
+  destroy() {
+    this.pageContainer.innerHTML = "";
+  }
+
+  async _refreshModulesList() {
+    this._clearModulesList();
+    await this.fetchData();
+    this._renderModules();
+    this._mountModules();
+  }
+
+  _renderModules() {
+    const modules = this.data.modules.map((module) => {
+      return {
+        ...module,
+        lessons: this.data.lessons.filter(lesson => lesson.module_id === module.id),
+      }
+    });
+
+    this.moduleItems = modules.map(module => {
+      const item = new ModuleItem(module);
+      item.render();
+      return item;
+    });
+  }
+
+  _mountModules() {
+    this.moduleItems.forEach(item => item.mount(this.moduleList));
+  }
+
+  _clearModulesList() {
+    this.moduleList.innerHTML = "";
+  }
+
+  _openModal(Component, props, title) {
+    const modal = new ModalWithComponent({
+      Component,
+      componentProps: {
+        ...props,
+        successHandler: async () => {
+          await this._refreshModulesList();
+          modal.destroy();
+        },
+        cancelHandler: () => modal.destroy()
+      },
+      title
+    });
+    return modal.draw();
+  }
+
+  _handleGeneralForm() {
     this.generalForm.addEventListener("input", (e) => {
       const formControls = this.generalForm.querySelector(".course__general-form-controls");
       if (!formControls) return;
@@ -145,127 +153,54 @@ export default class CoursePage {
       const formControls = this.generalForm.querySelector(".course__general-form-controls");
       formControls.style.display = "none";
     })
-
-    document.getElementById("module-create-btn").addEventListener("click", async () => {
-      const modalInstance = new ModalWithComponent({
-        Component: ModuleForm,
-        componentProps: {
-          successHandler: async () => {
-            await this.fetchData();
-            this.renderModules();
-            this.mountModules();
-            modalInstance.destroy();
-          },
-          cancelHandler: () => modalInstance.destroy(),
-          courseId: this.id,
-        },
-        title: "Создать модуль"
-      });
-
-      await modalInstance.draw();
-    });
-
-    this.modulesContainer.addEventListener("click", async (e) => {
-      const target = e.target;
-      if (!target.closest("[data-action]") && target.closest(".course-module__header")) {
-        const moduleContainer = target.closest("[data-module-id]");
-        if (!moduleContainer) return;
-        moduleContainer.dataset.lessonsHidden = moduleContainer.dataset.lessonsHidden === "true" ? "false" : "true";
-      }
-
-      if (target.closest("[data-module-id]") && target.closest('[data-action="update"]') && !target.closest('[data-lesson-id]')) {
-        const moduleId = Number(target.closest("[data-module-id]").dataset.moduleId);
-        const modalInstance = new ModalWithComponent({
-          Component: ModuleForm,
-          componentProps: {
-            id: moduleId,
-            successHandler: async () => {
-              await this.fetchData();
-              this.renderModules();
-              this.mountModules();
-              modalInstance.destroy();
-            },
-            cancelHandler: () => modalInstance.destroy(),
-          },
-          title: "Изменить модуль"
-        });
-        await modalInstance.draw();
-      }
-
-      if (target.closest("[data-module-id]") && target.closest('[data-action="delete"]') && !target.closest('[data-lesson-id]')) {
-        const moduleContainer = target.closest('[data-module-id]');
-        const moduleId = Number(target.closest("[data-module-id]").dataset.moduleId);
-
-        const accept = confirm(`Удалить модуль ${moduleId}?`);
-        if (!accept) return;
-
-        const success = await ModuleService.delete(moduleId);
-        if (success) {
-          moduleContainer.remove();
-        }
-      }
-
-      if (target.closest("[data-lesson-id]") && target.closest('[data-action="update"]')) {
-        const lessonId = Number(target.closest("[data-lesson-id]").dataset.lessonId);
-        const modalInstance = new ModalWithComponent({
-          Component: LessonForm,
-          componentProps: {
-            id: lessonId,
-            successHandler: async () => {
-              await this.fetchData();
-              this.renderModules();
-              this.mountModules();
-              modalInstance.destroy();
-            },
-            cancelHandler: () => modalInstance.destroy(),
-          },
-          title: "Изменить урок"
-        });
-        await modalInstance.draw();
-      }
-
-      if (target.closest("[data-lesson-id]") && target.closest('[data-action="delete"]')) {
-        const lessonContainer = target.closest('[data-lesson-id]');
-        const lessonId = Number(lessonContainer.dataset.lessonId);
-        const accept = confirm(`Удалить урок ${lessonId}?`)
-        if (!accept) return;
-        const success = await LessonService.delete(lessonId);
-        if (success) {
-          lessonContainer.remove();
-        }
-      }
-
-      if (target.closest('[data-action="create"]') && target.closest('[data-entity="lesson"]')) {
-        const moduleId = Number(target.closest('[data-module-id]').dataset.moduleId);
-        const modalInstance = new ModalWithComponent({
-          Component: LessonForm,
-          componentProps: {
-            successHandler: async () => {
-              await this.fetchData();
-              this.renderModules();
-              this.mountModules();
-              modalInstance.destroy();
-            },
-            cancelHandler: () => modalInstance.destroy(),
-            moduleId: moduleId,
-            courseId: this.id,
-          },
-          title: "Создать урок"
-        });
-        await modalInstance.draw();
-      }
-    });
   }
 
-  async draw() {
-    await this.fetchData();
-    this.render();
-    this.mount();
-    this.handleEvents();
+  _onOpenModule(event) {
+    const moduleContainer = event.target.closest("[data-module-id]");
+    if (!moduleContainer) return;
+    moduleContainer.dataset.lessonsHidden = moduleContainer.dataset.lessonsHidden === "true" ? "false" : "true";
   }
 
-  destroy() {
-    const componentContainer = document.getElementById("component");
-    componentContainer.innerHTML = "";
+  async _onCreateModule(event) {
+    await this._openModal(ModuleForm, {courseId: this.id,}, "Создать модуль");
+  }
+
+  async _onUpdateModule(event) {
+    const moduleId = Number(event.target.closest("[data-module-id]").dataset.moduleId);
+    await this._openModal(ModuleForm, {id: moduleId}, "Изменить модуль");
+  }
+
+  async _onDeleteModule(event) {
+    const moduleContainer = event.target.closest('[data-module-id]');
+    const moduleId = Number(event.target.closest("[data-module-id]").dataset.moduleId);
+
+    const accept = confirm(`Удалить модуль ${moduleId}?`);
+    if (!accept) return;
+
+    const success = await ModuleService.delete(moduleId);
+    if (success) {
+      moduleContainer.remove();
+    }
+  }
+
+  async _onCreateLesson(event) {
+    const moduleId = Number(event.target.closest('[data-module-id]').dataset.moduleId);
+    await this._openModal(LessonForm, {moduleId, courseId: this.id}, "Создать урок");
+  }
+
+  async _onUpdateLesson(event) {
+    const lessonId = Number(event.target.closest("[data-lesson-id]").dataset.lessonId);
+    await this._openModal(LessonForm, {id: lessonId}, "Изменить урок");
+  }
+
+  async _onDeleteLesson(event) {
+    const lessonContainer = event.target.closest('[data-lesson-id]');
+    const lessonId = Number(lessonContainer.dataset.lessonId);
+    const accept = confirm(`Удалить урок ${lessonId}?`)
+    if (!accept) return;
+    const success = await LessonService.delete(lessonId);
+    if (success) {
+      lessonContainer.remove();
+    }
   }
 }

@@ -27,7 +27,7 @@ export const CoursePageTemplate = (course) => {
       <div class="course-modules">
         <div class="course-modules__header">
           <h2>Модули</h2>
-          <button class="btn btn-primary course-modules__add-btn" id="module-create-btn" data-action="create" data-entity="module">
+          <button class="btn btn-primary course-modules__add-btn" data-action="createModule">
             <i class="fa-solid fa-plus"></i>
           </button>
         </div>
