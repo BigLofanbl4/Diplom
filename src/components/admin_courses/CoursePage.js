@@ -6,6 +6,132 @@ import CourseService from "../../services/CourseService";
 import ModuleService from "../../services/ModuleService";
 import LessonService from "../../services/LessonService";
 import ModuleItem from "./ModuleItem.js";
+import {getModuleData} from "../../utils/courseUtils.js";
+
+class ModuleController {
+  constructor(courseId, modulesData, moduleList, _openModal) {
+    this.courseId = courseId;
+    this.modulesData = modulesData;
+    this.moduleItems = null;
+    this.moduleList = moduleList;
+    this._openModal = _openModal;
+  }
+
+  renderModules() {
+    this.moduleItems = this.modulesData.map(module => {
+      const item = new ModuleItem(module);
+      item.render();
+      return item;
+    });
+  }
+
+  mountModules() {
+    if (!this.moduleList) throw new Error('Modules container is undefined');
+    if (!this.moduleItems) this.renderModules();
+    this.moduleItems.forEach(item => item.mount(this.moduleList));
+  }
+
+  clearModulesList() {
+    this.moduleList.innerHTML = "";
+  }
+
+  refreshModulesList() {
+    this.clearModulesList();
+    this.renderModules();
+    this.mountModules();
+  }
+
+  updateData(newData) {
+    if (!newData) throw new Error("Update module data is required");
+    this.modulesData = newData;
+  }
+
+  destroy() {
+    this.clearModulesList();
+  }
+
+  canHandle(action) {
+    return ["createModule", "updateModule", "deleteModule", "openModule"].includes(action);
+  }
+
+  async handle(action, event) {
+    switch(action) {
+      case "createModule": return await this._onCreateModule(event);
+      case "updateModule": return await this._onUpdateModule(event);
+      case "deleteModule": return await this._onDeleteModule(event);
+      case "openModule": return this._onOpenModule(event);
+    }
+  }
+
+  _onOpenModule(event) {
+    const moduleContainer = event.target.closest("[data-module-id]");
+    if (!moduleContainer) return;
+    moduleContainer.dataset.lessonsHidden = moduleContainer.dataset.lessonsHidden === "true" ? "false" : "true";
+  }
+
+  async _onCreateModule(event) {
+    await this._openModal(ModuleForm, {courseId: this.courseId,}, "Создать модуль");
+  }
+
+  async _onUpdateModule(event) {
+    const moduleId = Number(event.target.closest("[data-module-id]").dataset.moduleId);
+    await this._openModal(ModuleForm, {id: moduleId}, "Изменить модуль");
+  }
+
+  async _onDeleteModule(event) {
+    const moduleContainer = event.target.closest('[data-module-id]');
+    const moduleId = Number(event.target.closest("[data-module-id]").dataset.moduleId);
+
+    const accept = confirm(`Удалить модуль ${moduleId}?`);
+    if (!accept) return;
+
+    const success = await ModuleService.delete(moduleId);
+    if (success) {
+      moduleContainer.remove();
+    }
+  }
+}
+
+class LessonController {
+  constructor(courseId, _openModal) {
+    this.courseId = courseId;
+    this._openModal = _openModal;
+  }
+
+  canHandle(action) {
+    return ["createLesson", "updateLesson", "deleteLesson"].includes(action);
+  }
+
+  async handle(action, event) {
+    switch (action) {
+      case "createLesson": return await this._onCreateLesson(event);
+      case "updateLesson": return await this._onUpdateLesson(event);
+      case "deleteLesson": return await this._onDeleteLesson(event);
+    }
+  }
+
+  async _onCreateLesson(event) {
+    const moduleId = Number(event.target.closest('[data-module-id]').dataset.moduleId);
+    await this._openModal(LessonForm, {moduleId, courseId: this.courseId}, "Создать урок");
+  }
+
+  async _onUpdateLesson(event) {
+    const lessonId = Number(event.target.closest("[data-lesson-id]").dataset.lessonId);
+    await this._openModal(LessonForm, {id: lessonId}, "Изменить урок");
+  }
+
+  async _onDeleteLesson(event) {
+    const lessonContainer = event.target.closest('[data-lesson-id]');
+    const lessonId = Number(lessonContainer.dataset.lessonId);
+    const accept = confirm(`Удалить урок ${lessonId}?`)
+    if (!accept) return;
+    const success = await LessonService.delete(lessonId);
+    if (success) {
+      lessonContainer.remove();
+    }
+  }
+}
+
 
 export default class CoursePage {
   constructor({id, pageContainer = null}) {
@@ -15,8 +141,10 @@ export default class CoursePage {
     this.id = Number(id);
     this.data = {};
     this.generalForm = null;
-    this.moduleItems = [];
     this.moduleList = null;
+
+    this.lessonController = null;
+    this.moduleController = null;
   }
 
   async fetchData() {
@@ -34,14 +162,13 @@ export default class CoursePage {
     this.page = wrapper.querySelector("[data-course-id]");
     this.generalForm = wrapper.querySelector(".course__general-form");
     this.moduleList = wrapper.querySelector(".course-modules__list");
-    this._renderModules();
     this.pageContainer = this.pageContainer || document.getElementById("component");
     if (!this.pageContainer) throw new Error("No pageContainer found.");
   }
 
   mount() {
     this.pageContainer.appendChild(this.page);
-    this._mountModules();
+    this.moduleController.mountModules(this.moduleList);
   }
 
   handleEvents() {
@@ -49,22 +176,12 @@ export default class CoursePage {
 
     this.page.addEventListener("click", async (e) => {
       const action = e.target.closest("[data-action]")?.dataset.action;
-      switch (action) {
-        case "openModule":
-          return this._onOpenModule(e);
-        case "createModule":
-          return await this._onCreateModule(e);
-        case "updateModule":
-          return await this._onUpdateModule(e);
-        case "deleteModule":
-          return await this._onDeleteModule(e);
+      if (this.moduleController.canHandle(action)) {
+        return await this.moduleController.handle(action, e);
+      }
 
-        case "createLesson":
-          return await this._onCreateLesson(e);
-        case "updateLesson":
-          return await this._onUpdateLesson(e);
-        case "deleteLesson":
-          return await this._onDeleteLesson(e);
+      if (this.lessonController.canHandle(action)) {
+        return await this.lessonController.handle(action, e);
       }
     });
   }
@@ -72,6 +189,7 @@ export default class CoursePage {
   async draw() {
     await this.fetchData();
     this.render();
+    this._initControllers();
     this.mount();
     this.handleEvents();
   }
@@ -80,34 +198,17 @@ export default class CoursePage {
     this.pageContainer.innerHTML = "";
   }
 
+  _initControllers() {
+    const moduleData = getModuleData(this.data);
+    this.moduleController = new ModuleController(this.id, moduleData, this.moduleList, this._openModal.bind(this));
+    this.lessonController = new LessonController(this.id, this._openModal.bind(this));
+  }
+
   async _refreshModulesList() {
-    this._clearModulesList();
     await this.fetchData();
-    this._renderModules();
-    this._mountModules();
-  }
-
-  _renderModules() {
-    const modules = this.data.modules.map((module) => {
-      return {
-        ...module,
-        lessons: this.data.lessons.filter(lesson => lesson.module_id === module.id),
-      }
-    });
-
-    this.moduleItems = modules.map(module => {
-      const item = new ModuleItem(module);
-      item.render();
-      return item;
-    });
-  }
-
-  _mountModules() {
-    this.moduleItems.forEach(item => item.mount(this.moduleList));
-  }
-
-  _clearModulesList() {
-    this.moduleList.innerHTML = "";
+    const moduleData = getModuleData(this.data);
+    this.moduleController.updateData(moduleData);
+    this.moduleController.refreshModulesList(this.moduleList);
   }
 
   _openModal(Component, props, title) {
@@ -153,54 +254,5 @@ export default class CoursePage {
       const formControls = this.generalForm.querySelector(".course__general-form-controls");
       formControls.style.display = "none";
     })
-  }
-
-  _onOpenModule(event) {
-    const moduleContainer = event.target.closest("[data-module-id]");
-    if (!moduleContainer) return;
-    moduleContainer.dataset.lessonsHidden = moduleContainer.dataset.lessonsHidden === "true" ? "false" : "true";
-  }
-
-  async _onCreateModule(event) {
-    await this._openModal(ModuleForm, {courseId: this.id,}, "Создать модуль");
-  }
-
-  async _onUpdateModule(event) {
-    const moduleId = Number(event.target.closest("[data-module-id]").dataset.moduleId);
-    await this._openModal(ModuleForm, {id: moduleId}, "Изменить модуль");
-  }
-
-  async _onDeleteModule(event) {
-    const moduleContainer = event.target.closest('[data-module-id]');
-    const moduleId = Number(event.target.closest("[data-module-id]").dataset.moduleId);
-
-    const accept = confirm(`Удалить модуль ${moduleId}?`);
-    if (!accept) return;
-
-    const success = await ModuleService.delete(moduleId);
-    if (success) {
-      moduleContainer.remove();
-    }
-  }
-
-  async _onCreateLesson(event) {
-    const moduleId = Number(event.target.closest('[data-module-id]').dataset.moduleId);
-    await this._openModal(LessonForm, {moduleId, courseId: this.id}, "Создать урок");
-  }
-
-  async _onUpdateLesson(event) {
-    const lessonId = Number(event.target.closest("[data-lesson-id]").dataset.lessonId);
-    await this._openModal(LessonForm, {id: lessonId}, "Изменить урок");
-  }
-
-  async _onDeleteLesson(event) {
-    const lessonContainer = event.target.closest('[data-lesson-id]');
-    const lessonId = Number(lessonContainer.dataset.lessonId);
-    const accept = confirm(`Удалить урок ${lessonId}?`)
-    if (!accept) return;
-    const success = await LessonService.delete(lessonId);
-    if (success) {
-      lessonContainer.remove();
-    }
   }
 }
