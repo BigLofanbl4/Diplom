@@ -147,6 +147,8 @@ class LessonController {
   addLesson(lesson, container) {
     const data = this.getData();
     data.lessons.push(lesson);
+    const empty = container.querySelector(".course-lesson--empty");
+    if (empty) empty.remove();
     const lessonCard = new LessonCard(lesson);
     lessonCard.mount(container);
   }
@@ -189,6 +191,15 @@ class LessonController {
     if (!accept) return;
     const success = await LessonService.delete(lessonId);
     if (success) {
+      const moduleContainer = event.target.closest("[data-module-id]");
+      const lessonsList = moduleContainer?.querySelector("[data-module-lessons]");
+      const remaining = lessonsList?.querySelectorAll("[data-lesson-id]")?.length ?? 0;
+      if (remaining === 1 && lessonsList) {
+        const empty = document.createElement("li");
+        empty.classList.add("course-lesson", "course-lesson--empty");
+        empty.textContent = "Уроков пока нет";
+        lessonsList.appendChild(empty);
+      }
       const data = this.getData();
       data.lessons = data.lessons.filter(l => l.id !== lessonId);
       lessonContainer.remove();

@@ -263,6 +263,15 @@
   gap: var(--mg-200);
 }
 
+.course-lesson--empty {
+  background: transparent;
+  box-shadow: none;
+  border: 1px dashed var(--cl-border-medium);
+  color: var(--cl-text-muted);
+  text-align: center;
+  font-weight: 500;
+}
+
 .course-lesson__desc {
   font-weight: 500;
 }
