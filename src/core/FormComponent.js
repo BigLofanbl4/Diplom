@@ -127,8 +127,9 @@ export default class FormComponent {
         return;
       }
       try {
-        await this.submit(formData);
-        this.successHandler?.();
+        const result = await this.submit(formData);
+        const entity = result ?? {...formData, id: this.id}
+        this.successHandler?.(entity);
       } catch (error) {
         alert("Произошла ошибка при отправке формы");
         this.cancelHandler?.();
@@ -155,9 +156,9 @@ export default class FormComponent {
 
   async submit(data) {
     if (this.mode === "create") {
-      await this.Service.create(data);
+      return await this.Service.create(data);
     } else if (this.mode === "update") {
-      await this.Service.update(this.id, data);
+      return await this.Service.update(this.id, data);
     }
   }
 

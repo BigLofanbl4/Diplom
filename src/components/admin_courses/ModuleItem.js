@@ -29,8 +29,16 @@ export default class ModuleItem {
 
   _renderLessons() {
     if (!this.lessonsContainer) return;
-    this.moduleData.lessons.forEach((lessonData) => {
-      const card = new LessonCard({lessonData});
+    const lessons = this.moduleData?.lessons ?? [];
+    if (lessons.length === 0) {
+      const empty = document.createElement("li");
+      empty.classList.add("course-lesson", "course-lesson--empty");
+      empty.textContent = "Уроков пока нет";
+      this.lessonsContainer.appendChild(empty);
+      return;
+    }
+    lessons.forEach((lessonData) => {
+      const card = new LessonCard(lessonData);
       card.mount(this.lessonsContainer);
     });
   }

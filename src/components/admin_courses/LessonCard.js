@@ -1,7 +1,7 @@
 import { LessonCardTemplate } from "./LessonCard.template";
 
 export default class LessonCard {
-  constructor({ lessonData }) {
+  constructor(lessonData) {
     if (!lessonData) {
       throw new Error("lessonData is required");
     }

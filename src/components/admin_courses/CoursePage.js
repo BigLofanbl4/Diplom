@@ -5,20 +5,22 @@ import ModalWithComponent from "../common/ModalWithComponent/ModalWithComponent"
 import CourseService from "../../services/CourseService";
 import ModuleService from "../../services/ModuleService";
 import LessonService from "../../services/LessonService";
-import ModuleItem from "./ModuleItem.js";
-import {getModuleData} from "../../utils/courseUtils.js";
+import ModuleItem from "./ModuleItem";
+import LessonCard from "./LessonCard";
+import {getModuleData} from "../../utils/courseUtils";
 
 class ModuleController {
-  constructor(courseId, modulesData, moduleList, _openModal) {
+  constructor(courseId, getData, moduleList, _openModal) {
     this.courseId = courseId;
-    this.modulesData = modulesData;
+    this.getData = getData;
     this.moduleItems = null;
     this.moduleList = moduleList;
     this._openModal = _openModal;
   }
 
   renderModules() {
-    this.moduleItems = this.modulesData.map(module => {
+    const modulesData = getModuleData(this.getData());
+    this.moduleItems = modulesData.map(module => {
       const item = new ModuleItem(module);
       item.render();
       return item;
@@ -41,11 +43,6 @@ class ModuleController {
     this.mountModules();
   }
 
-  updateData(newData) {
-    if (!newData) throw new Error("Update module data is required");
-    this.modulesData = newData;
-  }
-
   destroy() {
     this.clearModulesList();
   }
@@ -63,6 +60,34 @@ class ModuleController {
     }
   }
 
+  addModule(module) {
+    const data = this.getData();
+    data.modules.push(module);
+    const moduleData = { ...module, lessons: [] }
+    const newModuleItem = new ModuleItem(moduleData);
+    newModuleItem.render();
+    this.moduleItems.push(newModuleItem);
+    newModuleItem.mount(this.moduleList);
+  }
+
+  updateModule(updatedModule) {
+    if (!updatedModule?.id) return;
+    const data = this.getData();
+    const idx = data.modules.findIndex(m => m.id === updatedModule.id);
+    if (idx === -1) return;
+    data.modules[idx] = {...data.modules[idx], ...updatedModule};
+
+    const oldEl = this.moduleList.querySelector(`[data-module-id="${updatedModule.id}"]`);
+    if (!oldEl) return;
+    const modulesData = getModuleData(this.getData());
+    const moduleData = modulesData.find(m => m.id === updatedModule.id);
+    if (!moduleData) return;
+    const newItem = new ModuleItem(moduleData);
+    const newEl = newItem.render();
+    newEl.dataset.lessonsHidden = oldEl.dataset.lessonsHidden;
+    oldEl.replaceWith(newEl);
+  }
+
   _onOpenModule(event) {
     const moduleContainer = event.target.closest("[data-module-id]");
     if (!moduleContainer) return;
@@ -70,12 +95,17 @@ class ModuleController {
   }
 
   async _onCreateModule(event) {
-    await this._openModal(ModuleForm, {courseId: this.courseId,}, "Создать модуль");
+    await this._openModal(ModuleForm, {courseId: this.courseId,}, "Создать модуль", (module) => this.addModule(module));
   }
 
   async _onUpdateModule(event) {
     const moduleId = Number(event.target.closest("[data-module-id]").dataset.moduleId);
-    await this._openModal(ModuleForm, {id: moduleId}, "Изменить модуль");
+    await this._openModal(
+      ModuleForm,
+      {id: moduleId},
+      "Изменить модуль",
+      (module) => this.updateModule(module)
+    );
   }
 
   async _onDeleteModule(event) {
@@ -87,14 +117,18 @@ class ModuleController {
 
     const success = await ModuleService.delete(moduleId);
     if (success) {
+      const data = this.getData();
+      data.modules = data.modules.filter(m => m.id !== moduleId);
+      data.lessons = data.lessons.filter(l => l.module_id !== moduleId);
       moduleContainer.remove();
     }
   }
 }
 
 class LessonController {
-  constructor(courseId, _openModal) {
+  constructor(courseId, getData, _openModal) {
     this.courseId = courseId;
+    this.getData = getData;
     this._openModal = _openModal;
   }
 
@@ -110,14 +144,42 @@ class LessonController {
     }
   }
 
+  addLesson(lesson, container) {
+    const data = this.getData();
+    data.lessons.push(lesson);
+    const lessonCard = new LessonCard(lesson);
+    lessonCard.mount(container);
+  }
+
+  updateLesson(updatedLesson) {
+    if (!updatedLesson?.id) return;
+    const data = this.getData();
+    const idx = data.lessons.findIndex(l => l.id === updatedLesson.id);
+    if (idx === -1) return;
+    data.lessons[idx] = {...data.lessons[idx], ...updatedLesson};
+
+    const oldEl = document.querySelector(`[data-lesson-id="${updatedLesson.id}"]`);
+    if (!oldEl) return;
+    const newCard = new LessonCard(updatedLesson);
+    const newEl = newCard.render();
+    oldEl.replaceWith(newEl);
+  }
+
   async _onCreateLesson(event) {
-    const moduleId = Number(event.target.closest('[data-module-id]').dataset.moduleId);
-    await this._openModal(LessonForm, {moduleId, courseId: this.courseId}, "Создать урок");
+    const moduleContainer = event.target.closest('[data-module-id]');
+    const lessonsList = moduleContainer.querySelector('[data-module-lessons]');
+    const moduleId = Number(moduleContainer.dataset.moduleId);
+    await this._openModal(LessonForm, {moduleId, courseId: this.courseId}, "Создать урок", (lesson) => this.addLesson(lesson, lessonsList));
   }
 
   async _onUpdateLesson(event) {
     const lessonId = Number(event.target.closest("[data-lesson-id]").dataset.lessonId);
-    await this._openModal(LessonForm, {id: lessonId}, "Изменить урок");
+    await this._openModal(
+      LessonForm,
+      {id: lessonId},
+      "Изменить урок",
+      (lesson) => this.updateLesson(lesson)
+    );
   }
 
   async _onDeleteLesson(event) {
@@ -127,6 +189,8 @@ class LessonController {
     if (!accept) return;
     const success = await LessonService.delete(lessonId);
     if (success) {
+      const data = this.getData();
+      data.lessons = data.lessons.filter(l => l.id !== lessonId);
       lessonContainer.remove();
     }
   }
@@ -199,25 +263,18 @@ export default class CoursePage {
   }
 
   _initControllers() {
-    const moduleData = getModuleData(this.data);
-    this.moduleController = new ModuleController(this.id, moduleData, this.moduleList, this._openModal.bind(this));
-    this.lessonController = new LessonController(this.id, this._openModal.bind(this));
+    const getData = () => this.data;
+    this.moduleController = new ModuleController(this.id, getData, this.moduleList, this._openModal.bind(this));
+    this.lessonController = new LessonController(this.id, getData, this._openModal.bind(this));
   }
 
-  async _refreshModulesList() {
-    await this.fetchData();
-    const moduleData = getModuleData(this.data);
-    this.moduleController.updateData(moduleData);
-    this.moduleController.refreshModulesList(this.moduleList);
-  }
-
-  _openModal(Component, props, title) {
+  _openModal(Component, props, title, onSuccess) {
     const modal = new ModalWithComponent({
       Component,
       componentProps: {
         ...props,
-        successHandler: async () => {
-          await this._refreshModulesList();
+        successHandler: async (entity) => {
+          onSuccess?.(entity);
           modal.destroy();
         },
         cancelHandler: () => modal.destroy()

@@ -233,7 +233,11 @@
   display: grid;
   grid-template-rows: 0fr 0fr;
   row-gap: var(--mg-400);
-  transition: grid-template-rows var(--transition-normal);
+  border-bottom: 1px solid transparent;
+  padding-bottom: 0;
+  transition: grid-template-rows var(--transition-normal),
+    padding-bottom var(--transition-normal),
+    border-color var(--transition-normal);
 }
 
 .course-lessons > .course-lessons__list {
@@ -246,7 +250,7 @@
 
 .course-module[data-lessons-hidden="false"] .course-lessons {
   grid-template-rows: 1fr auto;
-  border-bottom: 1px solid var(--cl-border-strong);
+  border-bottom-color: var(--cl-border-strong);
   padding-bottom: var(--pd-400);
 }
 
