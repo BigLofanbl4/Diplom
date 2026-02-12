@@ -1,3 +1,5 @@
+import NotFoundPage from "./core/NotFoundPage";
+
 export class Router {
   constructor(routes) {
     this.routes = routes;
@@ -61,10 +63,10 @@ export class Router {
     history.back();
   }
 
-  navigate(url) {
+  async navigate(url) {
     history.pushState(null, null, url);
 
-    this.resolvePath(url);
+    await this.resolvePath(url);
   }
 
   async resolvePath(url) {
@@ -81,18 +83,24 @@ export class Router {
     }
 
     if (!route) {
-      console.log("404");
-      // отрисовка страницы 404
+      if (this.currentComponent) this.currentComponent.destroy();
+      if (this.currentLayout) this.currentLayout.destroy();
+
+      this.currentLayout = null;
+      this.currentComponent = null;
+
+      const notFoundPage = new NotFoundPage();
+      await notFoundPage.draw();
+      return;
     }
 
     if (!this.currentLayout || route.Layout !== this.currentLayout.constructor) {
+      if (this.currentComponent) this.currentComponent.destroy();
       if (this.currentLayout) {
         this.currentLayout.destroy();
       }
       this.currentLayout = new route.Layout();
       await this.currentLayout.draw();
-
-      if (this.currentComponent) this.currentComponent.destroy();
     }
 
     if (route.Component && (!this.currentComponent || this.currentComponent.constructor !== route.Component)) {
@@ -106,4 +114,3 @@ export class Router {
     }
   }
 }
-

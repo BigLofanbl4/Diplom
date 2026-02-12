@@ -64,14 +64,16 @@ export default class TableComponent {
   }
 
   removeEventListeners() {
-    if (this.boundClickHandler) {
+    if (this.boundClickHandler && this.tbody) {
       this.tbody.removeEventListener("click", this.boundClickHandler);
     }
   }
 
   destroy() {
     const componentContainer = document.getElementById("component");
-    componentContainer.innerHTML = "";
+    if (componentContainer) {
+      componentContainer.innerHTML = "";
+    }
 
     this.elements = {};
     this.data = null;

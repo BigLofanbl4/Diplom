@@ -14,11 +14,11 @@ export default class FormComponent {
 
     this.successUrl = null;
     this.cancelUrl = null;
-    this.successHandler = () => {
-      if (this.successUrl) window.router.navigate(this.successUrl)
+    this.successHandler = async () => {
+      if (this.successUrl) await window.router.navigate(this.successUrl)
     };
-    this.cancelHandler = () => {
-      if (this.cancelUrl) window.router.navigate(this.cancelUrl)
+    this.cancelHandler = async () => {
+      if (this.cancelUrl) await window.router.navigate(this.cancelUrl)
     };
 
     this.boundClickHandler = null;
