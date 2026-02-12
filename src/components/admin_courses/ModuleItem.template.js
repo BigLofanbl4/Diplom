@@ -1,7 +1,7 @@
 export const ModuleItemTemplate = (module) => {
   return `
-    <li class="course-module" data-module-id="${module.id}" data-action="openModule" data-lessons-hidden="true">
-      <div class="course-module__header">
+    <li class="course-module" data-module-id="${module.id}" data-lessons-hidden="true">
+      <div class="course-module__header" data-action="openModule">
         <h4 class="course-module__title">
           <span class="course-module__number">Модуль ${module.module_number}:</span>
           <span class="course-module__name">${module.title}</span>

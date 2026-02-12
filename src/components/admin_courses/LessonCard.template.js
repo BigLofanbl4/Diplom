@@ -17,6 +17,9 @@ export const LessonCardTemplate = (lesson) => {
         </span>
       </div>
       <div class="course-lesson__actions">
+        <a href="/admin/courses/${lesson.course_id}/test/${lesson.id}" class="btn btn-secondary course-lesson__action-btn">
+            <i class="fa-regular fa-rectangle-list"></i>
+        </a>
         <button class="btn btn-secondary course-lesson__edit-btn course-lesson__action-btn" data-action="updateLesson">
           <i class="fa-solid fa-pen"></i>
         </button>

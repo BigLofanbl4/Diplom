@@ -10,6 +10,7 @@ import GroupForm from './components/admin_groups/GroupForm';
 import CoursesList from "./components/admin_courses/CoursesList.js";
 import CourseForm from "./components/admin_courses/CourseForm.js";
 import CoursePage from "./components/admin_courses/CoursePage.js";
+import TestConstructor from "./components/common/TestConstructor/TestConstructor.js";
 
 const ROUTES = {
   "/admin": {
@@ -66,6 +67,10 @@ const ROUTES = {
   "/admin/courses/:id": {
     Layout: AdminLayout,
     Component: CoursePage
+  },
+  "/admin/courses/:courseId/test/:lessonId": {
+    Layout: AdminLayout,
+    Component: TestConstructor
   }
 };
 

@@ -15,7 +15,10 @@ export default class BaseService {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => {});
-        throw new Error(errorData.detail || `Iternal Server Error: ${response.status}`);
+        throw new Error(JSON.stringify({
+          message: errorData.detail || `Iternal Server Error: ${response.status}`,
+          status: response.status,
+        }));
       }
 
       return await response.json();
