@@ -1,3 +1,6 @@
+import TestService from "../../../services/TestService.js";
+import ModalWithComponent from "../ModalWithComponent/ModalWithComponent.js";
+
 export const TestConstructorTemplate = (test) => {
   const questionsHTML = test?.questions?.length > 0 ? "какие то вопросы" : null;
   return `
@@ -13,22 +16,22 @@ export const TestConstructorTemplate = (test) => {
               <div class="test__add-questions">
                 <ul class="test__question-types" data-hidden="true">
                   <li class="test__question-type">
-                      <button class="btn" data-question-type="text">
+                      <button class="btn" data-action="CreateTextQuestion">
                           <span><i class="fa-solid fa-a"></i></span> <span>Текстовый ответ</span> 
                       </button>
                   </li>
                   <li class="test__question-type">
-                      <button class="btn" data-question-type="single_choice">
+                      <button class="btn" data-action="CreateSingleChoiceQuestion">
                           <span><i class="fa-regular fa-circle-dot"></i></span> <span>Один вариант</span> 
                       </button>
                   </li>
                   <li class="test__question-type">
-                      <button class="btn" data-question-type="multiple_choice">
+                      <button class="btn" data-action="CreateMultipleChoiceQuestion">
                           <span><i class="fa-regular fa-square-check"></i></span> <span>Несколько вариантов</span>
                       </button>
                   </li>
                 </ul>
-                <button class="btn btn-primary test__add-btn" data-action="createQuestion">
+                <button class="btn btn-primary test__add-btn">
                     <i class="fa-solid fa-plus"></i>
                 </button>
               </div>
