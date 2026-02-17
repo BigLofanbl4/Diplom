@@ -12,71 +12,105 @@ export function BaseQuestionFormTemplate() {
 export function TextQuestionFormTemplate(questionData) {
   const questionText = questionData?.text ?? "";
   const questionAnswer = questionData?.answer ?? "";
-  return `
+
+  const questionConditionElem = getQuestionConditionElem(questionText);
+
+  const questionAnswerElem = document.createElement("input");
+  questionAnswerElem.id = "question-answer";
+  questionAnswerElem.type = "text";
+  questionAnswerElem.value = questionAnswer;
+  questionAnswerElem.classList.add("form-input");
+  questionAnswerElem.dataset.questionAnswer = '';
+
+
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = `
     <div class="question__body">
       <div class="question__text">
         <label class="form-label" for="question-condition">Введите вопрос:</label>
-        <input class="form-input" type="text" id="question-condition" value="${questionText}" data-question-text>
       </div>
       <div class="question__answer">
           <label class="form-label" for="question-answer">Введите ответ: </label>
-          <input class="form-input" type="text" id="question-answer" value="${questionAnswer}" data-question-answer>
       </div>
-    </div>   
-  `;
+    </div>  
+    `;
+  wrapper.querySelector(".question__text").appendChild(questionConditionElem);
+  wrapper.querySelector(".question__answer").appendChild(questionAnswerElem);
+
+  return wrapper.querySelector(".question__body");
 }
 
 export function SingleChoiceQuestionFormTemplate(questionData) {
-  const questionText = questionData?.text ?? "";
-  const questionOptionsHTML = questionData?.options?.map((option, index) => {
-    const isCorrect = option.value === questionData.answer;
-    return `
-      <li class="question__option">
-        <label for="answer${index}">${option.text}</label>
-        <input type="radio" name="answer" value="${option.value}" ${isCorrect ? "checked" : ""}>
-      </li>
-    `
-  }).join("");
-  return `
-    <div class="question__body">
-       <div class="question__text">
-        <label class="form-label" for="question-condition">Введите вопрос:</label>
-        <input class="form-input" type="text" id="question-condition" value="${questionText}" data-question-text>
-      </div>
-      <div class="question__answer">
-        <ul class="question__answer-options">
-            ${questionOptionsHTML ? questionOptionsHTML : ""}
-        </ul>
-        <div class="question__add-option">
-            <input class="form-input" type="text" placeholder="Введите вариант" data-option-input>
-            <button class="btn btn-primary" data-action="addOption">Добавить вариант</button>
-        </div>
-      </div>
-    </div>
-  `
+  return ChoiceQuestionFormTemplate(questionData, {type: "radio"});
 }
 
 export function MultipleChoiceQuestionFormTemplate(questionData) {
-  const questionText = questionData?.text ?? "";
-  const questionOptionsHTML = questionData?.options?.map((option, index) => {
-    const isCorrect = questionData.answer.includes(option.value);
-    return `
-      <li class="question__option">
-        <label for="answer${index}">${option.text}</label>
-        <input type="checkbox" name="answer" value="${option.value}" ${isCorrect ? "checked" : ""}>
-      </li>
-    `
-  }).join("");
+  return ChoiceQuestionFormTemplate(questionData, {type: "checkbox"});
+}
+
+export function TextQuestionTemplate(questionData) {
+  return QuestionCardTemplate(questionData, {questionType: "text"});
+}
+
+export function SingleChoiceQuestionTemplate(questionData) {
+  return QuestionCardTemplate(questionData, {questionType: "single_choice"});
+}
+
+export function MultipleChoiceQuestionTemplate(questionData) {
+  return QuestionCardTemplate(questionData, {questionType: "multiple_choice"});
+}
+
+function getQuestionConditionElem(questionText) {
+  const questionConditionElem = document.createElement("input");
+  questionConditionElem.id = "question-condition";
+  questionConditionElem.type = "text";
+  questionConditionElem.value = questionText;
+  questionConditionElem.classList.add("form-input");
+  questionConditionElem.dataset.questionText = '';
+  return questionConditionElem;
+}
+
+function getQuestionOptionElemsFragment(questionData, type) {
+  if (type !== "checkbox" && type !== "radio") {
+    throw new Error("type - must be a checkbox or radio")
+  }
+
+  const questionOptionElems = (questionData?.options ?? []).map((option, index) => {
+    const isCorrect = option.value === questionData.answer;
+    const questionOptionElem = document.createElement("li");
+    questionOptionElem.classList.add("question__option");
+
+    const optionLabelElem = document.createElement("label");
+    optionLabelElem.setAttribute("for", `answer-${index}`);
+    optionLabelElem.textContent = option.text;
+
+    const optionInputElem = document.createElement("input");
+    optionInputElem.type = type;
+    optionInputElem.value = option.value;
+    optionInputElem.checked = isCorrect;
+    optionInputElem.name = "answer";
+    optionInputElem.id = `answer-${index}`;
+
+    questionOptionElem.appendChild(optionLabelElem);
+    questionOptionElem.appendChild(optionInputElem);
+
+    return questionOptionElem;
+  });
+
+  const questionOptionsFragment = document.createDocumentFragment();
+  questionOptionElems.forEach(optionElem => questionOptionsFragment.appendChild(optionElem));
+
+  return questionOptionsFragment;
+}
+
+function getChoiceQuestionTemplate() {
   return `
     <div class="question__body">
        <div class="question__text">
         <label class="form-label" for="question-condition">Введите вопрос:</label>
-        <input class="form-input" type="text" id="question-condition" value="${questionText}" data-question-text>
       </div>
       <div class="question__answer">
-        <ul class="question__answer-options">
-            ${questionOptionsHTML ? questionOptionsHTML : ""}
-        </ul>
+        <ul class="question__answer-options"></ul>
         <div class="question__add-option">
             <input class="form-input" type="text" placeholder="Введите вариант" data-option-input>
             <button class="btn btn-primary" data-action="addOption">Добавить вариант</button>
@@ -86,78 +120,70 @@ export function MultipleChoiceQuestionFormTemplate(questionData) {
   `
 }
 
+function ChoiceQuestionFormTemplate(questionData, {type}) {
+  if (type !== "checkbox" && type !== "radio") {
+    throw new Error("type - must be a checkbox or radio");
+  }
 
-export function TextQuestionTemplate(questionData) {
-  const questionText = questionData.text;
-  const questionAnswer = questionData.answer;
-  return `
-    <li class="test__question" data-question-number="${questionData.number}" data-question-type="text" data-question-type-label="Текстовый ответ">
-      <div class="test__question-body">
-        <h5 class="test__question-text">
-            <span>Вопрос ${questionData.number}:</span> <span>${questionText}</span>
-        </h5>
-        <p class="test__question-answer">
-          <span>Ответ:</span> <span>${questionAnswer}</span>
-        </p>
-      </div>
-      <div class="test__question-controls">
-        <button class="btn btn-secondary test__question-edit" data-action="editQuestion">
-            <i class="fa-solid fa-pen"></i>
-        </button>
-        <button class="btn btn-danger test__question-delete" data-action="deleteQuestion">
-            <i class="fa-solid fa-trash"></i>
-        </button>
-      </div>
-    </li>
-  `;
+  const questionText = questionData?.text ?? "";
+
+  const questionConditionElem = getQuestionConditionElem(questionText);
+  const questionOptionsFragment = getQuestionOptionElemsFragment(questionData, type);
+
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = getChoiceQuestionTemplate();
+
+  wrapper.querySelector('.question__text').appendChild(questionConditionElem);
+  wrapper.querySelector('.question__answer-options').appendChild(questionOptionsFragment);
+
+  return wrapper.querySelector('.question__body');
 }
 
-export function SingleChoiceQuestionTemplate(questionData) {
-  const questionText = questionData.text;
-  const questionAnswer = questionData.answer;
-  return `
-    <li class="test__question" data-question-number="${questionData.number}" data-question-type="single_choice" data-question-type-label="Один вариант">
-      <div class="test__question-body">
-        <h5 class="test__question-text">
-            <span>Вопрос ${questionData.number}:</span> <span>${questionText}</span>
-        </h5>
-        <p class="test__question-answer">
-          <span>Ответ:</span> <span>${questionAnswer}</span>
-        </p>
-      </div>
-      <div class="test__question-controls">
-        <button class="btn btn-secondary test__question-edit" data-action="editQuestion">
-            <i class="fa-solid fa-pen"></i>
-        </button>
-        <button class="btn btn-danger test__question-delete" data-action="deleteQuestion">
-            <i class="fa-solid fa-trash"></i>
-        </button>
-      </div>
-    </li>
-  `;
-}
+function QuestionCardTemplate(questionData, {questionType}) {
+  const questionTypeLabels = {
+    "text": "Текстовый ответ",
+    "single_choice": "Один вариант",
+    "multiple_choice": "Несколько вариантов"
+  };
 
-export function MultipleChoiceQuestionTemplate(questionData) {
-  const questionText = questionData.text;
-  const questionAnswer = questionData.answer.join(",");
-  return `
-    <li class="test__question" data-question-number="${questionData.number}" data-question-type="multiple_choice" data-question-type-label="Несколько вариантов">
-      <div class="test__question-body">
-        <h5 class="test__question-text">
-            <span>Вопрос ${questionData.number}:</span> <span>${questionText}</span>
-        </h5>
-        <p class="test__question-answer">
-          <span>Ответ:</span> <span>${questionAnswer}</span>
-        </p>
-      </div>
-      <div class="test__question-controls">
-        <button class="btn btn-secondary test__question-edit" data-action="editQuestion">
-            <i class="fa-solid fa-pen"></i>
-        </button>
-        <button class="btn btn-danger test__question-delete" data-action="deleteQuestion">
-            <i class="fa-solid fa-trash"></i>
-        </button>
-      </div>
-    </li>
+  if (!(questionType in questionTypeLabels)) {
+    throw new Error("Question types must be one of the following question types: text, single_choice, multiple_choice");
+  }
+
+  const questionText = String(questionData.text ?? "");
+  const questionAnswer = Array.isArray(questionData.answer)
+    ? questionData.answer.join(", ")
+    : String(questionData.answer ?? "")
+
+  const testQuestionElem = document.createElement("li");
+  testQuestionElem.classList.add("test__question");
+  testQuestionElem.dataset.questionType = questionType;
+  testQuestionElem.dataset.questionTypeLabel = questionTypeLabels[questionType];
+  testQuestionElem.dataset.questionNumber = String(Number(questionData.number) || 0);
+
+  testQuestionElem.innerHTML = `
+    <div class="test__question-body">
+      <h5 class="test__question-text"></h5>
+      <p class="test__question-answer"></p>
+    </div>
+    <div class="test__question-controls">
+      <button class="btn btn-secondary test__question-edit" data-action="editQuestion">
+          <i class="fa-solid fa-pen"></i>
+      </button>
+      <button class="btn btn-danger test__question-delete" data-action="deleteQuestion">
+          <i class="fa-solid fa-trash"></i>
+      </button>
+    </div>
   `;
+
+  const questionTextElem = document.createElement("span");
+  questionTextElem.textContent = `Вопрос ${questionData.number}: ${questionText}`;
+
+  const questionAnswerElem = document.createElement("span");
+  questionAnswerElem.textContent = `Ответ: ${questionAnswer}`;
+
+  testQuestionElem.querySelector('.test__question-text').appendChild(questionTextElem);
+  testQuestionElem.querySelector('.test__question-answer').appendChild(questionAnswerElem);
+
+  return testQuestionElem;
 }

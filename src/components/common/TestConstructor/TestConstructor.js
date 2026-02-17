@@ -60,7 +60,7 @@ class QuestionConstructor {
       testData.questions_number = testData.questions.length;
     } else if (this.mode === "update") {
       const oldIndex = testData.questions.findIndex(q => q.number === newQuestionData.number);
-      testData[oldIndex] = newQuestionData;
+      testData.questions[oldIndex] = newQuestionData;
     }
   }
 
@@ -73,7 +73,6 @@ class QuestionConstructor {
           this._updateData();
           return this.onSuccess?.();
         case 'cancel':
-          this._updateData();
           return this.onCancel?.();
       }
     });
@@ -101,9 +100,7 @@ class TextQuestion {
   }
 
   render() {
-    const wrapper = document.createElement("div");
-    wrapper.innerHTML = TextQuestionFormTemplate(this.questionData);
-    this.questionBodyElem = wrapper.querySelector(".question__body");
+    this.questionBodyElem = TextQuestionFormTemplate(this.questionData);
     return this.questionBodyElem
   }
 
@@ -133,9 +130,7 @@ class SingleChoiceQuestion {
   }
 
   render() {
-    const wrapper = document.createElement("div");
-    wrapper.innerHTML = SingleChoiceQuestionFormTemplate(this.questionData);
-    this.questionBodyElem = wrapper.querySelector(".question__body");
+    this.questionBodyElem = SingleChoiceQuestionFormTemplate(this.questionData);
     return this.questionBodyElem;
   }
 
@@ -196,9 +191,7 @@ class MultipleChoiceQuestion {
   }
 
   render() {
-    const wrapper = document.createElement("div");
-    wrapper.innerHTML = MultipleChoiceQuestionFormTemplate(this.questionData);
-    this.questionBodyElem = wrapper.querySelector(".question__body");
+    this.questionBodyElem = MultipleChoiceQuestionFormTemplate(this.questionData);
     return this.questionBodyElem;
   }
 
@@ -252,18 +245,16 @@ class MultipleChoiceQuestion {
 }
 
 function QuestionRenderer(questionData) {
-  const wrapper = document.createElement("div");
   const questionType = questionData.type;
   switch (questionType) {
     case "text":
-      wrapper.innerHTML = TextQuestionTemplate(questionData);
-      return wrapper.querySelector(".test__question");
+      return TextQuestionTemplate(questionData);
     case "single_choice":
-      wrapper.innerHTML = SingleChoiceQuestionTemplate(questionData);
-      return wrapper.querySelector(".test__question");
+      return SingleChoiceQuestionTemplate(questionData);
     case "multiple_choice":
-      wrapper.innerHTML = MultipleChoiceQuestionTemplate(questionData);
-      return wrapper.querySelector(".test__question");
+      return MultipleChoiceQuestionTemplate(questionData);
+    default:
+      throw new Error(`Question type "${questionType}" not supported`);
   }
 }
 
@@ -286,6 +277,8 @@ export default class TestConstructor {
       if (err.status === 404) {
         this.data = {
           title: "",
+          lesson_id: this.lessonId,
+          course_id: this.courseId,
           questions: [],
           questions_number: 0
         };
