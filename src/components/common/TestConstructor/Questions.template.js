@@ -70,18 +70,27 @@ function getQuestionConditionElem(questionText) {
   return questionConditionElem;
 }
 
+function isOptionSelected(optionValue, questionAnswer) {
+  const option = String(optionValue).trim();
+  if (Array.isArray(questionAnswer)) {
+    return questionAnswer.includes(option);
+  }
+
+  return option === String(questionAnswer ?? "").trim();
+}
+
 function getQuestionOptionElemsFragment(questionData, type) {
   if (type !== "checkbox" && type !== "radio") {
     throw new Error("type - must be a checkbox or radio")
   }
 
   const questionOptionElems = (questionData?.options ?? []).map((option, index) => {
-    const isCorrect = option.value === questionData.answer;
+    const isCorrect = isOptionSelected(option.value, questionData.answer);
     const questionOptionElem = document.createElement("li");
     questionOptionElem.classList.add("question__option");
 
     const optionLabelElem = document.createElement("label");
-    optionLabelElem.setAttribute("for", `answer-${index}`);
+    optionLabelElem.htmlFor = `answer-${index}`;
     optionLabelElem.textContent = option.text;
 
     const optionInputElem = document.createElement("input");
@@ -160,6 +169,7 @@ function QuestionCardTemplate(questionData, {questionType}) {
   testQuestionElem.dataset.questionType = questionType;
   testQuestionElem.dataset.questionTypeLabel = questionTypeLabels[questionType];
   testQuestionElem.dataset.questionNumber = String(Number(questionData.number) || 0);
+  testQuestionElem.dataset.questionId = String(questionData.id);
 
   testQuestionElem.innerHTML = `
     <div class="test__question-body">

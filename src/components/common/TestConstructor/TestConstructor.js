@@ -9,20 +9,19 @@ import {
   SingleChoiceQuestionTemplate, MultipleChoiceQuestionTemplate, MultipleChoiceQuestionFormTemplate,
 } from "./Questions.template.js";
 
+function createQuestionId() {
+  return crypto.randomUUID();
+}
+
 class QuestionConstructor {
   constructor({
-                getData,
                 QuestionType,
                 questionData = null,
-                questionNumber = null,
                 containerElement,
                 onSuccess = null,
                 onCancel = null
               }) {
-    this.getData = getData;
     this.questionData = questionData;
-    this.mode = questionData ? "update" : "create";
-    this.questionNumber = questionNumber;
     this.QuestionType = QuestionType;
     this.questionInstance = null;
 
@@ -41,7 +40,6 @@ class QuestionConstructor {
     this.questionElem = wrapper.querySelector(".question");
     this.questionInstance = new this.QuestionType({
       questionData: this.questionData,
-      questionNumber: this.questionNumber
     });
     this.questionInstance.render();
   }
@@ -52,26 +50,21 @@ class QuestionConstructor {
     this.containerElement.appendChild(this.questionElem);
   }
 
-  _updateData() {
-    const testData = this.getData();
-    const newQuestionData = this.questionInstance.getQuestionData();
-    if (this.mode === "create") {
-      testData.questions.push(newQuestionData);
-      testData.questions_number = testData.questions.length;
-    } else if (this.mode === "update") {
-      const oldIndex = testData.questions.findIndex(q => q.number === newQuestionData.number);
-      testData.questions[oldIndex] = newQuestionData;
-    }
+  _getQuestionData() {
+    return this.questionInstance.getQuestionData();
   }
+
+  _validateQuestionData() {}
 
   handleEvents() {
     this.questionElem.querySelector('.question__controls').addEventListener('click', (e) => {
-      const action = e.target.closest('[data-action]').dataset.action;
+      const action = e.target.closest('[data-action]')?.dataset.action;
       if (!action) return;
       switch (action) {
         case 'save':
-          this._updateData();
-          return this.onSuccess?.();
+          const draft = this._getQuestionData();
+          this._validateQuestionData()
+          return this.onSuccess?.(draft);
         case 'cancel':
           return this.onCancel?.();
       }
@@ -93,9 +86,8 @@ class QuestionConstructor {
 }
 
 class TextQuestion {
-  constructor({questionData = null, questionNumber}) {
+  constructor({questionData = null}) {
     this.questionData = questionData ? questionData : {};
-    this.questionNumber = questionNumber;
     this.questionBodyElem = null;
   }
 
@@ -111,22 +103,22 @@ class TextQuestion {
   }
 
   getQuestionData() {
+    const draft = {};
     const questionText = this.questionBodyElem.querySelector('[data-question-text]').value;
     const questionAnswer = this.questionBodyElem.querySelector('[data-question-answer]').value;
-    this.questionData.type = "text";
-    this.questionData.text = questionText;
-    this.questionData.answer = questionAnswer.toLowerCase().trim();
-    this.questionData.number = Number(this.questionNumber);
-    return this.questionData;
+    draft.id = this.questionData.id ? this.questionData.id : createQuestionId();
+    draft.type = "text";
+    draft.text = questionText;
+    draft.answer = questionAnswer.toLowerCase().trim();
+    return draft;
   }
 }
 
 class SingleChoiceQuestion {
-  constructor({questionData = null, questionNumber}) {
+  constructor({questionData = null}) {
     this.questionData = questionData ? questionData : {};
-    this.questionNumber = questionNumber;
     this.questionBodyElem = null;
-    this.options = this.questionData?.options || [];
+    this.options = structuredClone(this.questionData?.options) || [];
   }
 
   render() {
@@ -141,14 +133,15 @@ class SingleChoiceQuestion {
   }
 
   getQuestionData() {
+    const draft = {};
     const questionText = this.questionBodyElem.querySelector('[data-question-text]').value;
-    const questionAnswer = this.questionBodyElem.querySelector('input[name="answer"]:checked').value;
-    this.questionData.type = "single_choice";
-    this.questionData.text = questionText;
-    this.questionData.answer = questionAnswer.toLowerCase().trim();
-    this.questionData.number = Number(this.questionNumber);
-    this.questionData.options = this.options;
-    return this.questionData;
+    const questionAnswer = this.questionBodyElem.querySelector('input[name="answer"]:checked')?.value ?? "Ответ не выбран";
+    draft.id = this.questionData.id ? this.questionData.id : createQuestionId();
+    draft.type = "single_choice";
+    draft.text = questionText;
+    draft.answer = questionAnswer.toLowerCase().trim();
+    draft.options = this.options;
+    return draft;
   }
 
   handleEvents() {
@@ -170,10 +163,12 @@ class SingleChoiceQuestion {
     const input = document.createElement("input");
 
     label.textContent = option.text;
+    label.htmlFor = `answer-${this.options.length}`;
+
     input.type = "radio";
     input.value = option.value;
     input.name = "answer";
-    input.id = `answer${this.options.length}`;
+    input.id = `answer-${this.options.length}`;
 
     container.appendChild(label);
     container.appendChild(input);
@@ -183,11 +178,10 @@ class SingleChoiceQuestion {
 }
 
 class MultipleChoiceQuestion {
-  constructor({questionData = null, questionNumber}) {
+  constructor({questionData = null,}) {
     this.questionData = questionData ? questionData : {};
-    this.questionNumber = questionNumber;
     this.questionBodyElem = null;
-    this.options = this.questionData?.options || [];
+    this.options = structuredClone(this.questionData?.options) || [];
   }
 
   render() {
@@ -202,15 +196,16 @@ class MultipleChoiceQuestion {
   }
 
   getQuestionData() {
+    const draft = {};
     const questionText = this.questionBodyElem.querySelector('[data-question-text]').value;
     const questionAnswerElems = this.questionBodyElem.querySelectorAll('input[name="answer"]:checked');
     const questionAnswer = Array.from(questionAnswerElems).map(e => e.value.trim());
-    this.questionData.type = "multiple_choice";
-    this.questionData.text = questionText;
-    this.questionData.answer = questionAnswer;
-    this.questionData.number = Number(this.questionNumber);
-    this.questionData.options = this.options;
-    return this.questionData;
+    draft.id = this.questionData.id ? this.questionData.id : createQuestionId();
+    draft.type = "multiple_choice";
+    draft.text = questionText;
+    draft.answer = questionAnswer;
+    draft.options = this.options;
+    return draft;
   }
 
   handleEvents() {
@@ -232,10 +227,12 @@ class MultipleChoiceQuestion {
     const input = document.createElement("input");
 
     label.textContent = option.text;
+    label.htmlFor = `answer-${this.options.length}`;
+
     input.type = "checkbox";
     input.value = option.value;
     input.name = "answer";
-    input.id = `answer${this.options.length}`;
+    input.id = `answer-${this.options.length}`;
 
     container.appendChild(label);
     container.appendChild(input);
@@ -331,8 +328,6 @@ export default class TestConstructor {
     switch (action) {
       case "cancel":
         history.back();
-        const url = window.location.href;
-        return window.router.navigate(url);
     }
   }
 
@@ -352,14 +347,17 @@ export default class TestConstructor {
   async _handleQuestionControls(event) {
     const action = event.target.closest('[data-action]')?.dataset?.action;
     if (!action) return;
-    const questionNumber = Number(event.target.closest('[data-question-number]').dataset.questionNumber);
-    const questionData = this.data.questions.find(question => question.number === questionNumber);
-    if (!questionData) throw new Error(`Question number ${questionNumber} not found!`);
+    const questionId = event.target.closest('[data-question-id]')?.dataset?.questionId;
+    if (!questionId) throw new Error(`Question ID ${questionId} not found!`);
+    const questionData = this.data.questions.find(question => question.id === questionId);
+    if (!questionData) throw new Error(`Question ID ${questionId} not found!`);
     switch (action) {
       case "editQuestion":
         return await this._openModal(questionData.type, questionData);
       case "deleteQuestion":
-        this.data.questions = this.data.questions.filter(question => question.number !== questionNumber);
+        const questions = this.data.questions.filter(question => question.id !== questionId);
+        this.data = {...this.data, questions};
+        this._renumberQuestions();
         this._drawQuestionList();
     }
   }
@@ -371,16 +369,13 @@ export default class TestConstructor {
       "multiple_choice": MultipleChoiceQuestion,
     };
 
-    const questionNumber = questionData?.number ?? this.data.questions_number + 1;
-
     const modal = new ModalWithComponent({
       Component: QuestionConstructor,
       componentProps: {
-        getData: () => this.data,
         QuestionType: questionTypes[questionType],
-        questionNumber: questionNumber,
         questionData: questionData,
-        onSuccess: () => {
+        onSuccess: (draft) => {
+          this._applyQuestionDraft(draft)
           this._drawQuestionList();
           modal.destroy();
         },
@@ -389,6 +384,28 @@ export default class TestConstructor {
       title: "Составьте вопрос"
     });
     await modal.draw();
+  }
+
+  _applyQuestionDraft(draft) {
+    const prev = this.data;
+
+    const updatedIndex = prev.questions.findIndex(q => q.id === draft.id);
+    if (updatedIndex !== -1) {
+      const questions = prev.questions.with(updatedIndex, draft);
+      this.data = {...prev, questions};
+    } else {
+      const questions = [...prev.questions, draft];
+      this.data = {...prev, questions};
+    }
+
+    this._renumberQuestions();
+  }
+
+  _renumberQuestions() {
+    const questions = this.data.questions.map((question, index) => (
+      {...question, number: index+1}
+    ));
+    this.data = {...this.data, questions, questions_number: questions.length};
   }
 
   async draw() {
