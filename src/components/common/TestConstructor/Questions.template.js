@@ -1,11 +1,11 @@
 export function BaseQuestionFormTemplate() {
   return `
-    <div class="question">
+    <form class="question" data-question-form>
       <div class="question__controls">
-          <button class="btn btn-secondary" data-action="cancel">Отменить</button>
-          <button class="btn btn-primary" data-action="save">Сохранить</button>
+          <button class="btn btn-secondary" data-action="cancel" type="button">Отменить</button>
+          <button class="btn btn-primary" data-action="save" type="submit">Сохранить</button>
       </div>
-    </div>
+    </form>
   `
 }
 
@@ -18,6 +18,7 @@ export function TextQuestionFormTemplate(questionData) {
   const questionAnswerElem = document.createElement("input");
   questionAnswerElem.id = "question-answer";
   questionAnswerElem.type = "text";
+  questionAnswerElem.name = "answer";
   questionAnswerElem.value = questionAnswer;
   questionAnswerElem.classList.add("form-input");
   questionAnswerElem.dataset.questionAnswer = '';
@@ -48,6 +49,7 @@ export function MultipleChoiceQuestionFormTemplate(questionData) {
   return ChoiceQuestionFormTemplate(questionData, {type: "checkbox"});
 }
 
+
 export function TextQuestionTemplate(questionData) {
   return QuestionCardTemplate(questionData, {questionType: "text"});
 }
@@ -60,9 +62,11 @@ export function MultipleChoiceQuestionTemplate(questionData) {
   return QuestionCardTemplate(questionData, {questionType: "multiple_choice"});
 }
 
+
 function getQuestionConditionElem(questionText) {
   const questionConditionElem = document.createElement("input");
   questionConditionElem.id = "question-condition";
+  questionConditionElem.name = "text";
   questionConditionElem.type = "text";
   questionConditionElem.value = questionText;
   questionConditionElem.classList.add("form-input");
@@ -119,10 +123,11 @@ function getChoiceQuestionTemplate() {
         <label class="form-label" for="question-condition">Введите вопрос:</label>
       </div>
       <div class="question__answer">
-        <ul class="question__answer-options"></ul>
+        <ul class="question__answer-options" data-options-list></ul>
+        <div data-options-error></div>
         <div class="question__add-option">
-            <input class="form-input" type="text" placeholder="Введите вариант" data-option-input>
-            <button class="btn btn-primary" data-action="addOption">Добавить вариант</button>
+            <input class="form-input" type="text" name="optionInp" placeholder="Введите вариант" data-option-input>
+            <button class="btn btn-primary" data-action="addOption" type="button">Добавить вариант</button>
         </div>
       </div>
     </div>
@@ -166,7 +171,6 @@ function QuestionCardTemplate(questionData, {questionType}) {
 
   const testQuestionElem = document.createElement("li");
   testQuestionElem.classList.add("test__question");
-  testQuestionElem.dataset.questionType = questionType;
   testQuestionElem.dataset.questionTypeLabel = questionTypeLabels[questionType];
   testQuestionElem.dataset.questionNumber = String(Number(questionData.number) || 0);
   testQuestionElem.dataset.questionId = String(questionData.id);

@@ -16,17 +16,17 @@ export const TestConstructorTemplate = (test) => {
               <div class="test__add-questions">
                 <ul class="test__question-types" data-hidden="true">
                   <li class="test__question-type">
-                      <button class="btn" data-action="CreateTextQuestion">
+                      <button class="btn" data-action="createQuestion" data-question-type="text">
                           <span><i class="fa-solid fa-a"></i></span> <span>Текстовый ответ</span> 
                       </button>
                   </li>
                   <li class="test__question-type">
-                      <button class="btn" data-action="CreateSingleChoiceQuestion">
+                      <button class="btn" data-action="createQuestion" data-question-type="single_choice">
                           <span><i class="fa-regular fa-circle-dot"></i></span> <span>Один вариант</span> 
                       </button>
                   </li>
                   <li class="test__question-type">
-                      <button class="btn" data-action="CreateMultipleChoiceQuestion">
+                      <button class="btn" data-action="createQuestion" data-question-type="multiple_choice">
                           <span><i class="fa-regular fa-square-check"></i></span> <span>Несколько вариантов</span>
                       </button>
                   </li>

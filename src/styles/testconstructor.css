@@ -326,6 +326,14 @@
     min-width: 220px;
 }
 
+.question__answer div[data-options-error] {
+    min-height: fit-content;
+}
+
+.question__answer [data-options-error] .form-error {
+    display: block;
+}
+
 .question__controls {
     display: flex;
     justify-content: flex-end;

@@ -105,8 +105,9 @@ class TestView {
     const testControls = this.testElem.querySelector(".test__controls");
     testControls.addEventListener("click", async (event) => {
       const action = event.target.closest('[data-action]')?.dataset?.action;
+      const questionType = event.target.closest('[data-question-type]')?.dataset?.questionType;
       if (!action) return;
-      await this.handleTestAction(action);
+      await this.handleTestAction(action, { questionType });
     });
   }
 
@@ -143,13 +144,11 @@ class TestController {
     await this.view.bindQuestionAction();
   }
 
-  async handleTestAction(action) {
+  async handleTestAction(action, payload = {}) {
     if (action === "save") this.saveTest();
     if (action === "cancel") history.back();
-
-    const questionTypeMap = this.getQuestionTypeMap();
-    if (action in questionTypeMap) {
-      await this.openQuestionModal({ questionType: action, questionData: {} });
+    if (action === "createQuestion") {
+      await this.createQuestion(payload.questionType);
     }
   }
 
@@ -158,36 +157,24 @@ class TestController {
       this.state.deleteQuestion(questionId);
       this.view.drawQuestionList(this.state.getState());
     }
-
-    if (action === "editQuestion") await this.openEditModal(questionId);
+    if (action === "editQuestion") await this.editQuestionById(questionId);
   }
 
-  async openEditModal(questionId) {
+  async editQuestionById(questionId) {
     const question = this.state.getQuestion(questionId);
     if (!question) throw new Error(`Question id ${questionId} not found.`);
-    await this.openQuestionModal({ questionType: question.type, questionData: question });
+    await this.openQuestionEditor({ questionType: question.type, questionData: question });
   }
 
-  getQuestionTypeMap() {
-    return {
-      text: TextQuestion,
-      single_choice: SingleChoiceQuestion,
-      multiple_choice: MultipleChoiceQuestion,
-      CreateTextQuestion: TextQuestion,
-      CreateSingleChoiceQuestion: SingleChoiceQuestion,
-      CreateMultipleChoiceQuestion: MultipleChoiceQuestion,
-    };
+  async createQuestion(questionType) {
+    await this.openQuestionEditor({ questionType: questionType, questionData: null });
   }
 
-  async openQuestionModal({ questionType, questionData = {} }) {
-    const questionTypeMap = this.getQuestionTypeMap();
-    const QuestionType = questionTypeMap[questionType];
-    if (!QuestionType) throw new Error(`Question type ${questionType} not supported.`);
-
+  async openQuestionEditor({ questionType, questionData = null }) {
     const modal = new ModalWithComponent({
       Component: QuestionConstructor,
       componentProps: {
-        QuestionType,
+        questionType,
         questionData,
         onSuccess: (draft) => {
           this.applyQuestionDraft(draft);
