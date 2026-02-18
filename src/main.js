@@ -1,16 +1,11 @@
 import './styles/index.css'
 import { Router } from "./router";
 import { AdminLayout } from "./layouts/AdminLayout";
-import TeachersTable from './components/admin_teachers/TeachersTable';
-import TeacherForm from './components/admin_teachers/TeacherForm';
-import StudentsTable from './components/admin_students/StudentsTable';
-import StudentForm from './components/admin_students/StudentForm';
-import GroupsTable from './components/admin_groups/GroupsTable';
-import GroupForm from './components/admin_groups/GroupForm';
-import CoursesList from "./components/admin_courses/CoursesList.js";
-import CourseForm from "./components/admin_courses/CourseForm.js";
-import CoursePage from "./components/admin_courses/CoursePage.js";
-import TestConstructor from "./components/common/TestConstructor/TestConstructor.js";
+import { TeacherForm, TeachersTable } from "./components/admin_teachers/index.js";
+import { StudentForm, StudentsTable } from "./components/admin_students/index.js";
+import { GroupForm, GroupsTable } from "./components/admin_groups/index.js";
+import { CourseForm, CoursePage, CoursesList } from "./components/admin_courses/index.js";
+import TestConstructor from "./components/admin_courses/features/TestConstructor/TestConstructor.js";
 
 const ROUTES = {
   "/admin": {

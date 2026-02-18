@@ -1,4 +1,4 @@
-import NotFoundPage from "./core/NotFoundPage";
+import NotFoundPage from "./components/common/pages/NotFoundPage.js";
 
 export class Router {
   constructor(routes) {
