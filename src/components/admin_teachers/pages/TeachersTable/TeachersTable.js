@@ -4,13 +4,14 @@ import TableComponent from '../../../../core/TableComponent.js';
 import TeacherService from '../../../../services/TeacherService.js';
 
 export default class TeachersTable extends TableComponent {
-  constructor() {
+  constructor({ containerElement = null }) {
     super({
       Service: TeacherService,
       template,
       rowRenderer: TeacherRow,
       idAttr: "teacherId",
       entityName: "преподавателя",
+      containerElement: containerElement
     });
   }
 }

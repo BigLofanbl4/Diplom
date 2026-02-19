@@ -4,13 +4,14 @@ import StudentService from "../../../../services/StudentService.js";
 import { StudentRow } from "../../ui/StudentsTableRow/StudentsTableRow.template.js";
 
 export default class StudentsTable extends TableComponent {
-  constructor() {
+  constructor({ containerElement = null }) {
     super({
       Service: StudentService,
       template,
       rowRenderer: StudentRow,
       idAttr: "studentId",
       entityName: "студента",
+      containerElement: containerElement
     });
   }
 }

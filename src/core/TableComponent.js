@@ -1,5 +1,5 @@
 export default class TableComponent {
-  constructor({Service, template, rowRenderer, idAttr, entityName, emptyRow = ""} ) {
+  constructor({Service, template, rowRenderer, idAttr, entityName, emptyRow = "", containerElement } ) {
 
     this.data = null;
     this.template = template;
@@ -12,6 +12,8 @@ export default class TableComponent {
     this.boundClickHandler = null;
     this.elements = {};
     this.Service = Service;
+    this.containerElement = containerElement;
+    this.root = null;
   }
 
   async fetchData() {
@@ -28,15 +30,20 @@ export default class TableComponent {
     if (!this.rowsHTML) {
       this.rowsHTML = this.emptyRow;
     }
-  }
-
-  mount() {
-    const componentContainer = document.getElementById("component");
-    componentContainer.innerHTML = this.template;
-    this.tbody = componentContainer.querySelector(".table__body");
+    this.root = document.createElement("div");
+    this.root.dataset.root = "";
+    this.root.innerHTML = this.template;
+    this.tbody = this.root.querySelector("tbody");
     if (this.tbody) {
       this.tbody.innerHTML = this.rowsHTML;
     }
+  }
+
+  mount() {
+    if (!this.containerElement) {
+      this.containerElement = document.getElementById("component");
+    }
+    this.containerElement.appendChild(this.root);
   }
 
   handleEvents() {
@@ -60,6 +67,7 @@ export default class TableComponent {
       }
     };
 
+    if (!this.tbody) return;
     this.tbody.addEventListener("click", this.boundClickHandler);
   }
 
@@ -70,10 +78,7 @@ export default class TableComponent {
   }
 
   destroy() {
-    const componentContainer = document.getElementById("component");
-    if (componentContainer) {
-      componentContainer.innerHTML = "";
-    }
+    if (this.root) this.root.remove();
 
     this.elements = {};
     this.data = null;

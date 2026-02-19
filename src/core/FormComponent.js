@@ -163,9 +163,7 @@ export default class FormComponent {
   }
 
   destroy() {
-    if (this.containerElement) {
-      this.containerElement.innerHTML = "";
-    }
+    if (this.form) this.form.remove();
     this.removeEventListeners();
   }
 }

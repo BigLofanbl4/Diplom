@@ -5,7 +5,7 @@ import { GroupRow }from "../../ui/GroupsTableRow/GroupsTableRow.template.js";
 
 
 export default class GroupsTable extends TableComponent {
-  constructor() {
+  constructor({ containerElement = null}) {
     super({
       Service: GroupService,
       template,
@@ -17,6 +17,7 @@ export default class GroupsTable extends TableComponent {
           <td class="table__col table__large-col">Групп нет!</td>
         </tr>
       `,
+      containerElement: containerElement
     });
   }
 }
