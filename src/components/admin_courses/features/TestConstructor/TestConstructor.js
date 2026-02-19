@@ -74,7 +74,7 @@ class TestBuilderView {
 
   render(state) {
     this.testContainer = this.testContainer ? this.testContainer : document.getElementById("component");
-    this.testContainer.innerHTML = "";
+    if (this.testElem) this.testElem.remove();
     const wrapper = document.createElement("div");
     this.template = TestConstructorTemplate(state);
     wrapper.innerHTML = this.template;

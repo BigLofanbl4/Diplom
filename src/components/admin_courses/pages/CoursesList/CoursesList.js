@@ -64,7 +64,6 @@ export default class CoursesList extends CardListComponent {
   }
 
   async draw() {
-    this.destroy();
     await this.fetchCardData();
     this.render();
     this.mount();

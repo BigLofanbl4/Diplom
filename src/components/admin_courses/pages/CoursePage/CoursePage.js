@@ -220,6 +220,10 @@ export default class CoursePage {
 
     this.lessonController = null;
     this.moduleController = null;
+
+    this.boundPageClick = null;
+    this.boundGeneralInput = null;
+    this.boundGeneralSubmit = null;
   }
 
   async fetchData() {
@@ -249,7 +253,7 @@ export default class CoursePage {
   handleEvents() {
     this._handleGeneralForm();
 
-    this.page.addEventListener("click", async (e) => {
+    this.boundPageClick = async (e) => {
       const action = e.target.closest("[data-action]")?.dataset.action;
       if (this.moduleController.canHandle(action)) {
         return await this.moduleController.handle(action, e);
@@ -258,7 +262,9 @@ export default class CoursePage {
       if (this.lessonController.canHandle(action)) {
         return await this.lessonController.handle(action, e);
       }
-    });
+    }
+
+    this.page.addEventListener("click", this.boundPageClick);
   }
 
   async draw() {
@@ -270,7 +276,10 @@ export default class CoursePage {
   }
 
   destroy() {
-    this.pageContainer.innerHTML = "";
+    this.page?.removeEventListener("click", this.boundPageClick);
+    this.generalForm?.removeEventListener("input", this.boundGeneralInput);
+    this.generalForm?.removeEventListener("submit", this.boundGeneralSubmit);
+    if (this.page) this.page.remove();
   }
 
   _initControllers() {
@@ -296,7 +305,7 @@ export default class CoursePage {
   }
 
   _handleGeneralForm() {
-    this.generalForm.addEventListener("input", (e) => {
+    this.boundGeneralInput = () => {
       const formControls = this.generalForm.querySelector(".course__general-form-controls");
       if (!formControls) return;
       const formFields = Array.from(this.generalForm.elements).filter(e => e.name !== "");
@@ -306,9 +315,9 @@ export default class CoursePage {
       } else {
         formControls.style.display = "none";
       }
-    });
+    }
 
-    this.generalForm.addEventListener("submit", async (e) => {
+    this.boundGeneralSubmit = async (e) => {
       e.preventDefault();
       const formData = new FormData(this.generalForm);
       const payload = Object.fromEntries(formData);
@@ -321,6 +330,9 @@ export default class CoursePage {
       }
       const formControls = this.generalForm.querySelector(".course__general-form-controls");
       formControls.style.display = "none";
-    })
+    }
+
+    this.generalForm.addEventListener("input", this.boundGeneralInput);
+    this.generalForm.addEventListener("submit", this.boundGeneralSubmit);
   }
 }
