@@ -16,7 +16,7 @@ export default class SelectFormComponent extends FormComponent {
       }
       const entries = await Promise.all(this.msConfigs.map(async config => {
         const items = await config.listService.getAll();
-        const key = config.elementId;
+        const key = config.dataKey;
         return [key, items];
       }));
       this.msLists = Object.fromEntries(entries);
@@ -27,7 +27,7 @@ export default class SelectFormComponent extends FormComponent {
 
   initCustomFields() {
     this.msConfigs.forEach(config => {
-      const options = (this.msLists?.[config.elementId] ?? []).map(entity => ({
+      const options = (this.msLists?.[config.dataKey] ?? []).map(entity => ({
         value: entity.id,
         text: config.label(entity)
       }));
