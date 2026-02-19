@@ -4,10 +4,7 @@ html {
 
 body {
   position: relative;
-  background:
-    radial-gradient(circle at 8% 12%, rgba(23, 102, 208, 0.15), transparent 36%),
-    radial-gradient(circle at 88% 8%, rgba(0, 119, 155, 0.14), transparent 32%),
-    linear-gradient(165deg, #f8fbff 0%, var(--cl-bg-primary) 52%, #edf3fc 100%);
+  background: var(--cl-bg-primary);
   color: var(--cl-text-primary);
   font-family: var(--primary-font);
   font-size: var(--fz-300);
@@ -81,17 +78,15 @@ a:focus-visible {
 }
 
 #component > * {
-  animation: router-enter 0.25s ease-out;
+  animation: router-enter 0.18s ease-out;
 }
 
 @keyframes router-enter {
   from {
     opacity: 0;
-    transform: translateY(6px);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }

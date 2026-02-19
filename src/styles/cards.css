@@ -10,8 +10,8 @@
 }
 
 .cards__list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: var(--mg-400);
 }
 
@@ -23,7 +23,7 @@
 
 .card {
   width: 100%;
-  background: linear-gradient(165deg, rgba(255, 255, 255, 0.96), rgba(248, 251, 255, 0.94));
+  background: var(--cl-surface);
   border: 1px solid rgba(147, 165, 192, 0.28);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
@@ -31,12 +31,11 @@
   display: flex;
   flex-direction: column;
   gap: var(--mg-300);
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  transition: box-shadow var(--transition-fast);
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
 }
 
 .card__header {
@@ -77,31 +76,29 @@
   display: flex;
   justify-content: flex-end;
   flex-wrap: wrap;
+  align-items: flex-end;
+  margin-top: auto;
   gap: var(--mg-200);
 }
 
 .card__footer .btn,
 .card__footer a.btn {
   min-width: 0;
-  white-space: normal;
+  white-space: nowrap;
   text-align: center;
   line-height: 1.25;
   border-radius: var(--radius-md);
   padding: var(--pd-300) var(--pd-400);
-  flex: 1 1 180px;
+  flex: 0 0 auto;
 }
 
 @media (max-width: 768px) {
-  .cards__list {
-    grid-template-columns: 1fr;
-  }
-
   .card {
     padding: var(--pd-500);
   }
 
   .card__footer .btn {
-    width: 100%;
-    flex-basis: 100%;
+    width: auto;
+    flex-basis: auto;
   }
 }

@@ -1,5 +1,5 @@
 .createBtn {
-  background: linear-gradient(120deg, var(--cl-primary), #2780dc);
+  background: var(--cl-primary);
   color: #fff;
   font-family: var(--heading-font);
   font-size: var(--fz-300);
@@ -9,7 +9,7 @@
   border-radius: 999px;
   cursor: pointer;
   transition: all 0.25s ease;
-  box-shadow: 0 10px 20px rgba(23, 102, 208, 0.22);
+  box-shadow: none;
 }
 
 .createBtn:visited,
@@ -20,9 +20,7 @@
 }
 
 .createBtn:hover {
-  background: linear-gradient(120deg, var(--cl-primary-hover), #1f6ec2);
-  transform: translateY(-1px);
-  box-shadow: 0 14px 22px rgba(23, 102, 208, 0.28);
+  background: var(--cl-primary-hover);
 }
 
 .btn {
@@ -42,9 +40,9 @@
 }
 
 .btn-primary {
-  background: linear-gradient(120deg, var(--cl-primary), #2780dc);
+  background: var(--cl-primary);
   color: white;
-  box-shadow: 0 10px 18px rgba(23, 102, 208, 0.2);
+  box-shadow: none;
 }
 
 .btn-primary:visited,
@@ -55,9 +53,7 @@
 }
 
 .btn-primary:hover {
-  background: linear-gradient(120deg, var(--cl-primary-hover), #1e6dc0);
-  transform: translateY(-1px);
-  box-shadow: 0 14px 20px rgba(23, 102, 208, 0.28);
+  background: var(--cl-primary-hover);
 }
 
 .btn-secondary {
@@ -79,7 +75,7 @@
 }
 
 .btn-danger {
-  background: linear-gradient(120deg, var(--cl-danger-medium), #cc5259);
+  background: var(--cl-danger-medium);
   color: var(--cl-surface);
 }
 
@@ -91,7 +87,7 @@
 }
 
 .btn-danger:hover {
-  background: linear-gradient(120deg, var(--cl-danger), #b93b42);
+  background: var(--cl-danger);
 }
 
 .btn:active {
@@ -99,8 +95,7 @@
 }
 
 .course-module__action-btn,
-.course-lesson__action-btn,
-.course-modules__add-btn {
+.course-lesson__action-btn {
   min-width: auto;
   width: 36px;
   height: 36px;
@@ -138,16 +133,14 @@
 }
 
 .course-modules__add-btn {
-  border-radius: 999px;
-  min-width: 40px;
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(120deg, var(--cl-primary), #2780dc);
+  gap: var(--mg-200);
+  padding: var(--pd-300) var(--pd-400);
+  border-radius: var(--radius-md);
+  background: var(--cl-primary);
   color: var(--cl-surface);
   border: none;
 }
 
 .course-modules__add-btn:hover {
-  background: linear-gradient(120deg, var(--cl-primary-hover), #1e6dc0);
-  box-shadow: var(--shadow-sm);
+  background: var(--cl-primary-hover);
 }

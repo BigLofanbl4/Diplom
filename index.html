@@ -4,6 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Diplom Admin</title>
+  <script>
+    (function () {
+      try {
+        var key = 'theme';
+        var storedTheme = localStorage.getItem(key);
+        var isValid = storedTheme === 'light' || storedTheme === 'dark';
+        var resolvedTheme = isValid
+          ? storedTheme
+          : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.dataset.theme = resolvedTheme;
+      } catch (e) {}
+    })();
+  </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,6 +31,15 @@
           <h3>Лого</h3>
         </div>
         <div class="header__account account"> 
+          <button class="theme-toggle-btn" type="button" data-action="toggle-theme" aria-label="Переключить тему" title="Сменить тему">
+            <span class="theme-toggle-btn__icon theme-toggle-btn__icon--sun">
+              <i class="fa-regular fa-sun"></i>
+            </span>
+            <span class="theme-toggle-btn__icon theme-toggle-btn__icon--moon">
+              <i class="fa-regular fa-moon"></i>
+            </span>
+            <span class="theme-toggle-btn__text">Тема</span>
+          </button>
           <a href="#" class="account__profile">Иванов И.И.</a>
           <a href="#" class="account__logout">Выйти</a>
         </div>

@@ -1,16 +1,16 @@
 import template from './AdminLayout.html?raw'
 import Layout from '../core/Layout'
+import {themeToggle, setTheme} from '../utils/themeToggle.js';
 
 
 export class AdminLayout extends Layout {
   async fetchData() {
-    console.log("Тянем данные...");
     this.data = "Новые данные";
   }
 
   render() {
-    console.log("Рендер панели управления...")
     this.template = template;
+    setTheme();
   }
 
   mount() {
@@ -19,6 +19,14 @@ export class AdminLayout extends Layout {
   }
 
   handleEvents() {
-    console.log("Назначение обработчиков событий...")
+    this.themeToggleButton = document.querySelector('[data-action="toggle-theme"]');
+    this.handleThemeToggle = themeToggle;
+    this.themeToggleButton?.addEventListener('click', this.handleThemeToggle);
+  }
+
+  removeGlobalEventListeners() {
+    this.themeToggleButton?.removeEventListener('click', this.handleThemeToggle);
+    this.themeToggleButton = null;
+    this.handleThemeToggle = null;
   }
 }

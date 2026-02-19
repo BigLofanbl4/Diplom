@@ -18,7 +18,7 @@
 }
 
 .table__head {
-  background: linear-gradient(165deg, #f3f7ff 0%, #edf3fb 100%);
+  background: var(--cl-bg-secondary);
 }
 
 .table__head th {
