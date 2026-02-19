@@ -1,27 +1,37 @@
 .createBtn {
-  background: var(--cl-primary);
+  background: linear-gradient(120deg, var(--cl-primary), #2780dc);
   color: #fff;
-  font-family: var(--primary-font);
-  font-size: var(--fz-400);
-  font-weight: 600;
-  padding: var(--pd-200) var(--pd-400);
+  font-family: var(--heading-font);
+  font-size: var(--fz-300);
+  font-weight: 700;
+  padding: var(--pd-300) var(--pd-500);
   border: none;
-  border-radius: var(--radius-lg);
+  border-radius: 999px;
   cursor: pointer;
-  transition: all 0.4s;
+  transition: all 0.25s ease;
+  box-shadow: 0 10px 20px rgba(23, 102, 208, 0.22);
+}
+
+.createBtn:visited,
+.createBtn:hover,
+.createBtn:active,
+.createBtn:focus-visible {
+  color: #fff;
 }
 
 .createBtn:hover {
-  background: var(--cl-primary-hover);
+  background: linear-gradient(120deg, var(--cl-primary-hover), #1f6ec2);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 22px rgba(23, 102, 208, 0.28);
 }
 
 .btn {
   padding: var(--pd-300) var(--pd-600);
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: 999px;
   font-size: var(--fz-300);
-  font-weight: 600;
-  font-family: var(--primary-font);
+  font-weight: 700;
+  font-family: var(--heading-font);
   cursor: pointer;
   transition: all var(--transition-fast);
   text-decoration: none;
@@ -32,42 +42,62 @@
 }
 
 .btn-primary {
-  background-color: var(--cl-primary);
+  background: linear-gradient(120deg, var(--cl-primary), #2780dc);
   color: white;
+  box-shadow: 0 10px 18px rgba(23, 102, 208, 0.2);
+}
+
+.btn-primary:visited,
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:focus-visible {
+  color: #fff;
 }
 
 .btn-primary:hover {
-  background-color: var(--cl-primary-hover);
+  background: linear-gradient(120deg, var(--cl-primary-hover), #1e6dc0);
   transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 14px 20px rgba(23, 102, 208, 0.28);
 }
 
 .btn-secondary {
-  background-color: var(--cl-bg-secondary);
+  background-color: rgba(255, 255, 255, 0.8);
   color: var(--cl-text-secondary);
-  border: 2px solid var(--cl-border-medium);
+  border: 1px solid rgba(147, 165, 192, 0.46);
+}
+
+.btn-secondary:visited,
+.btn-secondary:active,
+.btn-secondary:focus-visible {
+  color: var(--cl-text-secondary);
 }
 
 .btn-secondary:hover {
-  background-color: var(--cl-bg-tertiary);
+  background-color: #ffffff;
   border-color: var(--cl-border-strong);
   color: var(--cl-text-primary);
 }
 
 .btn-danger {
-  background-color: var(--cl-danger-medium);
+  background: linear-gradient(120deg, var(--cl-danger-medium), #cc5259);
+  color: var(--cl-surface);
+}
+
+.btn-danger:visited,
+.btn-danger:hover,
+.btn-danger:active,
+.btn-danger:focus-visible {
   color: var(--cl-surface);
 }
 
 .btn-danger:hover {
-  background-color: var(--cl-danger);
+  background: linear-gradient(120deg, var(--cl-danger), #b93b42);
 }
 
 .btn:active {
   transform: translateY(0);
 }
 
-/* Icon-only buttons */
 .course-module__action-btn,
 .course-lesson__action-btn,
 .course-modules__add-btn {
@@ -83,14 +113,14 @@
 
 .course-module__action-btn,
 .course-lesson__action-btn {
-  border: 1px solid var(--cl-border-light);
-  background: var(--cl-surface);
+  border: 1px solid rgba(147, 165, 192, 0.4);
+  background: rgba(255, 255, 255, 0.9);
   color: var(--cl-text-secondary);
 }
 
 .course-module__action-btn:hover,
 .course-lesson__action-btn:hover {
-  background: var(--cl-bg-secondary);
+  background: rgba(226, 239, 255, 0.72);
   border-color: var(--cl-border-strong);
   color: var(--cl-text-primary);
 }
@@ -102,20 +132,22 @@
 
 .btn-danger.course-module__action-btn:hover,
 .btn-danger.course-lesson__action-btn:hover {
-  background: var(--cl-danger-light);
+  background: rgba(255, 225, 227, 0.85);
   border-color: var(--cl-danger-medium);
   color: var(--cl-danger);
 }
 
 .course-modules__add-btn {
   border-radius: 999px;
-  min-width: 36px;
-  background: var(--cl-primary);
+  min-width: 40px;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(120deg, var(--cl-primary), #2780dc);
   color: var(--cl-surface);
   border: none;
 }
 
 .course-modules__add-btn:hover {
-  background: var(--cl-primary-hover);
+  background: linear-gradient(120deg, var(--cl-primary-hover), #1e6dc0);
   box-shadow: var(--shadow-sm);
 }

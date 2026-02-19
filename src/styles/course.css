@@ -1,4 +1,3 @@
-/* Course page responsiveness */
 @media (max-width: 1200px) {
   .course {
     width: 100%;
@@ -74,12 +73,12 @@
   }
 }
 
-/* COURSE PAGE */
 .course {
-  background-color: var(--cl-surface);
-  box-shadow: var(--shadow-md);
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.97), rgba(248, 251, 255, 0.94));
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(147, 165, 192, 0.28);
   padding: var(--pd-800);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-xl);
 }
 
 .course__header {
@@ -88,7 +87,7 @@
 
 .course__header-title {
   padding-left: var(--pd-200);
-  font-size: var(--fz-600);
+  font-size: var(--fz-500);
   color: var(--cl-text-muted);
   margin-bottom: var(--mg-400);
 }
@@ -105,45 +104,50 @@
 }
 
 .course__general-form-group label {
-  font-weight: 500;
-  font-size: var(--fz-300);
+  font-weight: 700;
+  font-size: var(--fz-200);
+  color: var(--cl-text-secondary);
   padding-inline: var(--pd-200);
 }
 
 .course__title {
-  border: none;
+  border: 1px solid transparent;
   font-size: var(--fz-700);
-  font-weight: 500;
+  font-family: var(--heading-font);
+  font-weight: 700;
   color: var(--cl-text-primary);
-  padding: var(--pd-200) var(--pd-200);
+  padding: var(--pd-200) var(--pd-300);
   border-radius: var(--radius-md);
   transition: all var(--transition-fast);
+  background: transparent;
 }
 
 .course__description {
-  border: none;
+  border: 1px solid transparent;
   font-weight: 500;
   color: var(--cl-text-secondary);
   min-height: fit-content !important;
   field-sizing: content;
   resize: vertical;
-  padding: var(--pd-200) var(--pd-200);
+  padding: var(--pd-300);
   border-radius: var(--radius-md);
   transition: all var(--transition-fast);
+  background: transparent;
 }
 
 .course__title:focus,
 .course__description:focus {
   outline: none;
-  background: var(--cl-primary-light);
+  border-color: rgba(147, 165, 192, 0.45);
+  background: rgba(226, 239, 255, 0.45);
 }
 
 .course__general-form-controls {
   display: none;
   gap: var(--mg-400);
-  border-top: 1px solid var(--cl-border-medium);
+  border-top: 1px solid rgba(147, 165, 192, 0.4);
   justify-content: flex-end;
-  padding-top: var(--pd-200);
+  padding-top: var(--pd-300);
 }
 
 .course-modules__header {
@@ -154,37 +158,30 @@
   padding-left: var(--pd-200);
 }
 
-.course-modules__add-btn {
-  min-width: auto;
-  border-radius: var(--radius-md);
-  padding: var(--pd-100);
-  font-size: var(--fz-300);
-}
-
 .course-modules__list {
   display: flex;
   flex-direction: column;
   list-style: none;
   margin-bottom: var(--mg-600);
+  gap: var(--mg-300);
 }
 
 .course-module__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: transparent;
-  border-bottom: 2px solid var(--cl-border-strong);
-  border-top-left-radius: var(--radius-md);
-  border-top-right-radius: var(--radius-md);
-  padding: var(--pd-200) var(--pd-200);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(147, 165, 192, 0.34);
+  border-radius: var(--radius-md);
+  padding: var(--pd-300);
   cursor: pointer;
   transition: all var(--transition-fast);
-  margin-bottom: var(--mg-400);
+  margin-bottom: var(--mg-300);
 }
 
 .course-module__header:hover {
-  background: var(--cl-bg-secondary);
-  border-color: var(--cl-primary);
+  background: rgba(226, 239, 255, 0.65);
+  border-color: rgba(147, 165, 192, 0.58);
 }
 
 .course-module__actions {
@@ -195,18 +192,18 @@
 
 .course-module__action-btn {
   min-width: auto !important;
-  padding: var(--pd-200) var(--pd-200);
+  padding: var(--pd-200);
 }
 
 .course-module__toggle {
   cursor: pointer;
-  border: none;
-  background: transparent;
-  padding: 0;
+  border: 1px solid rgba(147, 165, 192, 0.38);
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--cl-text-secondary);
   width: 36px;
   height: 36px;
   font-size: 1.6rem;
-  border-radius: var(--radius-md);
+  border-radius: 10px;
   transition: all var(--transition-fast);
   display: inline-flex;
   align-items: center;
@@ -215,7 +212,7 @@
 }
 
 .course-module__toggle:hover {
-  background: var(--cl-primary-soft);
+  background: rgba(226, 239, 255, 0.78);
 }
 
 .course-module[data-lessons-hidden="false"] .course-module__toggle {
@@ -226,7 +223,7 @@
   display: flex;
   list-style: none;
   flex-direction: column;
-  gap: var(--mg-600);
+  gap: var(--mg-400);
 }
 
 .course-lessons {
@@ -240,23 +237,22 @@
     border-color var(--transition-normal);
 }
 
-.course-lessons > .course-lessons__list {
-  overflow: hidden;
-}
-
+.course-lessons > .course-lessons__list,
 .course-lessons > .course-lessons__controls {
   overflow: hidden;
 }
 
 .course-module[data-lessons-hidden="false"] .course-lessons {
   grid-template-rows: 1fr auto;
-  border-bottom-color: var(--cl-border-strong);
+  border-bottom-color: rgba(147, 165, 192, 0.5);
   padding-bottom: var(--pd-400);
 }
 
 .course-lesson {
-  background: var(--cl-bg-secondary);
-  box-shadow: var(--shadow-md);
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(147, 165, 192, 0.3);
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-md);
   padding: var(--pd-300) var(--pd-500);
   display: flex;
   flex-direction: column;
@@ -273,7 +269,7 @@
 }
 
 .course-lesson__desc {
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .course-lesson__actions {
@@ -288,23 +284,23 @@
 }
 
 .course-lesson__badge {
-  padding: var(--pd-200);
-  border-radius: var(--radius-lg);
+  padding: var(--pd-200) var(--pd-300);
+  border-radius: 999px;
   color: var(--cl-text-primary);
   font-weight: 700;
   font-size: var(--fz-200);
 }
 
 .course-lesson__badge--danger {
-  background: rgba(208, 92, 89, 0.12);
-  color: #B23B38;
+  background: rgba(255, 225, 227, 0.85);
+  color: #aa3038;
   border: 1px solid transparent;
   transition: border-color var(--transition-fast), background-color var(--transition-fast);
 }
 
 .course-lesson__badge--danger:hover {
-  border-color: #B23B38;
-  background: rgba(208, 92, 89, 0.18);
+  border-color: #aa3038;
+  background: rgba(255, 225, 227, 0.95);
 }
 
 .course-lesson__action-btn {

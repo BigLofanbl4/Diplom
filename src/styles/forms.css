@@ -1,11 +1,11 @@
-/* Стили форм */
 .teacher-form,
 .student-form {
-  background: var(--cl-surface);
-  border-radius: var(--radius-lg);
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.96), rgba(248, 251, 255, 0.92));
+  border-radius: var(--radius-xl);
+  border: 1px solid rgba(147, 165, 192, 0.28);
   box-shadow: var(--shadow-md);
   padding: var(--pd-700);
-  max-width: 800px;
+  max-width: 860px;
   margin: 0 auto;
 }
 
@@ -24,7 +24,7 @@
 
 .form-label {
   font-size: var(--fz-200);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--cl-text-primary);
   margin-bottom: var(--mg-200);
 }
@@ -32,6 +32,7 @@
 .form-error {
   color: var(--cl-danger);
   font-size: var(--fz-100);
+  margin-top: var(--mg-100);
   display: none;
 }
 
@@ -45,11 +46,11 @@
   width: 100%;
   min-width: 0;
   padding: var(--pd-300) var(--pd-400);
-  border: 2px solid var(--cl-border-light);
+  border: 1px solid rgba(147, 165, 192, 0.45);
   border-radius: var(--radius-md);
   font-size: var(--fz-300);
   font-family: var(--primary-font);
-  background: var(--cl-surface);
+  background: rgba(255, 255, 255, 0.88);
   color: var(--cl-text-primary);
   transition: all var(--transition-fast);
 }
@@ -62,13 +63,15 @@ textarea.form-input {
 .form-input.invalid,
 .form-select.invalid {
   border-color: var(--cl-danger);
+  box-shadow: 0 0 0 3px rgba(196, 70, 77, 0.12);
 }
 
 .form-input:focus,
 .form-select:focus {
   outline: none;
   border-color: var(--cl-primary);
-  box-shadow: 0 0 0 3px var(--cl-primary-light);
+  box-shadow: 0 0 0 4px rgba(23, 102, 208, 0.14);
+  background: #ffffff;
 }
 
 .form-input::placeholder {
@@ -96,14 +99,9 @@ textarea.form-input {
   transition: all var(--transition-fast);
 }
 
-.form-checkbox-input:checked {
-  background-color: var(--cl-primary);
-  border-color: var(--cl-primary);
-}
-
 .form-checkbox-label {
   font-size: var(--fz-300);
-  font-weight: 500;
+  font-weight: 600;
   color: var(--cl-text-primary);
   cursor: pointer;
   user-select: none;
@@ -114,18 +112,17 @@ textarea.form-input {
   gap: var(--mg-400);
   justify-content: flex-end;
   padding-top: var(--pd-500);
-  border-top: 1px solid var(--cl-border-light);
+  border-top: 1px solid rgba(147, 165, 192, 0.4);
   grid-column: 1 / -1;
   align-items: center;
   flex-wrap: wrap;
 }
 
-/* Адаптивность для форм */
 @media (max-width: 768px) {
   .teacher-form,
   .student-form {
     padding: var(--pd-500);
-    margin: var(--mg-400);
+    margin: var(--mg-200);
   }
 
   .form-grid {

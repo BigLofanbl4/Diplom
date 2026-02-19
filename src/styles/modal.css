@@ -1,106 +1,144 @@
 @keyframes modalBgShow {
-    from {
-        opacity: 0;
-        background: rgba(0,0,0,0.0);
-    }
+  from {
+    opacity: 0;
+    background: rgba(10, 30, 56, 0);
+  }
 
-    to {
-        opacity: 1;
-        background: rgba(0,0,0,0.3);
-    }
+  to {
+    opacity: 1;
+    background: rgba(10, 30, 56, 0.44);
+  }
 }
 
-@keyframes modalContentSlide {
-    from {
-        transform: translateY(-100%);
-    }
+@keyframes modalContentShow {
+  from {
+    opacity: 0;
+    transform: translateY(-22px) scale(0.97);
+  }
 
-    to {
-        transform: translateY(0);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes modalBgHide {
-    from { opacity: 1; background: rgba(0,0,0,0.3); }
-    to   { opacity: 0; background: rgba(0,0,0,0); }
+  from {
+    opacity: 1;
+    background: rgba(10, 30, 56, 0.44);
+  }
+
+  to {
+    opacity: 0;
+    background: rgba(10, 30, 56, 0);
+  }
 }
 
 @keyframes modalContentHide {
-    from { transform: translateY(0); }
-    to   { transform: translateY(-100%); }
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.98);
+  }
 }
 
 .modal {
-    background: rgba(0,0,0,0.0);
-    position: fixed;
-    justify-content: center;
-    align-items: center;
-    inset: 0;
-    z-index: 10;
-    transition: all var(--transition-normal);
-    overflow: hidden;
-    display: flex;
+  background: rgba(10, 30, 56, 0);
+  position: fixed;
+  justify-content: center;
+  align-items: center;
+  inset: 0;
+  z-index: 30;
+  transition: all var(--transition-normal);
+  overflow: hidden;
+  display: flex;
+  padding: var(--pd-400);
 }
 
 .modal[data-hidden="false"] {
-    animation-name: modalBgShow;
-    animation-duration: 0.3s;
-    animation-iteration-count: 1;
-    animation-timing-function: ease;
-    animation-fill-mode: forwards;
+  animation-name: modalBgShow;
+  animation-duration: 0.25s;
+  animation-iteration-count: 1;
+  animation-timing-function: ease;
+  animation-fill-mode: forwards;
 }
 
 .modal[data-hidden="true"] {
-    opacity: 0;
-    visibility: hidden;
-    animation-name: modalBgHide;
-    animation-duration: 0.3s;
-    animation-iteration-count: 1;
-    animation-timing-function: ease;
-    animation-fill-mode: forwards;
+  opacity: 0;
+  visibility: hidden;
+  animation-name: modalBgHide;
+  animation-duration: 0.25s;
+  animation-iteration-count: 1;
+  animation-timing-function: ease;
+  animation-fill-mode: forwards;
 }
 
 .modal__content {
-    background: var(--cl-surface);
-    padding: var(--pd-600) var(--pd-900);
-    padding-right: 60px;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
-    display: flex;
-    flex-direction: column;
-    gap: var(--mg-700);
-    position: relative;
-    min-width: 500px;
+  background: linear-gradient(160deg, #ffffff 0%, #f7fbff 100%);
+  padding: var(--pd-600) var(--pd-800);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid rgba(147, 165, 192, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mg-700);
+  position: relative;
+  min-width: min(540px, 100%);
+  max-width: 92vw;
+  max-height: 92vh;
+  overflow-y: auto;
 }
 
 .modal[data-hidden="false"] .modal__content {
-    animation-name: modalContentSlide;
-    animation-duration: 0.3s;
-    animation-iteration-count: 1;
-    animation-timing-function: ease;
+  animation-name: modalContentShow;
+  animation-duration: 0.25s;
+  animation-iteration-count: 1;
+  animation-timing-function: ease;
 }
 
 .modal[data-hidden="true"] .modal__content {
-    animation-name: modalContentHide;
-    animation-duration: 0.3s;
-    animation-iteration-count: 1;
-    animation-timing-function: ease;
+  animation-name: modalContentHide;
+  animation-duration: 0.25s;
+  animation-iteration-count: 1;
+  animation-timing-function: ease;
 }
 
 .modal__top {
-    gap: var(--mg-400);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mg-400);
 }
 
 .modal__title {
-    text-align: center;
+  text-align: left;
+  font-size: var(--fz-600);
+  font-weight: 700;
 }
 
 .modal__close-btn {
-    background: none;
-    border: none;
-    font-size: var(--fz-500);
-    cursor: pointer;
-    position: absolute;
-    right: 15px;
-    top: 15px;
+  background: rgba(226, 239, 255, 0.85);
+  border: 1px solid rgba(147, 165, 192, 0.4);
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  font-size: var(--fz-400);
+  color: var(--cl-text-secondary);
+  cursor: pointer;
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal__close-btn:hover {
+  background: rgba(255, 225, 227, 0.8);
+  border-color: rgba(196, 70, 77, 0.35);
+  color: var(--cl-danger);
 }

@@ -1,50 +1,48 @@
 :root {
-  --cl-bg-primary: #F7F8FA;
-  --cl-bg-secondary: #F1F3F6;
-  --cl-bg-tertiary: #E7EBF0;
+  --cl-bg-primary: #f3f6fb;
+  --cl-bg-secondary: #e8eef7;
+  --cl-bg-tertiary: #dde5f3;
 
-  --cl-surface: #FFFFFF;
-  --cl-surface-elevated: #FFFFFF;
+  --cl-surface: #ffffff;
+  --cl-surface-elevated: #fdfefe;
 
-  --cl-border-light: #E3E7EE;
-  --cl-border-medium: #CDD5E0;
-  --cl-border-strong: #A9B4C4;
+  --cl-border-light: #d8e0ed;
+  --cl-border-medium: #bcc8da;
+  --cl-border-strong: #93a5c0;
 
-  --cl-primary: #4E6FB8;
-  --cl-primary-hover: #415FA4;
-  --cl-primary-light: #EFF3FB;
-  --cl-primary-soft: #DEE6F7;
+  --cl-primary: #1766d0;
+  --cl-primary-hover: #0f57b7;
+  --cl-primary-light: #e2efff;
+  --cl-primary-soft: #cddff8;
 
-  --cl-secondary: #64748B;
-  --cl-secondary-hover: #475569;
+  --cl-secondary: #4c5f78;
+  --cl-secondary-hover: #35465f;
 
-  --cl-text-primary: #1E293B;
-  --cl-text-secondary: #475569;
-  --cl-text-muted: #64748B;
-  --cl-text-disabled: #94A3B8;
+  --cl-text-primary: #10233f;
+  --cl-text-secondary: #334a68;
+  --cl-text-muted: #5a7090;
+  --cl-text-disabled: #8ca0bd;
 
-  --cl-success: #2F8A6A;
-  --cl-success-light: #DCEFE7;
+  --cl-success: #177a57;
+  --cl-success-light: #d6f2e6;
 
-  --cl-warning: #C9821A;
-  --cl-warning-light: #F7E9CC;
+  --cl-warning: #c77515;
+  --cl-warning-light: #fce7ca;
 
-  --cl-danger: #D05C59;
-  --cl-danger-medium: #E07A77;
-  --cl-danger-light: #F6E2E1;
+  --cl-danger: #c4464d;
+  --cl-danger-medium: #dc6066;
+  --cl-danger-light: #ffe1e3;
 
-  --cl-info: #3B8DB3;
-  --cl-info-light: #DDEBF5;
+  --cl-info: #00779b;
+  --cl-info-light: #d9f1f8;
 
-  /* Тени */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 3px 10px rgba(16, 35, 63, 0.08);
+  --shadow-md: 0 10px 24px rgba(16, 35, 63, 0.12);
+  --shadow-lg: 0 18px 36px rgba(16, 35, 63, 0.16);
+  --shadow-xl: 0 26px 52px rgba(16, 35, 63, 0.2);
 
-  /* Типографика */
-  --primary-font: "Inter", "Roboto", -apple-system, BlinkMacSystemFont, sans-serif;
-  --heading-font: "Inter", "Merriweather Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --primary-font: "Manrope", "Segoe UI", sans-serif;
+  --heading-font: "Space Grotesk", "Manrope", sans-serif;
   --mono-font: "JetBrains Mono", "Fira Code", monospace;
 
   --fz-100: 1.2rem; /* 12px - мелкие подписи, метки */
@@ -80,10 +78,10 @@
   --mg-900: 4.0rem;  /* 40px */
 
   /* Радиусы скругления */
-  --radius-sm: 0.4rem;
-  --radius-md: 0.6rem;
-  --radius-lg: 0.8rem;
-  --radius-xl: 1.2rem;
+  --radius-sm: 0.6rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.4rem;
+  --radius-xl: 2rem;
 
   /* Переходы */
   --transition-fast: 150ms ease;
