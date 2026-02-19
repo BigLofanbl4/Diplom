@@ -60,3 +60,21 @@ p {
   font-size: var(--fz-300);
   color: var(--cl-text-secondary);
 }
+
+#component {
+  min-height: 320px;
+}
+
+#component > * {
+  animation: router-enter 0.15s ease-out;
+}
+
+@keyframes router-enter {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

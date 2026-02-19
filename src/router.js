@@ -5,6 +5,7 @@ export class Router {
     this.routes = routes;
     this.currentLayout = null;
     this.currentComponent = null;
+    this.currentURL = null;
 
     this.init();
   }
@@ -17,9 +18,8 @@ export class Router {
 
   handleDOMContentLoaded() {
     document.addEventListener("DOMContentLoaded", async () => {
-      const url = window.location.pathname;
-      console.log(url);
-      await this.resolvePath(url);
+      this.currentURL = window.location.pathname;
+      await this.resolvePath(this.currentURL);
     });
   }
 
@@ -28,9 +28,13 @@ export class Router {
       const link = event.target.closest("[data-spa-link]");
       if (link) {
         event.preventDefault();
-        const url = link.getAttribute("href");
-        history.pushState(null, null, url);
-        await this.resolvePath(url);
+        const targetURL = link.getAttribute("href");
+        history.pushState(null, null, targetURL);
+
+        const nextURL = window.location.pathname;
+        if (this.currentURL === nextURL) return;
+
+        await this.resolvePath(nextURL);
       }
     });
   }
@@ -65,52 +69,61 @@ export class Router {
 
   async navigate(url) {
     history.pushState(null, null, url);
-
-    await this.resolvePath(url);
+    const nextURL = window.location.pathname;
+    await this.resolvePath(nextURL);
   }
 
-  async resolvePath(url) {
-    let route = null;
-    let params = {};
+  async resolvePath(nextURL) {
+    this.currentURL = nextURL;
+    const componentContainer = document.getElementById("component");
+    const previousHeight = componentContainer?.offsetHeight ?? 0;
 
-    for (const path in this.routes) {
-      const matchedParams = this._matchRoute(path, url);
-      if (matchedParams) {
-        route = this.routes[path];
-        params = matchedParams;
-        break;
-      }
+    if (componentContainer && previousHeight > 0) {
+      componentContainer.style.minHeight = `${previousHeight}px`;
     }
 
-    if (!route) {
-      if (this.currentComponent) this.currentComponent.destroy();
-      if (this.currentLayout) this.currentLayout.destroy();
+    try {
+      let route = null;
+      let params = {};
 
-      this.currentLayout = null;
+      for (const path in this.routes) {
+        const matchedParams = this._matchRoute(path, nextURL);
+        if (matchedParams) {
+          route = this.routes[path];
+          params = matchedParams;
+          break;
+        }
+      }
+
+      if (!route) {
+        if (this.currentComponent) this.currentComponent.destroy();
+        if (this.currentLayout) this.currentLayout.destroy();
+
+        this.currentLayout = null;
+        this.currentComponent = null;
+
+        const notFoundPage = new NotFoundPage();
+        await notFoundPage.draw();
+        return;
+      }
+
+      if (this.currentLayout?.constructor !== route.Layout) {
+        this.currentLayout?.destroy?.();
+        this.currentLayout = new route.Layout();
+        await this.currentLayout.draw();
+      }
+
+      this.currentComponent?.destroy?.();
       this.currentComponent = null;
 
-      const notFoundPage = new NotFoundPage();
-      await notFoundPage.draw();
-      return;
-    }
-
-    if (!this.currentLayout || route.Layout !== this.currentLayout.constructor) {
-      if (this.currentComponent) this.currentComponent.destroy();
-      if (this.currentLayout) {
-        this.currentLayout.destroy();
+      if (route.Component) {
+        this.currentComponent = new route.Component(params);
+        await this.currentComponent.draw();
       }
-      this.currentLayout = new route.Layout();
-      await this.currentLayout.draw();
-    }
-
-    if (route.Component && (!this.currentComponent || this.currentComponent.constructor !== route.Component)) {
-      if (this.currentComponent) this.currentComponent.destroy();
-
-      this.currentComponent = new route.Component(params);
-      await this.currentComponent.draw();
-    } else if (!route.Component) {
-      if (this.currentComponent) this.currentComponent.destroy();
-      this.currentComponent = null;
+    } finally {
+      if (componentContainer) {
+        componentContainer.style.minHeight = "";
+      }
     }
   }
 }
