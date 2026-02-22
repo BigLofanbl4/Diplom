@@ -4,7 +4,7 @@ import LessonService from "../../../../services/LessonService.js";
 
 
 class FileDropzoneController {
-  constructor({inputEl, dropzoneEl, listEl, hintEl = null, filesList = []}) {
+  constructor({inputEl, dropzoneEl, listEl, hintEl = null, serverFiles = []}) {
     if (!inputEl || !dropzoneEl || !listEl) {
       throw new Error("FileDropzoneController: InputEl & DropzoneEl & listEl must be provided");
     }
@@ -13,11 +13,10 @@ class FileDropzoneController {
     this.dropzoneEl = dropzoneEl;
     this.listEl = listEl;
     this.hintEl = hintEl;
-    this.filesList = filesList;
-    this.fileKeys = new Set(this.filesList.map(fileData => {
-      const file = fileData.file;
-      return `${file.name}::${file.size}::${file.lastModified}`;
-    }));
+
+    this.files = serverFiles.map(fileData => this._normalizeServerFile(fileData));
+    this.removedServerFileIds = new Set();
+    this.fileKeys = new Set(this.files.map(f => `${f.name}::${f.size}::${f.lastModified}`));
 
     this.dragDepth = 0;
 
@@ -28,49 +27,15 @@ class FileDropzoneController {
     this.boundInputChangeHandler = null;
     this.boundFileRemoveHandler = null;
 
-    this.init();
-  }
-
-  init() {
-    this._showFiles();
-    this._updateInputFiles();
-  }
-
-  handleDragEnter() {
-    this.dragDepth += 1;
-    this.dropzoneEl.classList.add("is-dragover");
-  }
-
-  handleDragLeave() {
-    this.dragDepth -= 1;
-    if (this.dragDepth <= 0) {
-      this.dragDepth = 0;
-      this.dropzoneEl.classList.remove("is-dragover");
-    }
-  }
-
-  handleDragOver(e) {
-    e.preventDefault();
-  }
-
-  handleDrop(e) {
-    e.preventDefault()
-    this.dragDepth = 0;
-    this.dropzoneEl.classList.remove("is-dragover");
-
-    this._addFiles(e.dataTransfer.files);
-  }
-
-  handleInputChange(e) {
-    this._addFiles(e.target.files);
+    this._init();
   }
 
   handleEvents() {
-    this.boundDragEnterHandler = () => this.handleDragEnter();
-    this.boundDragLeaveHandler = () => this.handleDragLeave();
-    this.boundDragOverHandler = (e) => this.handleDragOver(e);
-    this.boundDragDropHandler = (e) => this.handleDrop(e);
-    this.boundInputChangeHandler = (e) => this.handleInputChange(e);
+    this.boundDragEnterHandler = () => this._handleDragEnter();
+    this.boundDragLeaveHandler = () => this._handleDragLeave();
+    this.boundDragOverHandler = (e) => this._handleDragOver(e);
+    this.boundDragDropHandler = (e) => this._handleDrop(e);
+    this.boundInputChangeHandler = (e) => this._handleInputChange(e);
     this.boundFileRemoveHandler = (e) => this._handleFileRemove(e);
 
     this.dropzoneEl.addEventListener("dragenter", this.boundDragEnterHandler);
@@ -79,37 +44,99 @@ class FileDropzoneController {
     this.dropzoneEl.addEventListener("drop", this.boundDragDropHandler);
 
     this.inputEl.addEventListener("change", this.boundInputChangeHandler);
-
     this.listEl.addEventListener("click", this.boundFileRemoveHandler);
   }
 
-  removeEventListeners() {
-    this.dropzoneEl.removeEventListener("dragenter", this.boundDragEnterHandler);
-    this.dropzoneEl.removeEventListener("dragleave", this.boundDragLeaveHandler);
-    this.dropzoneEl.removeEventListener("dragover", this.boundDragOverHandler);
-    this.dropzoneEl.removeEventListener("drop", this.boundDragDropHandler);
+  getRemovedServerFiles() {
+    return Array.from(this.removedServerFileIds);
+  }
 
-    this.inputEl.removeEventListener("change", this.boundInputChangeHandler);
+  destroy() {
+    this._removeEventListeners();
+    this.files.forEach(file => {
+      if (file.source === "local") {
+        URL.revokeObjectURL(file.url);
+      }
+    });
+  }
 
-    this.listEl.removeEventListener("click", this.boundFileRemoveHandler);
+  _init() {
+    this._showFiles();
+    this._updateInputFiles();
+    this._toggleHint();
+  }
+
+  _handleDragEnter() {
+    this.dragDepth += 1;
+    this.dropzoneEl.classList.add("is-dragover");
+  }
+
+  _handleDragLeave() {
+    this.dragDepth -= 1;
+    if (this.dragDepth <= 0) {
+      this.dragDepth = 0;
+      this.dropzoneEl.classList.remove("is-dragover");
+    }
+  }
+
+  _handleDragOver(e) {
+    e.preventDefault();
+  }
+
+  _handleDrop(e) {
+    e.preventDefault()
+    this.dragDepth = 0;
+    this.dropzoneEl.classList.remove("is-dragover");
+    this._addFiles(e.dataTransfer.files);
+  }
+
+  _handleInputChange(e) {
+    this._addFiles(e.target.files);
+  }
+
+  _normalizeServerFile(fileData) {
+    return {
+      uiId: crypto.randomUUID(),
+      source: "server",
+      serverId: fileData.id,
+      name: fileData.name,
+      size: fileData.size ?? null,
+      url: fileData.url,
+      lastModified: fileData.lastModified ?? null,
+      file: null
+    }
+  }
+
+  _normalizeLocalFile(file) {
+    return {
+      uiId: crypto.randomUUID(),
+      source: "local",
+      serverId: null,
+      name: file.name,
+      size: file.size,
+      url: URL.createObjectURL(file),
+      lastModified: file.lastModified,
+      file
+    }
   }
 
   _renderFileElement(fileData) {
     const fileElement = document.createElement("li");
     fileElement.classList.add("form-file-list-item");
-    fileElement.dataset.fileId = fileData.id;
+    fileElement.dataset.fileSource = fileData.source;
+    fileElement.dataset.fileId = fileData.uiId;
     fileElement.innerHTML = `
       <span><i class="fa-solid fa-file"></i></span>
-      <span data-file-name></span>
+      <a data-file-name></a>
       <button type="button" class="form-file-remove-btn" data-action="removeFile">
         <i class="fa-solid fa-xmark"></i>
       </button>
     `;
 
-    const fileExtension = fileData.file.name.split(".").pop().toLowerCase();
+    const fileExtension = fileData.name.split(".").pop().toLowerCase();
     const fileNameElement = fileElement.querySelector("[data-file-name]");
-    fileNameElement.textContent = `${fileData.file.name.slice(0, 5)}...${fileExtension}`;
-
+    fileNameElement.textContent = `${fileData.name.slice(0, 5)}...${fileExtension}`;
+    fileNameElement.href = fileData.url;
     return fileElement;
   }
 
@@ -121,34 +148,29 @@ class FileDropzoneController {
 
   _showFiles() {
     this.listEl.innerHTML = "";
-    const fileElements = this.filesList.map(fileData => this._renderFileElement(fileData));
-    const fileElementsFragment = this._getFileElementsFragment(fileElements);
+    const filesElems = this.files.map(fileData => this._renderFileElement(fileData));
+    const fileElementsFragment = this._getFileElementsFragment(filesElems);
     this.listEl.appendChild(fileElementsFragment);
   }
 
   _toggleHint() {
     if (!this.hintEl) return;
-
-    if (this.filesList.length > 0) {
-      this.hintEl.dataset.hidden = "true";
-    } else {
-      this.hintEl.dataset.hidden = "false";
-    }
+    this.hintEl.dataset.hidden = this.files.length > 0 ? "true" : "false";
   }
 
   _updateInputFiles() {
     const dt = new DataTransfer();
-    this.filesList.forEach(fileData => dt.items.add(fileData.file));
+    const localFiles = this.files.filter(f => f.source === "local");
+    localFiles.forEach(fileData => dt.items.add(fileData.file));
     this.inputEl.files = dt.files;
   }
 
   _addFiles(files) {
     const filtered = Array.from(files).filter(f => !this._isDuplicate(f));
-    const incoming = filtered.map(file => ({id: crypto.randomUUID(), file}));
-    this.filesList = [...this.filesList, ...incoming];
+    const incoming = filtered.map(file => this._normalizeLocalFile(file));
+    this.files = [...this.files, ...incoming];
 
-    this.filesList.forEach(fileData => this._addFileKey(fileData.file));
-
+    this.files.forEach(fileData => this._addFileKey(fileData));
     this._toggleHint();
     this._updateInputFiles();
     this._showFiles();
@@ -158,9 +180,19 @@ class FileDropzoneController {
     const btn = e.target.closest("[data-action='removeFile']");
     if (!btn) return;
     const fileId = btn.closest("[data-file-id]")?.dataset?.fileId;
-    this.filesList = this.filesList.filter(fileData => fileData.id !== fileId);
+
+    const target = this.files.find(f => f.uiId === fileId);
+    if (target.source === "local" && target.url) {
+      URL.revokeObjectURL(target.url);
+    }
+
+    this.files = this.files.filter(f => {
+      if (f.uiId !== fileId) return true;
+      if (f.source === "server") this.removedServerFileIds.add(f.serverId);
+      return false;
+    });
     this.fileKeys.clear();
-    this.filesList.forEach(fileData => this._addFileKey(fileData.file));
+    this.files.forEach(fileData => this._addFileKey(fileData));
     this._updateInputFiles();
     this._showFiles();
     this._toggleHint();
@@ -173,6 +205,16 @@ class FileDropzoneController {
   _isDuplicate(file) {
     const fileKey = `${file.name}::${file.size}::${file.lastModified}`;
     return this.fileKeys.has(fileKey);
+  }
+
+  _removeEventListeners() {
+    this.dropzoneEl.removeEventListener("dragenter", this.boundDragEnterHandler);
+    this.dropzoneEl.removeEventListener("dragleave", this.boundDragLeaveHandler);
+    this.dropzoneEl.removeEventListener("dragover", this.boundDragOverHandler);
+    this.dropzoneEl.removeEventListener("drop", this.boundDragDropHandler);
+
+    this.inputEl.removeEventListener("change", this.boundInputChangeHandler);
+    this.listEl.removeEventListener("click", this.boundFileRemoveHandler);
   }
 }
 
@@ -201,6 +243,7 @@ export default class LessonForm extends FormComponent {
 
   getFormData() {
     const data = super.getFormData();
+
     if (this.moduleId !== null) {
       data.module_id = this.moduleId;
     }
@@ -208,6 +251,9 @@ export default class LessonForm extends FormComponent {
     if (this.courseId !== null) {
       data.course_id = this.courseId;
     }
+
+    data.removed_material_ids = this.filesController?.getRemovedServerFiles() ?? [];
+
     return data;
   }
 
@@ -221,7 +267,8 @@ export default class LessonForm extends FormComponent {
       inputEl: dropInput,
       dropzoneEl: dropZone,
       listEl: dropList,
-      hintEl: dropHint
+      hintEl: dropHint,
+      serverFiles: this.data?.materials
     });
   }
 
@@ -232,6 +279,6 @@ export default class LessonForm extends FormComponent {
 
   destroy() {
     super.destroy();
-    this?.filesController?.removeEventListeners();
+    this?.filesController?.destroy();
   }
 }

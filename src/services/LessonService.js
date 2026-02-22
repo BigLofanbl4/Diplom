@@ -1,6 +1,20 @@
 import BaseService from "./BaseService";
 
 export default class LessonService extends BaseService {
+  static getFormData(data) {
+    const formData = new FormData();
+    for (const key in data) {
+      if (data[key] === null || data[key] === undefined) continue;
+      if (Array.isArray(data[key])) {
+        const arr = data[key];
+        arr.forEach(item => formData.append(key, item));
+      } else {
+        formData.append(key, data[key]);
+      }
+    }
+    return formData;
+  }
+
   static async getAll() {
     return this.request("/course-lessons");
   }
@@ -10,21 +24,23 @@ export default class LessonService extends BaseService {
   }
 
   static async create(data) {
+    const formData = this.getFormData(data);
     return this.request(
       "/course-lessons",
       {
         method: "POST",
-        body: JSON.stringify(data),
+        body: formData,
       }
     );
   }
 
   static async update(id, data) {
+    const formData = this.getFormData(data);
     return this.request(
       `/course-lessons/${id}`,
       {
         method: "PATCH",
-        body: JSON.stringify(data),
+        body: formData,
       }
     );
   }

@@ -4,10 +4,16 @@ export default class BaseService {
   static async request(endpoint, options = {}) {
     const url = `${this.BASE_URL}${endpoint}`;
 
+    const isFormData = options.body instanceof FormData;
+
     const headers = {
-      'Content-Type': 'application/json',
       ...options.headers
     };
+
+    if (!isFormData && !headers["Content-Type"]) {
+      headers["Content-Type"] = "application/json";
+    }
+
     try {
       const response = await fetch(url, {...options, headers});
 

@@ -158,11 +158,23 @@ class CourseLessonSimple(CourseLessonBase):
 class CourseMaterialSimple(CourseMaterialBase):
     id: int
 
+class CourseMaterialWithUrl(CourseMaterialSimple):
+    url: Optional[str] = None
+
+class LessonMaterialSimple(BaseModel):
+    id: int
+    name: Optional[str] = None
+    size: Optional[int] = None
+    lastModified: Optional[int] = None
+    url: Optional[str] = None
+    model_config = ConfigDict(from_attributes=True)
+
+class CourseLessonWithMaterials(CourseLessonSimple):
+    materials: List[LessonMaterialSimple] = []
+
 class CourseOut(CourseSimple):
     modules: List[CourseModuleSimple] = []
     lessons: List[CourseLessonSimple] = []
-
-
 
 
 

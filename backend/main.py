@@ -4,13 +4,47 @@ import crud_teacher
 import crud_group
 import crud_students
 import crud_courses
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Form, File, UploadFile
 from sqlalchemy.orm import Session
 from database import engine, get_db
+from typing import Optional
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Teacher App API")
+
+def _material_url(material_id: int) -> str:
+    return f"/api/course-materials/{material_id}"
+
+def _serialize_course_material(db_material: models.CourseMaterial):
+    return {
+        "id": db_material.id,
+        "homework_file": db_material.homework_file,
+        "homework_text": db_material.homework_text,
+        "course_id": db_material.course_id,
+        "lesson_id": db_material.lesson_id,
+        "url": _material_url(db_material.id),
+    }
+
+def _serialize_lesson_with_materials(db_lesson: models.CourseLesson):
+    return {
+        "id": db_lesson.id,
+        "title": db_lesson.title,
+        "lesson_number": db_lesson.lesson_number,
+        "description": db_lesson.description,
+        "course_id": db_lesson.course_id,
+        "module_id": db_lesson.module_id,
+        "materials": [
+            {
+                "id": material.id,
+                "name": material.homework_file,
+                "size": None,
+                "lastModified": None,
+                "url": _material_url(material.id),
+            }
+            for material in db_lesson.materials
+        ],
+    }
 
 # ============ Учителя ============
 @app.post("/api/teachers", response_model=schemas.TeacherOut)
@@ -189,25 +223,96 @@ def read_course_lessons(
 ):
     return crud_courses.get_course_lessons(db, skip, limit, course_id, module_id)
 
-@app.get("/api/course-lessons/{lesson_id}", response_model=schemas.CourseLessonSimple)
+@app.get("/api/course-lessons/{lesson_id}", response_model=schemas.CourseLessonWithMaterials)
 def read_course_lesson(lesson_id: int, db: Session = Depends(get_db)):
     db_lesson = crud_courses.get_course_lesson_by_id(db, lesson_id)
     if not db_lesson:
         raise HTTPException(status_code=404, detail="Course lesson not found")
-    return db_lesson
+    return _serialize_lesson_with_materials(db_lesson)
 
-@app.post("/api/course-lessons", response_model=schemas.CourseLessonSimple)
-def create_course_lesson(lesson: schemas.CourseLessonCreate, db: Session = Depends(get_db)):
-    return crud_courses.create_course_lesson(db, lesson)
-
-@app.patch("/api/course-lessons/{lesson_id}", response_model=schemas.CourseLessonSimple)
-def update_course_lesson(
-    lesson_id: int, lesson_data: schemas.CourseLessonUpdate, db: Session = Depends(get_db)
+@app.post("/api/course-lessons", response_model=schemas.CourseLessonWithMaterials)
+def create_course_lesson(
+    title: str = Form(...),
+    lesson_number: int = Form(...),
+    description: Optional[str] = Form(None),
+    course_id: int = Form(...),
+    module_id: Optional[int] = Form(None),
+    materials: Optional[list[UploadFile]] = File(None),
+    db: Session = Depends(get_db),
 ):
+    lesson = schemas.CourseLessonCreate(
+        title=title,
+        lesson_number=lesson_number,
+        description=description,
+        course_id=course_id,
+        module_id=module_id,
+    )
+    db_lesson = crud_courses.create_course_lesson(db, lesson)
+
+    for upload in (materials or []):
+        if not upload or not upload.filename:
+            continue
+        material = schemas.CourseMaterialCreate(
+            homework_file=upload.filename,
+            homework_text=None,
+            course_id=db_lesson.course_id,
+            lesson_id=db_lesson.id,
+        )
+        crud_courses.create_course_material(db, material)
+
+    db.refresh(db_lesson)
+    return _serialize_lesson_with_materials(db_lesson)
+
+@app.patch("/api/course-lessons/{lesson_id}", response_model=schemas.CourseLessonWithMaterials)
+def update_course_lesson(
+    lesson_id: int,
+    title: Optional[str] = Form(None),
+    lesson_number: Optional[int] = Form(None),
+    description: Optional[str] = Form(None),
+    course_id: Optional[int] = Form(None),
+    module_id: Optional[int] = Form(None),
+    removed_material_ids: Optional[list[int]] = Form(None),
+    materials: Optional[list[UploadFile]] = File(None),
+    db: Session = Depends(get_db),
+):
+    update_payload = {}
+    if title is not None:
+        update_payload["title"] = title
+    if lesson_number is not None:
+        update_payload["lesson_number"] = lesson_number
+    if description is not None:
+        update_payload["description"] = description
+    if course_id is not None:
+        update_payload["course_id"] = course_id
+    if module_id is not None:
+        update_payload["module_id"] = module_id
+
+    lesson_data = schemas.CourseLessonUpdate(**update_payload)
     db_lesson = crud_courses.update_course_lesson(db, lesson_id, lesson_data)
     if not db_lesson:
         raise HTTPException(status_code=404, detail="Course lesson not found")
-    return db_lesson
+
+    for material_id in (removed_material_ids or []):
+        db_material = crud_courses.get_course_material_by_id(db, material_id)
+        if not db_material:
+            continue
+        if db_material.lesson_id != db_lesson.id:
+            continue
+        crud_courses.delete_course_material(db, material_id)
+
+    for upload in (materials or []):
+        if not upload or not upload.filename:
+            continue
+        material = schemas.CourseMaterialCreate(
+            homework_file=upload.filename,
+            homework_text=None,
+            course_id=db_lesson.course_id,
+            lesson_id=db_lesson.id,
+        )
+        crud_courses.create_course_material(db, material)
+
+    db.refresh(db_lesson)
+    return _serialize_lesson_with_materials(db_lesson)
 
 @app.delete("/api/course-lessons/{lesson_id}", status_code=204)
 def delete_course_lesson(lesson_id: int, db: Session = Depends(get_db)):
@@ -217,7 +322,7 @@ def delete_course_lesson(lesson_id: int, db: Session = Depends(get_db)):
     return None
 
 # ============ Материалы ============
-@app.get("/api/course-materials", response_model=list[schemas.CourseMaterialSimple])
+@app.get("/api/course-materials", response_model=list[schemas.CourseMaterialWithUrl])
 def read_course_materials(
     skip: int = 0,
     limit: int = 100,
@@ -225,27 +330,29 @@ def read_course_materials(
     lesson_id: int | None = None,
     db: Session = Depends(get_db),
 ):
-    return crud_courses.get_course_materials(db, skip, limit, course_id, lesson_id)
+    db_materials = crud_courses.get_course_materials(db, skip, limit, course_id, lesson_id)
+    return [_serialize_course_material(material) for material in db_materials]
 
-@app.get("/api/course-materials/{material_id}", response_model=schemas.CourseMaterialSimple)
+@app.get("/api/course-materials/{material_id}", response_model=schemas.CourseMaterialWithUrl)
 def read_course_material(material_id: int, db: Session = Depends(get_db)):
     db_material = crud_courses.get_course_material_by_id(db, material_id)
     if not db_material:
         raise HTTPException(status_code=404, detail="Course material not found")
-    return db_material
+    return _serialize_course_material(db_material)
 
-@app.post("/api/course-materials", response_model=schemas.CourseMaterialSimple)
+@app.post("/api/course-materials", response_model=schemas.CourseMaterialWithUrl)
 def create_course_material(material: schemas.CourseMaterialCreate, db: Session = Depends(get_db)):
-    return crud_courses.create_course_material(db, material)
+    db_material = crud_courses.create_course_material(db, material)
+    return _serialize_course_material(db_material)
 
-@app.patch("/api/course-materials/{material_id}", response_model=schemas.CourseMaterialSimple)
+@app.patch("/api/course-materials/{material_id}", response_model=schemas.CourseMaterialWithUrl)
 def update_course_material(
     material_id: int, material_data: schemas.CourseMaterialUpdate, db: Session = Depends(get_db)
 ):
     db_material = crud_courses.update_course_material(db, material_id, material_data)
     if not db_material:
         raise HTTPException(status_code=404, detail="Course material not found")
-    return db_material
+    return _serialize_course_material(db_material)
 
 @app.delete("/api/course-materials/{material_id}", status_code=204)
 def delete_course_material(material_id: int, db: Session = Depends(get_db)):
