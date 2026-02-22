@@ -23,6 +23,11 @@ class TestStore {
     this.syncQuestionNumbers();
   }
 
+  updateTitle(newTitle) {
+    const prev = this.data;
+    this.data = {...prev, title: newTitle};
+  }
+
   addQuestion(draft) {
     const prev = this.data;
     const questions = [...prev.questions, draft];
@@ -70,6 +75,7 @@ class TestBuilderView {
 
     this.handleTestAction = null;
     this.handleQuestionAction = null;
+    this.handleTitleInput = null;
   }
 
   render(state) {
@@ -96,9 +102,10 @@ class TestBuilderView {
     }
   }
 
-  bindHandlers({ handleTestAction, handleQuestionAction }) {
+  bindHandlers({ handleTestAction, handleQuestionAction, handleTitleInput }) {
     this.handleTestAction = handleTestAction;
     this.handleQuestionAction = handleQuestionAction;
+    this.handleTitleInput = handleTitleInput;
   }
 
   async bindTestActions() {
@@ -109,6 +116,9 @@ class TestBuilderView {
       if (!action) return;
       await this.handleTestAction(action, { questionType });
     });
+
+    const titleInput = this.testElem.querySelector("[data-title-input]");
+    titleInput.addEventListener("input", (e) => this.handleTitleInput(e.target.value));
   }
 
   async bindQuestionActions() {
@@ -136,12 +146,17 @@ class TestBuilderController {
     this.view.bindHandlers({
       handleTestAction: this.handleTestAction.bind(this),
       handleQuestionAction: this.handleQuestionAction.bind(this),
+      handleTitleInput: this.handleTitleInput.bind(this),
     });
 
     this.view.render(this.store.getSnapshot());
 
     await this.view.bindTestActions();
     await this.view.bindQuestionActions();
+  }
+
+  handleTitleInput(newTitle) {
+    this.store.updateTitle(newTitle);
   }
 
   async handleTestAction(action, payload = {}) {
@@ -196,7 +211,7 @@ class TestBuilderController {
   }
 
   saveTest() {
-    // NOT IMPLEMENTED YET
+    console.log(this.store.getSnapshot());
   }
 }
 

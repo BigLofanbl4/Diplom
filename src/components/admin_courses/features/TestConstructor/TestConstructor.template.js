@@ -2,7 +2,7 @@ export const TestConstructorTemplate = (test) => {
   return `
     <article class="test" data-test-id="${test?.lesson_id}">
       <header class="test__header">
-          <input class="test__title" type="text" placeholder="Введите название теста" value="${test?.title || ""}">
+        <input class="test__title" type="text" placeholder="Введите название теста" value="${test?.title || ""}" data-title-input>      
       </header>
       <div class="test__body">
           <ul class="test__questions" data-question-list></ul>

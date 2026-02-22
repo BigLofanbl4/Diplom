@@ -76,7 +76,8 @@
   position: absolute;
   min-width: max-content;
   bottom: 90%;
-  right: 0;
+  right: 50%;
+  transform: translateX(50%);
   background: var(--cl-surface);
   box-shadow: var(--shadow-xl);
   border-radius: var(--radius-lg);
@@ -84,7 +85,6 @@
   z-index: 10;
   padding: var(--pd-200);
   border: 1px solid rgba(147, 165, 192, 0.45);
-  transform: none;
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--transition-fast);
