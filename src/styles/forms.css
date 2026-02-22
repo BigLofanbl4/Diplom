@@ -22,6 +22,10 @@
   flex-direction: column;
 }
 
+.form-group--full-width {
+  grid-column: span 2;
+}
+
 .form-label {
   font-size: var(--fz-200);
   font-weight: 700;
@@ -116,6 +120,65 @@ textarea.form-input {
   grid-column: 1 / -1;
   align-items: center;
   flex-wrap: wrap;
+}
+
+.form-file-dropzone {
+  position: relative;
+  max-width: 100%;
+  border: 2px dashed var(--cl-border-medium);
+  min-height: 100px;
+  border-radius: var(--radius-md);
+  padding: var(--pd-200);
+  margin-bottom: var(--mg-200);
+  background: var(--cl-surface);
+  transition: all var(--transition-fast);
+}
+
+.form-file-dropzone.is-dragover {
+  background: var(--cl-bg-secondary);
+}
+
+.form-file-dropzone-hint {
+  width: max-content;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.form-file-dropzone-hint[data-hidden="true"] {
+  display: none;
+}
+
+.form-file-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--mg-100);
+}
+
+.form-file-input {
+  display: none;
+}
+
+.form-file-list-item {
+  display: flex;
+  align-items: center;
+  gap: var(--mg-100);
+  color: var(--cl-text-secondary);
+  background: var(--cl-success-light);
+  padding: var(--pd-200);
+  border-radius: var(--radius-md);
+}
+
+.form-file-list-item span {
+  font-size: var(--fz-200);
+}
+
+.form-file-remove-btn {
+  background: none;
+  border: none;
 }
 
 @media (max-width: 768px) {

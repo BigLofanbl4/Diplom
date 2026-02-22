@@ -1,4 +1,4 @@
-<form class="form modules__form">
+<form class="form lesson__form">
   <div class="form-grid">
     <div class="form-group">
       <label for="lesson-title">Название:</label>
@@ -8,9 +8,21 @@
       <label for="lesson-number">Номер урока:</label>
       <input class="form-input" type="number" id="lesson-number" name="lesson_number" min="1" required>
     </div>
-    <div class="form-group">
+    <div class="form-group form-group--full-width">
       <label for="lesson-description">Описание:</label>
       <textarea id="lesson-description" name="description" class="form-input"></textarea>
+    </div>
+    <div class="form-group form-group--full-width">
+      <label for="lesson-materials">Материалы:</label>
+      <div class="form-file-dropzone" data-drop-zone>
+        <span class="form-file-dropzone-hint" data-hidden="false" data-drop-hint>Перетяните файлы или кликните на кнопку</span>
+        <ul class="form-file-list" aria-live="polite" data-drop-file-list>
+        </ul>
+      </div>
+      <label class="form-file-select-btn btn btn-primary" for="lesson-materials">
+        Выберите файлы
+      </label>
+      <input class="form-file-input" id="lesson-materials" name="materials[]" type="file" multiple data-files-input>
     </div>
   </div>
   <div class="form-actions">

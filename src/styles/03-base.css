@@ -59,6 +59,10 @@ a:not(.btn):not(.createBtn):not(.table__action-btn):hover {
   opacity: 0.92;
 }
 
+button {
+  cursor: pointer;
+}
+
 p {
   font-size: var(--fz-300);
   color: var(--cl-text-secondary);
