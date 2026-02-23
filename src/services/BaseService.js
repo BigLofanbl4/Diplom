@@ -1,5 +1,5 @@
 export default class BaseService {
-  static BASE_URL = "/api";
+  static BASE_URL = "/api/v1";
   
   static async request(endpoint, options = {}) {
     const url = `${this.BASE_URL}${endpoint}`;
@@ -22,7 +22,7 @@ export default class BaseService {
       if (!response.ok) {
         const errorData = await response.json().catch(() => {});
         throw new Error(JSON.stringify({
-          message: errorData.detail || `Iternal Server Error: ${response.status}`,
+          message: errorData?.detail || `Internal Server Error: ${response.status}`,
           status: response.status,
         }));
       }

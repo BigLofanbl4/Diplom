@@ -1,51 +1,15 @@
-from sqlalchemy import Column, Integer, String, Text, Boolean, Table, ForeignKey, UniqueConstraint
-from sqlalchemy.orm import relationship, Mapped, mapped_column
-from database import Base
+from __future__ import annotations
 
-class Teacher(Base):
-    __tablename__ = "teachers"
+from typing import TYPE_CHECKING
 
-    id = Column(Integer, primary_key=True, index=True)
+from sqlalchemy import ForeignKey, Integer, String, Text, UniqueConstraint, JSON
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-    login = Column(String, unique=True, index=True, nullable=False)
+from app.database import Base
 
-    password = Column(String, nullable=False)
+if TYPE_CHECKING:
+    from .groups import Group
 
-    phone = Column(String, nullable=True)
-
-    first_name = Column(String, nullable=False)
-    last_name = Column(String, nullable=False)
-    age = Column(Integer, nullable=True)
-
-    is_ovz = Column(Boolean, default=False)
-
-    organization_id = Column(Integer, nullable=True)
-
-    groups = relationship("Group", back_populates="teacher")
-
-student_group = Table("student_group", Base.metadata,
-    Column('student_id', Integer, ForeignKey('students.id'), primary_key=True),
-    Column('group_id', Integer, ForeignKey('groups.id'), primary_key=True)
-)
-
-class Student(Base):
-    __tablename__ = "students"
-
-    id = Column(Integer, primary_key=True, index=True)
-    first_name = Column(String, nullable=False)
-    last_name = Column(String, nullable=False)
-    phone = Column(String, nullable=False)
-    groups = relationship("Group", secondary=student_group, back_populates="students")
-
-class Group(Base):
-    __tablename__ = "groups"
-    id = Column(Integer, primary_key=True, index=True)
-    group_number = Column(Integer, unique=True, index=True, nullable=False)
-    course_id = Column(Integer, ForeignKey('courses.id'), nullable=True)
-    teacher_id = Column(Integer, ForeignKey('teachers.id'))
-    teacher = relationship("Teacher", back_populates="groups")
-    students = relationship("Student", secondary=student_group, back_populates="groups")
-    course = relationship("Course", back_populates="groups")
 
 class Course(Base):
     __tablename__ = "courses"
@@ -112,5 +76,15 @@ class CourseMaterial(Base):
     course_id: Mapped[int] = mapped_column(ForeignKey("courses.id", ondelete="CASCADE"), nullable=False)
     lesson_id: Mapped[int] = mapped_column(ForeignKey("course_lessons.id", ondelete="CASCADE"), nullable=False)
 
+    files: Mapped[list["File"]] = relationship("File", back_populates='material', cascade="all, delete-orphan")
     course: Mapped["Course"] = relationship("Course", back_populates="materials")
     lesson: Mapped["CourseLesson"] = relationship("CourseLesson", back_populates="materials")
+
+
+class File(Base):
+    __tablename__ = "files"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    path: Mapped[str] = mapped_column(String(255), nullable=False)
+    material_id: Mapped[int] = mapped_column(ForeignKey("course_materials.id", ondelete="CASCADE"), nullable=False)
+
+    material: Mapped["CourseMaterial"] = relationship("CourseMaterial", back_populates="files")
