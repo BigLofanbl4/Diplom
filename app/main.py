@@ -1,4 +1,3 @@
-from typing import Union
 from .api import router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware

@@ -1,4 +1,3 @@
-from typing import Union
 from ..api import organization, groups, courses, students, teachers, auth
 from fastapi import APIRouter
 
@@ -9,4 +8,3 @@ router.include_router(courses.router)
 router.include_router(students.router)
 router.include_router(teachers.router)
 router.include_router(auth.router)
-

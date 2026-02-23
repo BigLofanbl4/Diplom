@@ -9,7 +9,6 @@ from ..repositories import TeacherRepository, AdminRepository
 from jwt.exceptions import InvalidTokenError
 
 
-from ..schemas import TeacherCreate, TeacherUpdate, TeacherOut
 from ..utils.security import verify_password
 
 
@@ -81,7 +80,6 @@ def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Annota
         access_token=token,
         token_type="bearer",
     )
-
 
 
 
