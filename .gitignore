@@ -76,3 +76,6 @@ backend/database.db
 # ----------------------------
 certs/
 *.pem
+
+# Mock examples
+mock/server.js
