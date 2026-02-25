@@ -5,7 +5,14 @@ export default class LessonService extends BaseService {
     const formData = new FormData();
     for (const key in data) {
       if (data[key] === null || data[key] === undefined) continue;
-      if (Array.isArray(data[key])) {
+      if (key === "materials") {
+        const arr = data[key];
+        arr.forEach(material => {
+          if (material instanceof File && material.size > 0 && material.name) {
+            formData.append(key, material);
+          }
+        })
+      } else if (Array.isArray(data[key])) {
         const arr = data[key];
         arr.forEach(item => formData.append(key, item));
       } else {
@@ -15,18 +22,18 @@ export default class LessonService extends BaseService {
     return formData;
   }
 
-  static async getAll() {
-    return this.request("/course-lessons");
+  static async getAll(courseId) {
+    return this.request(`/courses/${courseId}/lessons`);
   }
 
-  static async getById(id) {
-    return this.request(`/course-lessons/${id}`);
+  static async getById(courseId, lessonId) {
+    return this.request(`/courses/${courseId}/lessons/${lessonId}`);
   }
 
-  static async create(data) {
+  static async create(courseId, data) {
     const formData = this.getFormData(data);
     return this.request(
-      "/course-lessons",
+      `/courses/${courseId}/lessons`,
       {
         method: "POST",
         body: formData,
@@ -34,10 +41,10 @@ export default class LessonService extends BaseService {
     );
   }
 
-  static async update(id, data) {
+  static async update(courseId, lessonId, data) {
     const formData = this.getFormData(data);
     return this.request(
-      `/course-lessons/${id}`,
+      `/courses/${courseId}/lessons/${lessonId}`,
       {
         method: "PATCH",
         body: formData,
@@ -45,7 +52,7 @@ export default class LessonService extends BaseService {
     );
   }
 
-  static async delete(id) {
-    return this.request(`/course-lessons/${id}`, { method: "DELETE" });
+  static async delete(courseId, lessonId) {
+    return this.request(`/courses/${courseId}/lessons/${lessonId}`, { method: "DELETE" });
   }
 }

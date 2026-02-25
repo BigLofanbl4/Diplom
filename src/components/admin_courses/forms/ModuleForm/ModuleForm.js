@@ -30,4 +30,20 @@ export default class ModuleForm extends FormComponent {
     }
     return data;
   }
+
+  async fetchData() {
+    if (!this.id) return;
+    if (this.courseId === null) throw new Error("ModuleForm: courseId is required for update mode");
+    this.data = await this.Service.getById(this.courseId, this.id);
+  }
+
+  async submit(data) {
+    if (this.courseId === null) throw new Error("ModuleForm: courseId is required");
+    if (this.mode === "create") {
+      return await this.Service.create(this.courseId, data);
+    }
+    if (this.mode === "update") {
+      return await this.Service.update(this.courseId, this.id, data);
+    }
+  }
 }

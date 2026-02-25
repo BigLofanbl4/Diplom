@@ -102,7 +102,7 @@ class ModuleController {
     const moduleId = Number(event.target.closest("[data-module-id]").dataset.moduleId);
     await this._openModal(
       ModuleForm,
-      {id: moduleId},
+      {id: moduleId, courseId: this.courseId},
       "Изменить модуль",
       (module) => this.updateModule(module)
     );
@@ -115,7 +115,7 @@ class ModuleController {
     const accept = confirm(`Удалить модуль ${moduleId}?`);
     if (!accept) return;
 
-    const success = await ModuleService.delete(moduleId);
+    const success = await ModuleService.delete(this.courseId, moduleId);
     if (success) {
       const data = this.getData();
       data.modules = data.modules.filter(m => m.id !== moduleId);
@@ -178,7 +178,7 @@ class LessonController {
     const lessonId = Number(event.target.closest("[data-lesson-id]").dataset.lessonId);
     await this._openModal(
       LessonForm,
-      {id: lessonId},
+      {id: lessonId, courseId: this.courseId},
       "Изменить урок",
       (lesson) => this.updateLesson(lesson)
     );
@@ -189,7 +189,7 @@ class LessonController {
     const lessonId = Number(lessonContainer.dataset.lessonId);
     const accept = confirm(`Удалить урок ${lessonId}?`)
     if (!accept) return;
-    const success = await LessonService.delete(lessonId);
+    const success = await LessonService.delete(this.courseId, lessonId);
     if (success) {
       const moduleContainer = event.target.closest("[data-module-id]");
       const lessonsList = moduleContainer?.querySelector("[data-module-lessons]");

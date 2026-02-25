@@ -2,6 +2,13 @@ import { db, nextId } from "../db.js";
 import { parseBody, sendJson, sendNoContent } from "../utils/http.js";
 import { normalizeNullableField } from "../utils/normalize.js";
 
+const STUDENT_UPDATABLE_FIELDS = new Set([
+  "first_name",
+  "last_name",
+  "phone",
+  "birth_date",
+]);
+
 export function getStudents(_req, res) {
   const studentList = db.students.map((studentRecord) => serializeStudent(studentRecord));
   return sendJson(res, 200, studentList);
@@ -49,6 +56,7 @@ export async function updateStudent(req, res, params) {
 
   for (const key in payload) {
     if (key === "group_ids") continue;
+    if (!STUDENT_UPDATABLE_FIELDS.has(key)) continue;
     if (key === "phone" || key === "birth_date") {
       studentRecord[key] = normalizeNullableField(payload[key]);
       continue;

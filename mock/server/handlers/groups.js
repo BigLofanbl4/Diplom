@@ -2,6 +2,12 @@ import { db, nextId } from "../db.js";
 import { parseBody, sendJson, sendNoContent } from "../utils/http.js";
 import { normalizeNullableId } from "../utils/normalize.js";
 
+const GROUP_UPDATABLE_FIELDS = new Set([
+  "group_number",
+  "teacher_id",
+  "course_id",
+]);
+
 export function getGroups(_req, res) {
   const groupsList = db.groups.map(groupRecord => serializeGroup(groupRecord));
   return sendJson(res, 200, groupsList);
@@ -26,10 +32,14 @@ export async function createGroup(req, res) {
   const teacherId = normalizeNullableId(payload.teacher_id);
   const courseId = normalizeNullableId(payload.course_id);
 
+  const studentIds = Array.isArray(payload.student_ids)
+    ? payload.student_ids.map((studentId) => Number(studentId)).filter((studentId) => !Number.isNaN(studentId))
+    : [];
+
   const groupRecord = {
     id: groupId,
     group_number: payload.group_number,
-    student_ids: payload.student_ids ?? [],
+    student_ids: studentIds,
     teacher_id: teacherId,
     course_id: courseId,
   };
@@ -50,6 +60,7 @@ export async function updateGroup(req, res, params) {
 
   for (const key in payload) {
     if (key === "student_ids") continue;
+    if (!GROUP_UPDATABLE_FIELDS.has(key)) continue;
     if (key === "group_number") {
       groupRecord[key] = payload[key];
       continue;
@@ -62,7 +73,9 @@ export async function updateGroup(req, res, params) {
   }
 
   if (payload.student_ids !== undefined) {
-    const studentIds = payload.student_ids.map(studentId => Number(studentId));
+    const studentIds = Array.isArray(payload.student_ids)
+      ? payload.student_ids.map(studentId => Number(studentId)).filter((studentId) => !Number.isNaN(studentId))
+      : [];
     groupRecord.student_ids = studentIds;
   }
 

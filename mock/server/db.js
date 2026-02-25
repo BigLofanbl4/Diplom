@@ -2,7 +2,10 @@ export const counters = {
   teachers: 2,
   students: 3,
   groups: 2,
-  courses: 2
+  courses: 2,
+  modules: 2,
+  lessons: 2,
+  materials: 2
 };
 
 export function nextId(entity) {
@@ -40,4 +43,26 @@ export const db = {
   ],
   groups: [{ id: 1, group_number: "101", course_id: 1, teacher_id: 1, student_ids: [1, 2] }],
   courses: [{ id: 1, title: "Математика", description: "Базовый курс математики" }],
+  modules: [{ id: 1, title: "Алгебра", module_number: 1, course_id: 1 }],
+  lessons: [
+    {
+      id: 1,
+      title: "Линейные уравнения",
+      lesson_number: 1,
+      description: "Решение линейных уравнений",
+      course_id: 1,
+      module_id: 1,
+      homework_text: null,
+    },
+  ],
+  materials: [
+    {
+      id: 1,
+      name: "homework-1.pdf",
+      size: 14000,
+      url: null,
+      course_id: 1,
+      lesson_id: 1
+    },
+  ],
 };

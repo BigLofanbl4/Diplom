@@ -257,6 +257,22 @@ export default class LessonForm extends FormComponent {
     return data;
   }
 
+  async fetchData() {
+    if (!this.id) return;
+    if (this.courseId === null) throw new Error("LessonForm: courseId is required for update mode");
+    this.data = await this.Service.getById(this.courseId, this.id);
+  }
+
+  async submit(data) {
+    if (this.courseId === null) throw new Error("LessonForm: courseId is required");
+    if (this.mode === "create") {
+      return await this.Service.create(this.courseId, data);
+    }
+    if (this.mode === "update") {
+      return await this.Service.update(this.courseId, this.id, data);
+    }
+  }
+
   initCustomFields() {
     const dropZone = this.form.querySelector("[data-drop-zone]");
     const dropInput = this.form.querySelector("[data-files-input]")

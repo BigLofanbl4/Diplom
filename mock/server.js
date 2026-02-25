@@ -1,9 +1,9 @@
 import http from "node:http";
 
-import { hostname, port } from "./my_server/config.js";
-import { routes } from "./my_server/routes.js";
-import { sendJson } from "./my_server/utils/http.js";
-import { matchRoute } from "./my_server/utils/router.js";
+import { hostname, port } from "./server/config.js";
+import { routes } from "./server/routes.js";
+import { sendJson } from "./server/utils/http.js";
+import { matchRoute } from "./server/utils/router.js";
 
 const server = http.createServer((req, res) => {
   const method = req.method;
