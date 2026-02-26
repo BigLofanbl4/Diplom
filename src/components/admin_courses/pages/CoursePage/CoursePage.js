@@ -8,6 +8,7 @@ import LessonService from "../../../../services/LessonService.js";
 import ModuleItem from "../../ui/ModuleItem/ModuleItem.js";
 import LessonCard from "../../ui/LessonCard/LessonCard.js";
 import {getModuleData} from "../../../../utils/courseUtils.js";
+import TestService from "../../../../services/TestService.js";
 
 class ModuleController {
   constructor(courseId, getData, moduleList, _openModal) {
@@ -133,7 +134,7 @@ class LessonController {
   }
 
   canHandle(action) {
-    return ["createLesson", "updateLesson", "deleteLesson"].includes(action);
+    return ["createLesson", "updateLesson", "deleteLesson", "deleteTest"].includes(action);
   }
 
   async handle(action, event) {
@@ -141,6 +142,7 @@ class LessonController {
       case "createLesson": return await this._onCreateLesson(event);
       case "updateLesson": return await this._onUpdateLesson(event);
       case "deleteLesson": return await this._onDeleteLesson(event);
+      case "deleteTest": return await this._onDeleteLessonTest(event);
     }
   }
 
@@ -204,6 +206,34 @@ class LessonController {
       data.lessons = data.lessons.filter(l => l.id !== lessonId);
       lessonContainer.remove();
     }
+  }
+
+  async _onDeleteLessonTest(event) {
+    const lessonContainer = event.target.closest('[data-lesson-id]');
+    const lessonId = Number(lessonContainer.dataset.lessonId);
+    const accept = confirm(`Удалить тест у урока ${lessonId}`);
+    if (!accept) return;
+
+    try {
+      const success = await TestService.delete(this.courseId, lessonId);
+      if (success) {
+        alert("Тест удален!");
+        const data = this.getData();
+        const targetLessonData = data.lessons.find(l => l.id === lessonId);
+        if (!targetLessonData) return;
+        targetLessonData.test_id = null;
+        this._refreshLessonCard(targetLessonData, lessonContainer);
+        return success;
+      }
+    } catch (error) {
+      alert("Возникла ошибка при удалении теста!");
+      console.error(error);
+    }
+  }
+
+  _refreshLessonCard(lessonData, lessonContainer) {
+    const lessonCard = new LessonCard(lessonData);
+    lessonContainer.replaceWith(lessonCard.render());
   }
 }
 

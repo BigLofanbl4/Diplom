@@ -18,6 +18,14 @@ export const LessonCardTemplate = (lesson) => {
         </span>
       </div>
       <div class="course-lesson__actions">
+        <button
+            class="btn btn-danger"
+            data-action="deleteTest"
+            ${!lesson.test_id ? "disabled" : ""}
+            title="${!lesson.test_id ? "Тест не прикреплен" : "Удалить тест"}"
+        >
+          Удалить тест
+        </button>
         <a href="/admin/courses/${lesson.course_id}/lessons/${lesson.id}/test" class="btn btn-secondary course-lesson__action-btn" data-spa-link>
             <i class="fa-regular fa-rectangle-list"></i>
         </a>
