@@ -2,6 +2,12 @@ export const CoursePageTemplate = (course) => {
   return `
       <article class="course" data-course-id="${course.id}">
       <header class="course__header">
+        <div class="course__header-top">
+          <a href="/admin/courses" class="btn btn-secondary course__back-link" data-spa-link>
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>К списку курсов</span>
+          </a>
+        </div>
         <h1 class="course__header-title">Курс ID: ${course.id}</h1>
         <form class="course__general-form" id="course-general-form">
           <div class="form-group course__general-form-group">

@@ -3,6 +3,11 @@ import TestService from "../../../../services/TestService.js";
 import ModalWithComponent from "../../../common/ModalWithComponent/ModalWithComponent.js";
 import { QuestionEditorForm, renderQuestionCard } from "./questions/index.js";
 
+const getCourseIdFromPathname = (pathname = window.location.pathname) => {
+  const match = pathname.match(/\/admin\/courses\/(\d+)/);
+  return match?.[1] ?? null;
+};
+
 
 class TestStore {
   constructor({ data, courseId, lessonId, testId }) {
@@ -91,12 +96,17 @@ class TestBuilderView {
     this.testContainer = this.testContainer ? this.testContainer : document.getElementById("component");
     if (this.testElem) this.testElem.remove();
     const wrapper = document.createElement("div");
-    this.template = TestConstructorTemplate(state);
+    this.template = TestConstructorTemplate(state, { backHref: this.resolveBackHref() });
     wrapper.innerHTML = this.template;
     this.testElem = wrapper.querySelector("[data-test-id]");
     this.questionList = this.testElem.querySelector("[data-question-list]");
     this.testContainer.appendChild(this.testElem);
     this.drawQuestionList(state);
+  }
+
+  resolveBackHref() {
+    const pathnameCourseId = getCourseIdFromPathname();
+    return pathnameCourseId ? `/admin/courses/${pathnameCourseId}` : "/admin/courses";
   }
 
   drawQuestionList(state) {
@@ -169,8 +179,11 @@ class TestBuilderController {
   }
 
   async handleTestAction(action, payload = {}) {
+    const { courseId } = this.store.getContext();
+    const resolvedCourseId = courseId || getCourseIdFromPathname();
+    const backHref = resolvedCourseId ? `/admin/courses/${resolvedCourseId}` : "/admin/courses";
     if (action === "save") await this.saveTest();
-    if (action === "cancel") history.back();
+    if (action === "cancel") await window.router.navigate(backHref);
     if (action === "createQuestion") {
       await this.openCreateQuestionModal(payload.questionType);
     }

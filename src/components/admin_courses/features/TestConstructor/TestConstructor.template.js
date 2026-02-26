@@ -1,7 +1,13 @@
-export const TestConstructorTemplate = (test) => {
+export const TestConstructorTemplate = (test, { backHref = "/admin/courses" } = {}) => {
   return `
     <article class="test" data-test-id="${test?.lesson_id}">
       <header class="test__header">
+        <div class="test__header-top">
+          <a href="${backHref}" class="btn btn-secondary test__back-link" data-spa-link>
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>К курсу</span>
+          </a>
+        </div>
         <input class="test__title" type="text" placeholder="Введите название теста" value="${test?.title || ""}" data-title-input>      
       </header>
       <div class="test__body">

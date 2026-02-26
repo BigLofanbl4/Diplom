@@ -36,6 +36,15 @@
     font-size: var(--fz-300);
   }
 
+  .course__header-top {
+    margin-bottom: var(--mg-200);
+  }
+
+  .course__back-link {
+    width: 100%;
+    justify-content: center;
+  }
+
   .course-modules__header {
     flex-direction: column;
     align-items: flex-start;
@@ -83,6 +92,20 @@
 
 .course__header {
   margin-bottom: var(--mg-900);
+}
+
+.course__header-top {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--mg-300);
+}
+
+.course__back-link {
+  min-width: auto;
+  gap: var(--mg-200);
+  padding: var(--pd-200) var(--pd-400);
+  border-radius: var(--radius-md);
+  font-size: var(--fz-200);
 }
 
 .course__header-title {

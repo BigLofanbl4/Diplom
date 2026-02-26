@@ -10,11 +10,26 @@
 
 .test__header {
   display: flex;
-  align-items: center;
-  gap: var(--mg-400);
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--mg-300);
   margin-bottom: var(--mg-600);
   padding-bottom: var(--pd-400);
   border-bottom: 1px solid rgba(147, 165, 192, 0.45);
+}
+
+.test__header-top {
+  display: flex;
+  align-items: center;
+}
+
+.test__back-link {
+  min-width: auto;
+  width: fit-content;
+  gap: var(--mg-200);
+  padding: var(--pd-200) var(--pd-400);
+  border-radius: var(--radius-md);
+  font-size: var(--fz-200);
 }
 
 .test__title {
@@ -387,6 +402,11 @@
   .test__header {
     margin-bottom: var(--mg-400);
     padding-bottom: var(--pd-300);
+  }
+
+  .test__back-link {
+    width: 100%;
+    justify-content: center;
   }
 
   .test__title {
