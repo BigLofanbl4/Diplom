@@ -15,16 +15,16 @@ export const QUESTION_TYPE_REGISTRY = {
   text: {
     Editor: TextQuestionEditor,
     renderCard: renderTextQuestionCard,
-    createEmptyDraft: () => ({ id: createQuestionId(), type: "text", text: "", answer: "" }),
+    createEmptyDraft: () => ({ uiId: createQuestionId(), type: "text", text: "", answer: "" }),
   },
   single_choice: {
     Editor: SingleChoiceQuestionEditor,
     renderCard: renderSingleChoiceQuestionCard,
-    createEmptyDraft: () => ({ id: createQuestionId(), type: "single_choice", text: "", answer: "", options: [] }),
+    createEmptyDraft: () => ({ uiId: createQuestionId(), type: "single_choice", text: "", answer: "", options: [] }),
   },
   multiple_choice: {
     Editor: MultipleChoiceQuestionEditor,
     renderCard: renderMultipleChoiceQuestionCard,
-    createEmptyDraft: () => ({ id: createQuestionId(), type: "multiple_choice", text: "", answer: [], options: [] }),
+    createEmptyDraft: () => ({ uiId: createQuestionId(), type: "multiple_choice", text: "", answer: [], options: [] }),
   },
 };

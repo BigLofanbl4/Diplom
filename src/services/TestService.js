@@ -2,10 +2,42 @@ import BaseService from './BaseService';
 
 
 export default class TestService extends BaseService {
-  static async getById(id) {
-    throw new Error(JSON.stringify({
-      message: 'Test not Found',
-      status: 404
-    }))
+  static async getTestOrNull(courseId, lessonId) {
+    try {
+      return await this.request(`/courses/${courseId}/lessons/${lessonId}/test`);
+    } catch (error) {
+      if (error.status === 404) return null;
+      throw error;
+    }
   }
+
+  static async create(courseId, lessonId, data) {
+    return await this.request(
+      `/courses/${courseId}/lessons/${lessonId}/test`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      }
+    );
+  }
+
+  static async update(courseId, lessonId, data) {
+    return await this.request(
+      `/courses/${courseId}/lessons/${lessonId}/test`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(data)
+      }
+    );
+  }
+
+  static async delete(courseId, lessonId) {
+    return await this.request(
+      `/courses/${courseId}/lessons/${lessonId}/test`,
+      {
+        method: 'DELETE'
+      }
+    );
+  }
+
 }

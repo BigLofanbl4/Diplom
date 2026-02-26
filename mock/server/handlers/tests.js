@@ -99,7 +99,9 @@ function insertQuestions(testId, questions) {
       test_id: testId,
       number: Number(question.number),
       text: question.text,
-      type: question.type
+      type: question.type,
+      answer: Array.isArray(question.answer) ? question.answer : [question.answer],
+      options: Array.isArray(question.options) ? question.options : null
     });
   });
 }
@@ -109,7 +111,7 @@ function clearTestQuestions(testId) {
 }
 
 function isValidTestPayload(payload) {
-  return !(!payload.title || payload.questions.length === 0);
+  return !(!payload.title || !Array.isArray(payload.questions) || payload.questions.length === 0);
 }
 
 function findTest(courseId, lessonId) {

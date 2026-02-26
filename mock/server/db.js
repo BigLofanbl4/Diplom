@@ -81,8 +81,10 @@ export const db = {
       id: 1,
       test_id: 1,
       number: 1,
+      answer: ["Ответ на вопрос 1"],
       text: "Вопрос 1",
       type: "text",
+      options: null,
     }
   ],
 };

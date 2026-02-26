@@ -20,17 +20,26 @@ export default class BaseService {
       if (response.status === 204) return true;
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => {});
-        throw new Error(JSON.stringify({
-          message: errorData?.detail || `Internal Server Error: ${response.status}`,
+        const errorData = await response.json().catch(() => null);
+        throw {
           status: response.status,
-        }));
+          message: errorData?.detail || `HTTP ${response.status}`,
+          data: errorData,
+          isApiError: true,
+        };
       }
 
       return await response.json();
     } catch (error) {
-      console.error(`API ERROR ${url}:`, error);
-      throw error;
+      if (error?.isApiError) throw error;
+
+      // network / CORS / abort / invalid JSON etc.
+      throw {
+        status: 0,
+        message: error?.message || "Network error",
+        isNetworkError: true,
+        originalError: error,
+      };
     }
   }
 }

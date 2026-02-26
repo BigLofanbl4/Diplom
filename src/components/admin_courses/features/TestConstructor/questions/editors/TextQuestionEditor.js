@@ -61,10 +61,10 @@ export class TextQuestionEditor {
     const draft = {};
     const questionText = this.questionBodyElement.querySelector("[data-question-text]").value;
     const questionAnswer = this.questionBodyElement.querySelector("[data-question-answer]").value;
-    draft.id = this.questionData.id;
+    draft.uiId = this.questionData.uiId;
     draft.type = "text";
     draft.text = questionText;
-    draft.answer = questionAnswer.toLowerCase().trim();
+    draft.answer = [questionAnswer.toLowerCase().trim()];
     return draft;
   }
 }

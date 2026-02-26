@@ -30,7 +30,7 @@ function renderQuestionCard(questionData, { questionType }) {
   questionCardElement.classList.add("test__question");
   questionCardElement.dataset.questionTypeLabel = questionTypeLabels[questionType];
   questionCardElement.dataset.questionNumber = String(Number(questionData.number) || 0);
-  questionCardElement.dataset.questionId = String(questionData.id);
+  questionCardElement.dataset.questionId = String(questionData.uiId);
 
   questionCardElement.innerHTML = `
     <div class="test__question-body">

@@ -74,7 +74,7 @@ export class BaseChoiceQuestionEditor {
   getQuestionDraft() {
     const draft = {};
     const questionText = this.questionBodyElement.querySelector("[data-question-text]").value;
-    draft.id = this.questionData.id;
+    draft.uiId = this.questionData.uiId;
     draft.type = this.questionType;
     draft.text = questionText;
     draft.answer = this.getQuestionAnswer();

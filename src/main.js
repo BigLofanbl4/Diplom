@@ -63,7 +63,7 @@ const ROUTES = {
     Layout: AdminLayout,
     Component: CoursePage
   },
-  "/admin/courses/:courseId/test/:lessonId": {
+  "/admin/courses/:courseId/lessons/:lessonId/test": {
     Layout: AdminLayout,
     Component: TestConstructor
   }

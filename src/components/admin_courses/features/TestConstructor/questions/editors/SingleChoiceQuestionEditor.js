@@ -27,6 +27,6 @@ export class SingleChoiceQuestionEditor extends BaseChoiceQuestionEditor {
   }
 
   getQuestionAnswer() {
-    return this.questionBodyElement.querySelector('input[name="answer"]:checked')?.value ?? "";
+    return [this.questionBodyElement.querySelector('input[name="answer"]:checked')?.value] ?? [];
   }
 }

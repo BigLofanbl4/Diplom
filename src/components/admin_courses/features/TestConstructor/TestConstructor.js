@@ -5,20 +5,25 @@ import { QuestionEditorForm, renderQuestionCard } from "./questions/index.js";
 
 
 class TestStore {
-  constructor({ data }) {
+  constructor({ data, courseId, lessonId, testId }) {
     if (!data) throw new Error("TestStore requires data!");
 
-    const hasCourseId = data.course_id !== undefined && data.course_id !== null;
-    const hasLessonId = data.lesson_id !== undefined && data.lesson_id !== null;
+    this.courseId = courseId;
+    this.lessonId = lessonId;
+    this.testId = testId ?? null;
 
-    if (!hasCourseId || !hasLessonId) {
-      throw new Error("course_id and lesson_id are required!");
-    }
+    const normalizedQuestions = (data.questions ?? []).map(q => ({
+      text: q.text,
+      type: q.type,
+      answer: q.answer,
+      number: q.number,
+      uiId: crypto.randomUUID()
+    }));
 
     this.data = {
-      ...data,
       title: data.title ? data.title : "",
-      questions: Array.isArray(data.questions) ? data.questions : [],
+      questions: normalizedQuestions,
+      questions_number: Number(data.questions_number),
     };
     this.syncQuestionNumbers();
   }
@@ -37,21 +42,21 @@ class TestStore {
 
   updateQuestion(draft) {
     const prev = this.data;
-    const updatedIndex = prev.questions.findIndex(q => q.id === draft.id);
-    if (updatedIndex === -1) throw new Error(`Question id ${draft.id} not found.`);
+    const updatedIndex = prev.questions.findIndex(q => q.uiId === draft.uiId);
+    if (updatedIndex === -1) throw new Error(`Question id ${draft.uiId} not found.`);
     const questions = prev.questions.with(updatedIndex, draft);
     this.data = {...prev, questions};
     this.syncQuestionNumbers();
   }
 
-  deleteQuestion(id) {
-    const questions = this.data.questions.filter(question => question.id !== id);
+  deleteQuestion(uiId) {
+    const questions = this.data.questions.filter(question => question.uiId !== uiId);
     this.data = {...this.data, questions};
     this.syncQuestionNumbers();
   }
 
-  getQuestion(id) {
-    return structuredClone(this.data.questions.find(q => q.id === id));
+  getQuestion(uiId) {
+    return structuredClone(this.data.questions.find(q => q.uiId === uiId));
   }
 
   syncQuestionNumbers() {
@@ -63,6 +68,10 @@ class TestStore {
 
   getSnapshot() {
     return structuredClone(this.data);
+  }
+
+  getContext() {
+    return { courseId: this.courseId, lessonId: this.lessonId, testId: this.testId };
   }
 }
 
@@ -160,7 +169,7 @@ class TestBuilderController {
   }
 
   async handleTestAction(action, payload = {}) {
-    if (action === "save") this.saveTest();
+    if (action === "save") await this.saveTest();
     if (action === "cancel") history.back();
     if (action === "createQuestion") {
       await this.openCreateQuestionModal(payload.questionType);
@@ -177,7 +186,7 @@ class TestBuilderController {
 
   async openEditQuestionModal(questionId) {
     const question = this.store.getQuestion(questionId);
-    if (!question) throw new Error(`Question id ${questionId} not found.`);
+    if (!question) throw new Error(`Question uiId ${questionId} not found.`);
     await this.openQuestionEditorModal({ questionType: question.type, questionData: question });
   }
 
@@ -204,15 +213,42 @@ class TestBuilderController {
   }
 
   upsertQuestionDraft(draft) {
-    const exists = this.store.getQuestion(draft.id);
-
+    const exists = this.store.getQuestion(draft.uiId);
     if (exists) return this.store.updateQuestion(draft);
     this.store.addQuestion(draft);
   }
 
-  saveTest() {
-    console.log(this.store.getSnapshot());
+  async saveTest() {
+    const { courseId, lessonId, testId } = this.store.getContext();
+    const snapshot = this.store.getSnapshot();
+
+    const payload = {
+      title: snapshot.title,
+      questions: snapshot.questions,
+      questions_number: snapshot.questions_number,
+    };
+
+    const isEdit = testId !== null && testId !== undefined;
+
+    console.log(isEdit);
+
+    try {
+      const response = isEdit
+        ? await TestService.update(courseId, lessonId, payload)
+        : await TestService.create(courseId, lessonId, payload);
+
+      if (!isEdit) {
+        this.store.testId = response.id;
+      }
+
+      alert(isEdit ? "Тест обновлен!" : "Тест создан!");
+      return response;
+    } catch (error) {
+      console.error(error);
+      alert("Возникла ошибка при сохранении теста!");
+    }
   }
+
 }
 
 export default class TestConstructor {
@@ -228,25 +264,18 @@ export default class TestConstructor {
   }
 
   async fetchData() {
-    try {
-      this.data = await TestService.getById(this.lessonId);
-    } catch (error) {
-      const err = JSON.parse(error.message);
-      if (err.status === 404) {
-        this.data = {
-          title: "",
-          lesson_id: this.lessonId,
-          course_id: this.courseId,
-          questions: [],
-          questions_number: 0
-        };
+    this.data = await TestService.getTestOrNull(this.courseId, this.lessonId);
+    if (!this.data) {
+      this.data = {
+        title: "",
+        questions: [],
+        questions_number: 0,
       }
-      console.warn(err.message);
     }
   }
 
   setupLayers() {
-    this.store = new TestStore({ data: this.data });
+    this.store = new TestStore({ data: this.data, courseId: this.courseId, lessonId: this.lessonId, testId: this.data.id });
     this.view = new TestBuilderView({ testContainer: this.testContainer });
     this.controller = new TestBuilderController({ store: this.store, view: this.view });
   }
