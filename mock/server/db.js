@@ -54,6 +54,7 @@ export const db = {
       description: "Решение линейных уравнений",
       course_id: 1,
       module_id: 1,
+      test_id: 1,
       homework_text: null,
     },
   ],

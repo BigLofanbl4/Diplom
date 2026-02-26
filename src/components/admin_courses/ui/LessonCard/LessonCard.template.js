@@ -1,4 +1,5 @@
 export const LessonCardTemplate = (lesson) => {
+  const hasMaterials = Array.isArray(lesson.materials) && lesson.materials.length > 0;
   return `
     <li class="course-lesson" data-lesson-id="${lesson.id}">
       <h5 class="course-lesson__title">
@@ -7,13 +8,13 @@ export const LessonCardTemplate = (lesson) => {
       </h5>
       <p class="course-lesson__desc">${lesson.description}</p>
       <div class="course-lesson__badges">
-        <span class="course-lesson__badge course-lesson__badge--danger">
+        <span class="course-lesson__badge ${!lesson.test_id ? "course-lesson__badge--danger" : ""}">
           <i class="fa-regular fa-rectangle-list"></i>
-          Отсутствуют тесты
+          ${!lesson.test_id ? "Отсутвует тест" : "Тест прикреплен"}
         </span>
-        <span class="course-lesson__badge course-lesson__badge--danger">
+        <span class="course-lesson__badge ${!hasMaterials ? "course-lesson__badge--danger" : ""}">
           <i class="fa-regular fa-file-lines"></i>
-          Отсутствуют материалы
+          ${!hasMaterials ? "Отсутствуют материалы" : `Материалы прикреплены (${lesson.materials.length})`}
         </span>
       </div>
       <div class="course-lesson__actions">

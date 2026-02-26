@@ -290,6 +290,14 @@
   color: var(--cl-text-primary);
   font-weight: 700;
   font-size: var(--fz-200);
+  background: var(--cl-success-light);
+  border: 1px solid transparent;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.course-lesson__badge:hover {
+  border-color: var(--cl-success);
+  background: var(--cl-success-light);
 }
 
 .course-lesson__badge--danger {

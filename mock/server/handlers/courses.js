@@ -1,6 +1,10 @@
 import { db, nextId } from "../db.js";
 import { parseBody, sendJson, sendNoContent } from "../utils/http.js";
 import { normalizeNullableField } from "../utils/normalize.js";
+import {
+  serializeCourse,
+  serializeCourseDetails,
+} from "../utils/serializers.js";
 
 const COURSE_UPDATABLE_FIELDS = new Set([
   "title",
@@ -87,24 +91,4 @@ export function deleteCourse(_req, res, params) {
   db.materials = db.materials.filter(materialRecord => !deletedLessonIds.includes(materialRecord.lesson_id));
 
   return sendNoContent(res, 204);
-}
-
-function serializeCourse(courseRecord) {
-  return {
-    id: courseRecord.id,
-    title: courseRecord.title,
-    description: courseRecord.description,
-  }
-}
-
-function serializeCourseDetails(courseRecord) {
-  const courseModules = db.modules.filter(moduleRecord => moduleRecord.course_id === courseRecord.id);
-  const courseLessons = db.lessons.filter(lessonRecord => lessonRecord.course_id === courseRecord.id);
-  return {
-    id: courseRecord.id,
-    title: courseRecord.title,
-    description: courseRecord.description,
-    modules: courseModules,
-    lessons: courseLessons,
-  }
 }

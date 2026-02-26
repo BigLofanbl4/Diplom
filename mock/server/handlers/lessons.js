@@ -1,6 +1,7 @@
 import { db, nextId } from "../db.js";
 import { parseMultipartBody, sendJson, sendNoContent } from "../utils/http.js";
 import { normalizeNullableField, normalizeNullableId } from "../utils/normalize.js";
+import { serializeLesson } from "../utils/serializers.js";
 
 const LESSON_UPDATABLE_FIELDS = new Set([
   "title",
@@ -149,24 +150,4 @@ export function deleteLesson(_req, res, params) {
   );
 
   return sendNoContent(res, 204);
-}
-
-function serializeLesson(lessonRecord) {
-  const materials = db.materials
-    .filter(materialRecord => materialRecord.lesson_id === lessonRecord.id)
-    .map(materialRecord => ({
-      id: materialRecord.id,
-      name: materialRecord.name,
-      size: materialRecord.size,
-      url: materialRecord.url
-    }));
-  return {
-    id: lessonRecord.id,
-    title: lessonRecord.title,
-    lesson_number: lessonRecord.lesson_number,
-    description: lessonRecord.description,
-    course_id: lessonRecord.course_id,
-    module_id: lessonRecord.module_id,
-    materials
-  };
 }
