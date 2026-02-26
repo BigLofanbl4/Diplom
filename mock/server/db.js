@@ -5,7 +5,9 @@ export const counters = {
   courses: 2,
   modules: 2,
   lessons: 2,
-  materials: 2
+  materials: 2,
+  tests: 2,
+  questions: 2,
 };
 
 export function nextId(entity) {
@@ -64,5 +66,23 @@ export const db = {
       course_id: 1,
       lesson_id: 1
     },
+  ],
+  tests: [
+    {
+      id: 1,
+      lesson_id: 1,
+      course_id: 1,
+      title: "Тест 1",
+      questions_number: 1
+    }
+  ],
+  questions: [
+    {
+      id: 1,
+      test_id: 1,
+      number: 1,
+      text: "Вопрос 1",
+      type: "text",
+    }
   ],
 };

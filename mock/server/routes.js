@@ -41,6 +41,12 @@ import {
   getLessons,
   updateLesson,
 } from "./handlers/lessons.js";
+import {
+  createTest,
+  deleteTest,
+  getTestById,
+  updateTest,
+} from "./handlers/tests.js";
 
 export const routes = [
   { method: "GET", path: `${API_PREFIX}/teachers`, handler: getTeachers },
@@ -73,4 +79,8 @@ export const routes = [
   { method: "GET", path: `${API_PREFIX}/courses/:course_id/lessons/:lesson_id`, handler: getLessonById },
   { method: "PATCH", path: `${API_PREFIX}/courses/:course_id/lessons/:lesson_id`, handler: updateLesson },
   { method: "DELETE", path: `${API_PREFIX}/courses/:course_id/lessons/:lesson_id`, handler: deleteLesson },
+  { method: "GET", path: `${API_PREFIX}/courses/:course_id/lessons/:lesson_id/test`, handler: getTestById },
+  { method: "POST", path: `${API_PREFIX}/courses/:course_id/lessons/:lesson_id/test`, handler: createTest },
+  { method: "PUT", path: `${API_PREFIX}/courses/:course_id/lessons/:lesson_id/test`, handler: updateTest },
+  { method: "DELETE", path: `${API_PREFIX}/courses/:course_id/lessons/:lesson_id/test`, handler: deleteTest },
 ];
