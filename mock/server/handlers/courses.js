@@ -5,6 +5,7 @@ import {
   serializeCourse,
   serializeCourseDetails,
 } from "../utils/serializers.js";
+import { requireAuth } from "./auth.js";
 
 const COURSE_UPDATABLE_FIELDS = new Set([
   "title",
@@ -12,11 +13,13 @@ const COURSE_UPDATABLE_FIELDS = new Set([
 ]);
 
 
-export function getCourses(_req, res) {
+export function getCourses(req, res) {
+  if (!requireAuth(req, res)) return;
   return sendJson(res, 200, db.courses.map(courseRecord => serializeCourse(courseRecord)));
 }
 
-export function getCourseById(_req, res, params) {
+export function getCourseById(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const courseId = Number(params.id);
   const courseRecord = db.courses.find(courseRecord => courseRecord.id === courseId);
   if (!courseRecord) {
@@ -27,6 +30,7 @@ export function getCourseById(_req, res, params) {
 }
 
 export async function createCourse(req, res) {
+  if (!requireAuth(req, res)) return;
   const courseId = nextId("courses");
   const payload = await parseBody(req);
 
@@ -46,6 +50,7 @@ export async function createCourse(req, res) {
 }
 
 export async function updateCourse(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const courseId = Number(params.id);
   const courseRecord = db.courses.find(courseRecord => courseRecord.id === courseId);
   if (!courseRecord) {
@@ -65,7 +70,8 @@ export async function updateCourse(req, res, params) {
   return sendJson(res, 200, serializeCourse(courseRecord));
 }
 
-export function deleteCourse(_req, res, params) {
+export function deleteCourse(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const courseId = Number(params.id);
   const coursesBeforeDelete = db.courses.length;
   db.courses = db.courses.filter(courseRecord => courseRecord.id !== courseId);

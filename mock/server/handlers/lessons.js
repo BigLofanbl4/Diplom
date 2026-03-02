@@ -2,6 +2,7 @@ import { db, nextId } from "../db.js";
 import { parseMultipartBody, sendJson, sendNoContent } from "../utils/http.js";
 import { normalizeNullableField, normalizeNullableId } from "../utils/normalize.js";
 import { serializeLesson } from "../utils/serializers.js";
+import { requireAuth } from "./auth.js";
 
 const LESSON_UPDATABLE_FIELDS = new Set([
   "title",
@@ -12,7 +13,8 @@ const LESSON_UPDATABLE_FIELDS = new Set([
 ]);
 
 
-export function getLessons(_req, res, params) {
+export function getLessons(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const courseId = Number(params.course_id);
   const courseRecord = db.courses.find(course => course.id === courseId);
   if (!courseRecord) {
@@ -23,7 +25,8 @@ export function getLessons(_req, res, params) {
   return sendJson(res, 200, lessons.map(lessonRecord => serializeLesson(lessonRecord)));
 }
 
-export function getLessonById(_req, res, params) {
+export function getLessonById(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const courseId = Number(params.course_id);
   const lessonId = Number(params.lesson_id);
   const lessonRecord = db.lessons.find(
@@ -37,6 +40,7 @@ export function getLessonById(_req, res, params) {
 }
 
 export async function createLesson(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const courseId = Number(params.course_id);
   const courseRecord = db.courses.find(courseRecord => courseRecord.id === courseId);
   if (!courseRecord) {
@@ -77,6 +81,7 @@ export async function createLesson(req, res, params) {
 }
 
 export async function updateLesson(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const courseId = Number(params.course_id);
   const lessonId = Number(params.lesson_id);
   const lessonRecord = db.lessons.find(
@@ -135,7 +140,8 @@ export async function updateLesson(req, res, params) {
   return sendJson(res, 200, serializeLesson(lessonRecord));
 }
 
-export function deleteLesson(_req, res, params) {
+export function deleteLesson(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const courseId = Number(params.course_id);
   const lessonId = Number(params.lesson_id);
   const lessonsBeforeDelete = db.lessons.length;

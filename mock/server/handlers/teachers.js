@@ -1,6 +1,7 @@
 import { db, nextId } from "../db.js";
 import { parseBody, sendJson, sendNoContent } from "../utils/http.js";
 import { normalizeNullableField, normalizeNullableId } from "../utils/normalize.js";
+import { requireAuth } from "./auth.js";
 
 const TEACHER_UPDATABLE_FIELDS = new Set([
   "login",
@@ -14,12 +15,14 @@ const TEACHER_UPDATABLE_FIELDS = new Set([
   "organization_id",
 ]);
 
-export function getTeachers(_req, res) {
+export function getTeachers(req, res) {
+  if (!requireAuth(req, res)) return;
   const teachersList = db.teachers.map(teacherRecord => serializeTeacher(teacherRecord));
   return sendJson(res, 200, teachersList);
 }
 
-export function getTeacherById(_req, res, params) {
+export function getTeacherById(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const teacherId = Number(params.id);
   const teacherRecord = db.teachers.find((teacher) => teacher.id === teacherId);
   if (!teacherRecord) return sendJson(res, 404, { detail: "Teacher not found" });
@@ -27,6 +30,7 @@ export function getTeacherById(_req, res, params) {
 }
 
 export async function createTeacher(req, res) {
+  if (!requireAuth(req, res)) return;
   const teacherId = nextId("teachers");
   const payload = await parseBody(req);
 
@@ -76,6 +80,7 @@ export async function createTeacher(req, res) {
 }
 
 export async function updateTeacher(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const teacherId = Number(params.id);
   const teacherRecord = db.teachers.find((teacher) => teacher.id === teacherId);
   if (!teacherRecord) return sendJson(res, 404, { detail: "Teacher not found" });
@@ -128,7 +133,8 @@ export async function updateTeacher(req, res, params) {
   return sendJson(res, 200, serializeTeacher(teacherRecord));
 }
 
-export function deleteTeacher(_req, res, params) {
+export function deleteTeacher(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const teacherId = Number(params.id);
   const userId = db.teachers.find((teacher) => teacher.id === teacherId)?.user_id;
 

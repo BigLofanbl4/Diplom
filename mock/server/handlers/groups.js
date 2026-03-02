@@ -1,6 +1,7 @@
 import { db, nextId } from "../db.js";
 import { parseBody, sendJson, sendNoContent } from "../utils/http.js";
 import { normalizeNullableId } from "../utils/normalize.js";
+import { requireAuth } from "./auth.js";
 
 const GROUP_UPDATABLE_FIELDS = new Set([
   "group_number",
@@ -8,12 +9,14 @@ const GROUP_UPDATABLE_FIELDS = new Set([
   "course_id",
 ]);
 
-export function getGroups(_req, res) {
+export function getGroups(req, res) {
+  if (!requireAuth(req, res)) return;
   const groupsList = db.groups.map(groupRecord => serializeGroup(groupRecord));
   return sendJson(res, 200, groupsList);
 }
 
-export function getGroupById(_req, res, params) {
+export function getGroupById(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const groupId = Number(params.id);
   const groupRecord = db.groups.find(group => group.id === groupId);
   if (!groupRecord) {
@@ -23,6 +26,7 @@ export function getGroupById(_req, res, params) {
 }
 
 export async function createGroup(req, res) {
+  if (!requireAuth(req, res)) return;
   const groupId = nextId("groups");
   const payload = await parseBody(req);
   if (!payload.group_number) {
@@ -50,6 +54,7 @@ export async function createGroup(req, res) {
 }
 
 export async function updateGroup(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const groupId = Number(params.id);
   const groupRecord = db.groups.find(group => group.id === groupId);
   if (!groupRecord) {
@@ -82,7 +87,8 @@ export async function updateGroup(req, res, params) {
   return sendJson(res, 200, serializeGroup(groupRecord));
 }
 
-export function deleteGroup(_req, res, params) {
+export function deleteGroup(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const groupId = Number(params.id);
   const groupsBeforeDelete = db.groups.length;
   db.groups = db.groups.filter(group => group.id !== groupId);

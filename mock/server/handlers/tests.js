@@ -1,8 +1,10 @@
 import { db, nextId } from "../db.js";
 import { parseBody, sendJson, sendNoContent } from "../utils/http.js";
+import { requireAuth } from "./auth.js";
 
 // GET endpoint: /api/v1/courses/:course_id/lessons/:lesson_id/test
-export function getTestById(_req, res, params) {
+export function getTestById(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const courseId = Number(params.course_id);
   const lessonId = Number(params.lesson_id);
 
@@ -17,6 +19,7 @@ export function getTestById(_req, res, params) {
 
 // POST endpoint: /api/v1/courses/:course_id/lessons/:lesson_id/test
 export async function createTest(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const courseId = Number(params.course_id);
   const lessonId = Number(params.lesson_id);
 
@@ -43,6 +46,7 @@ export async function createTest(req, res, params) {
 
 // PUT endpoint: /api/v1/courses/:course_id/lessons/:lesson_id/test
 export async function updateTest(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const courseId = Number(params.course_id);
   const lessonId = Number(params.lesson_id);
 
@@ -66,7 +70,8 @@ export async function updateTest(req, res, params) {
 }
 
 // DELETE endpoint: /api/v1/courses/:course_id/lessons/:lesson_id/test
-export function deleteTest(_req, res, params) {
+export function deleteTest(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const courseId = Number(params.course_id);
   const lessonId = Number(params.lesson_id);
 

@@ -1,6 +1,7 @@
 import { db, nextId } from "../db.js";
 import { parseBody, sendJson, sendNoContent } from "../utils/http.js";
 import { normalizeNullableField } from "../utils/normalize.js";
+import { requireAuth } from "./auth.js";
 
 const STUDENT_UPDATABLE_FIELDS = new Set([
   "first_name",
@@ -11,12 +12,14 @@ const STUDENT_UPDATABLE_FIELDS = new Set([
   "login"
 ]);
 
-export function getStudents(_req, res) {
+export function getStudents(req, res) {
+  if (!requireAuth(req, res)) return;
   const studentList = db.students.map((studentRecord) => serializeStudent(studentRecord));
   return sendJson(res, 200, studentList);
 }
 
-export function getStudentById(_req, res, params) {
+export function getStudentById(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const studentId = Number(params.id);
   const studentRecord = db.students.find((student) => student.id === studentId);
   if (!studentRecord) return sendJson(res, 404, { detail: "Student not Found" });
@@ -24,6 +27,7 @@ export function getStudentById(_req, res, params) {
 }
 
 export async function createStudent(req, res) {
+  if (!requireAuth(req, res)) return;
   const studentId = nextId("students");
   const payload = await parseBody(req);
 
@@ -67,6 +71,7 @@ export async function createStudent(req, res) {
 }
 
 export async function updateStudent(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const studentId = Number(params.id);
   const studentRecord = db.students.find((student) => student.id === studentId);
   if (!studentRecord) return sendJson(res, 404, { detail: "Student not Found" });
@@ -108,7 +113,8 @@ export async function updateStudent(req, res, params) {
   return sendJson(res, 200, serializeStudent(studentRecord));
 }
 
-export function deleteStudent(_req, res, params) {
+export function deleteStudent(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const studentId = Number(params.id);
   const userId = db.students.find(student => student.id === studentId)?.user_id;
   if (!userId) return sendJson(res, 404, { detail: "Student not Found" });

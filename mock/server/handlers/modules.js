@@ -2,13 +2,15 @@ import { db, nextId } from "../db.js";
 import { parseBody, sendJson, sendNoContent } from "../utils/http.js";
 import { normalizeNullableField } from "../utils/normalize.js";
 import { serializeModule } from "../utils/serializers.js";
+import { requireAuth } from "./auth.js";
 
 const MODULE_UPDATABLE_FIELDS = new Set([
   "title",
   "module_number",
 ]);
 
-export function getModules(_req, res, params) {
+export function getModules(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const courseId = Number(params.course_id);
   const courseRecord = db.courses.find((course) => course.id === courseId);
   if (!courseRecord) {
@@ -19,7 +21,8 @@ export function getModules(_req, res, params) {
   return sendJson(res, 200, modules.map((moduleRecord) => serializeModule(moduleRecord)));
 }
 
-export function getModuleById(_req, res, params) {
+export function getModuleById(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const courseId = Number(params.course_id);
   const moduleId = Number(params.module_id);
   const moduleRecord = db.modules.find(
@@ -33,6 +36,7 @@ export function getModuleById(_req, res, params) {
 }
 
 export async function createModule(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const courseId = Number(params.course_id);
   const courseRecord = db.courses.find((course) => course.id === courseId);
   if (!courseRecord) {
@@ -62,6 +66,7 @@ export async function createModule(req, res, params) {
 }
 
 export async function updateModule(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const courseId = Number(params.course_id);
   const moduleId = Number(params.module_id);
   const moduleRecord = db.modules.find(
@@ -85,7 +90,8 @@ export async function updateModule(req, res, params) {
   return sendJson(res, 200, serializeModule(moduleRecord));
 }
 
-export function deleteModule(_req, res, params) {
+export function deleteModule(req, res, params) {
+  if (!requireAuth(req, res)) return;
   const courseId = Number(params.course_id);
   const moduleId = Number(params.module_id);
   const modulesBeforeDelete = db.modules.length;

@@ -1,3 +1,6 @@
+import { URLSearchParams } from "url";
+
+
 export function sendJson(res, status, data) {
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -70,6 +73,31 @@ export async function parseMultipartBody(req) {
   }
   return result;
 }
+
+export async function parseUrlEncodedBody(req) {
+  const rawBody = await readRawBody(req);
+  const body = rawBody.toString("utf-8");
+  const params = new URLSearchParams(body);
+  const json = {};
+
+  for (const [key, value] of params) {
+    json[key] = value;
+  }
+
+  return json;
+}
+
+export function parseCookies(cookieHeader) {
+  if (!cookieHeader) return {};
+  const cookies = {};
+  const pairs = cookieHeader.split(";");
+  for (const pair of pairs) {
+    const [key, value] = pair.trim().split("=");
+    cookies[key] = value;
+  }
+  return cookies;
+}
+
 
 function parseBoundary(contentType = "") {
   const match = contentType.match(/boundary=(?:"([^"]+)"|([^;]+))/i);
