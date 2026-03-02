@@ -34,10 +34,16 @@ export async function createTeacher(req, res) {
     return sendJson(res, 400, { detail: "Missing required fields" });
   }
 
+  const userExists = db.users.find(user => user.login === payload.login);
+  if (userExists) {
+    return sendJson(res, 400, { detail: "User already exists" });
+  }
+
+  const userId = nextId("users");
+
   const teacherRecord = {
     id: teacherId,
-    login: payload.login,
-    password: payload.password,
+    user_id: userId,
     first_name: payload.first_name,
     last_name: payload.last_name,
     phone: normalizeNullableField(payload.phone),
@@ -45,6 +51,13 @@ export async function createTeacher(req, res) {
     birth_date: normalizeNullableField(payload.birth_date),
     is_ovz: normalizeNullableField(payload.is_ovz),
     organization_id: normalizeNullableId(payload.organization_id),
+  };
+
+  const userRecord = {
+    id: userId,
+    login: payload.login,
+    password: payload.password,
+    role: "teacher"
   };
 
   if (payload.group_ids) {
@@ -56,6 +69,7 @@ export async function createTeacher(req, res) {
       });
   }
 
+  db.users.push(userRecord);
   db.teachers.push(teacherRecord);
 
   return sendJson(res, 201, serializeTeacher(teacherRecord));
@@ -65,8 +79,18 @@ export async function updateTeacher(req, res, params) {
   const teacherId = Number(params.id);
   const teacherRecord = db.teachers.find((teacher) => teacher.id === teacherId);
   if (!teacherRecord) return sendJson(res, 404, { detail: "Teacher not found" });
+  const userRecord = db.users.find((user) => user.id === teacherRecord.user_id);
+  if (!userRecord) return sendJson(res, 404, { detail: "User not found" });
 
   const payload = await parseBody(req);
+
+  if (payload.login !== undefined) {
+    const loginOwner = db.users.find((user) => user.login === payload.login);
+
+    if (loginOwner && loginOwner.id !== userRecord.id) {
+      return sendJson(res, 400, { detail: "User already exists" });
+    }
+  }
 
   for (const key in payload) {
     if (key === "group_ids") continue;
@@ -80,10 +104,16 @@ export async function updateTeacher(req, res, params) {
       teacherRecord[key] = normalizeNullableField(payload[key]);
       continue;
     }
+
+    if (key === "login" || key === "password") {
+      userRecord[key] = payload[key];
+      continue;
+    }
+
     teacherRecord[key] = payload[key];
   }
 
-  if (payload.group_ids !== undefined) {
+  if (payload.group_ids !== undefined && Array.isArray(payload.group_ids)) {
     const targetGroupIds = payload.group_ids.map((groupId) => Number(groupId));
     db.groups.forEach((group) => {
       if (group.teacher_id === teacherId) {
@@ -100,17 +130,20 @@ export async function updateTeacher(req, res, params) {
 
 export function deleteTeacher(_req, res, params) {
   const teacherId = Number(params.id);
-  const teachersBeforeDelete = db.teachers.length;
-  db.teachers = db.teachers.filter((teacher) => teacher.id !== teacherId);
+  const userId = db.teachers.find((teacher) => teacher.id === teacherId)?.user_id;
 
-  if (db.teachers.length === teachersBeforeDelete) {
+  if (!userId) {
     return sendJson(res, 404, { detail: "Teacher not found" });
   }
+
+  db.teachers = db.teachers.filter((teacher) => teacher.id !== teacherId);
 
   db.groups.forEach(group => {
     if (group.teacher_id !== teacherId) return;
     group.teacher_id = null;
   });
+
+  db.users = db.users.filter((user) => user.id !== userId);
 
   return sendNoContent(res, 204);
 }
@@ -120,8 +153,17 @@ function serializeTeacher(teacherRecord) {
     .filter(group => group.teacher_id === teacherRecord.id)
     .map(group => ({ id: group.id, group_number: group.group_number }))
 
+  const userData = db.users.find(user => user.id === teacherRecord.user_id);
+
+  if (!userData) {
+    throw {
+      detail: "User Data not found"
+    }
+  }
+
   return {
     ...teacherRecord,
+    login: userData.login,
     groups
   }
 }

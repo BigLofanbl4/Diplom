@@ -13,7 +13,14 @@ const server = http.createServer((req, res) => {
   for (const route of routes) {
     if (route.method !== method) continue;
     const params = matchRoute(route.path, pathname);
-    if (params) return route.handler(req, res, params);
+    if (params) {
+      try {
+        return route.handler(req, res, params);
+      } catch (error) {
+        console.error(error.detail);
+        return;
+      }
+    }
   }
 
   return sendJson(res, 404, { detail: "Not Found" });

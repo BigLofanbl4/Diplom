@@ -8,6 +8,7 @@ export const StudentRow = (student) => {
       <td class="table__col table__id-col" data-label="ID">${student.id}</td>
       <td class="table__col table__small-col" data-label="ФИО">${fullName}</td>
       <td class="table__col table__medium-col" data-label="Телефон">${student.phone}</td>
+      <td class="table__col table__medium-col" data-label="Логин">${student.login}</td>
       <td class="table__col table__large-col" data-label="Группы">${groups ? groups : "Нет групп"}</td>
       <td class="table__col table__small-col" data-label="Действия">
         <div class="table__actions">

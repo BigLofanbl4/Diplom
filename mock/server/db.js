@@ -1,4 +1,6 @@
 export const counters = {
+  users: 5,
+  admins: 2,
   teachers: 2,
   students: 3,
   groups: 2,
@@ -15,21 +17,59 @@ export function nextId(entity) {
 }
 
 export const db = {
+  users: [
+    {
+      id: 1,
+      login: "admin1",
+      password: "123",
+      role: "admin",
+    },
+    {
+      id: 2,
+      login: "teacher",
+      password: "teacher123",
+      role: "teacher",
+    },
+    {
+      id: 3,
+      login: "anna",
+      password: "anna123",
+      role: "student",
+    },
+    {
+      id: 4,
+      login: "dima",
+      password: "dima123",
+      role: "student",
+    }
+
+  ],
+  admins: [
+    {
+      id: 1,
+      user_id: 1,
+      first_name: "Владислав",
+      last_name: "Плугатырев",
+      role: "admin"
+    }
+  ],
   teachers: [
     {
       id: 1,
-      login: "teacher",
-      password: "teacher123",
+      user_id: 2,
       phone: "+79990000001",
       first_name: "Иван",
       last_name: "Петров",
       age: 30,
       is_ovz: false,
+      birth_date: null,
+      organization_id: null,
     },
   ],
   students: [
     {
       id: 1,
+      user_id: 3,
       first_name: "Анна",
       last_name: "Смирнова",
       phone: "+79990000002",
@@ -37,6 +77,7 @@ export const db = {
     },
     {
       id: 2,
+      user_id: 4,
       first_name: "Дмитрий",
       last_name: "Ковалев",
       phone: "+79990000003",
