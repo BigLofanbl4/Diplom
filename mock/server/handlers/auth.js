@@ -6,20 +6,20 @@ const refreshMap = new Map();
 const accessMap = new Map();
 
 export async function loginUser(req, res) {
-  const userData = await parseUrlEncodedBody(req);
+  const credentials = await parseUrlEncodedBody(req);
 
-  const userRecord = db.users
-    .find((user) => user.login === userData.username && user.password === userData.password);
+  const user = db.users
+    .find((dbUser) => dbUser.login === credentials.username && dbUser.password === credentials.password);
 
-  if (!userRecord) {
+  if (!user) {
     return sendJson(res, 401, { detail: "Invalid login or password" });
   }
 
   const accessToken = crypto.randomUUID();
   const refreshToken = crypto.randomUUID();
 
-  refreshMap.set(refreshToken, { userId: userRecord.id });
-  accessMap.set(accessToken, { userId: userRecord.id });
+  refreshMap.set(refreshToken, user.id);
+  accessMap.set(accessToken, user.id);
 
   res.setHeader("Set-Cookie", `refresh_token=${refreshToken}; HttpOnly; Path=/api/v1/auth/refresh; SameSite=Lax; Max-Age=2592000`);
 
@@ -29,21 +29,21 @@ export async function loginUser(req, res) {
 export function refreshToken(req, res) {
   if (!req.headers.cookie) return sendJson(res, 401, { detail: "Cookie not found" });
 
-  const cookies = parseCookies(req.headers.cookie);
+  const cookieMap = parseCookies(req.headers.cookie);
 
-  const refreshTokenValue = cookies.refresh_token;
+  const refreshTokenValue = cookieMap.refresh_token;
 
   if (!refreshTokenValue) {
     return sendJson(res, 401, { detail: "No refresh token found" });
   }
 
-  const session = refreshMap.get(refreshTokenValue);
-  if (!session) {
+  const userId = refreshMap.get(refreshTokenValue);
+  if (!userId) {
     return sendJson(res, 401, { detail: "Invalid refresh token" });
   }
 
   const newAccessToken = crypto.randomUUID();
-  accessMap.set(newAccessToken, { userId: session.userId });
+  accessMap.set(newAccessToken, userId);
 
   return sendJson(res, 200, { access_token: newAccessToken, token_type: "bearer" });
 }
@@ -53,14 +53,77 @@ export function requireAuth(req, res) {
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     sendJson(res, 401, { detail: "Not authenticated" });
-    return false;
+    return null;
   }
 
   const token = authHeader.slice(7).trim();
   if (!accessMap.has(token) || !token) {
     sendJson(res, 401, { detail: "Invalid access token" });
-    return false;
+    return null;
   }
 
-  return true;
+  return { token, userId: accessMap.get(token) };
+}
+
+export function getCurrentUser(req, res) {
+  const authContext = requireAuth(req, res);
+  if (!authContext) return;
+
+  const user = db.users.find((dbUser) => dbUser.id === authContext.userId);
+  if (!user) {
+    return sendJson(res, 500, { detail: "User not found" });
+  }
+
+  const basePayload = {
+    login: user.login,
+    role: user.role,
+  };
+
+  switch (user.role) {
+    case "admin":
+      {
+        const adminProfile = db.admins.find((admin) => admin.user_id === user.id);
+        if (!adminProfile) {
+          return sendJson(res, 500, { detail: "Admin profile not found" });
+        }
+        return sendJson(res, 200, {
+          ...basePayload,
+          first_name: adminProfile.first_name,
+          last_name: adminProfile.last_name,
+        });
+      }
+    case "teacher":
+      {
+        const teacherProfile = db.teachers.find((teacher) => teacher.user_id === user.id);
+        if (!teacherProfile) {
+          return sendJson(res, 500, { detail: "Teacher profile not found" });
+        }
+        return sendJson(res, 200, {
+          ...basePayload,
+          first_name: teacherProfile.first_name,
+          last_name: teacherProfile.last_name,
+          is_ovz: teacherProfile.is_ovz,
+          age: teacherProfile.age,
+          phone: teacherProfile.phone,
+        });
+      }
+    case "student":
+      {
+        const studentProfile = db.students.find((student) => student.user_id === user.id);
+        if (!studentProfile) {
+          return sendJson(res, 500, { detail: "Student profile not found" });
+        }
+        return sendJson(res, 200, {
+          ...basePayload,
+          first_name: studentProfile.first_name,
+          last_name: studentProfile.last_name,
+          phone: studentProfile.phone,
+          birth_date: studentProfile.birth_date,
+        });
+      }
+    default:
+      return sendJson(res, 200, {
+        ...basePayload,
+      });
+  }
 }

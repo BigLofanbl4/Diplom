@@ -48,6 +48,7 @@ import {
   updateTest,
 } from "./handlers/tests.js";
 import {
+  getCurrentUser,
   loginUser,
   refreshToken,
 } from "./handlers/auth.js";
@@ -55,6 +56,7 @@ import {
 export const routes = [
   { method: "POST", path: `${API_PREFIX}/auth/login`, handler: loginUser },
   { method: "POST", path: `${API_PREFIX}/auth/refresh`, handler: refreshToken },
+  { method: "GET", path: `${API_PREFIX}/auth/current_user`, handler: getCurrentUser },
   { method: "GET", path: `${API_PREFIX}/teachers`, handler: getTeachers },
   { method: "GET", path: `${API_PREFIX}/teachers/:id`, handler: getTeacherById },
   { method: "POST", path: `${API_PREFIX}/teachers`, handler: createTeacher },
