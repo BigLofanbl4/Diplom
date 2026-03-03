@@ -3,21 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Diplom Admin</title>
-  <script>
-    (function () {
-      try {
-        var key = 'theme';
-        var storedTheme = localStorage.getItem(key);
-        var isValid = storedTheme === 'light' || storedTheme === 'dark';
-        var resolvedTheme = isValid
-          ? storedTheme
-          : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        document.documentElement.dataset.theme = resolvedTheme;
-      } catch (e) {}
-    })();
-  </script>
-
+  <title>Diplom</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -25,51 +11,7 @@
 </head>
 <body>
   <div id="app">
-    <header class="header">
-      <div class="container">
-        <div class="header__logo">
-          <h3>Лого</h3>
-        </div>
-        <div class="header__account account"> 
-          <button class="theme-toggle-btn" type="button" data-action="toggle-theme" aria-label="Переключить тему" title="Сменить тему">
-            <span class="theme-toggle-btn__icon theme-toggle-btn__icon--sun">
-              <i class="fa-regular fa-sun"></i>
-            </span>
-            <span class="theme-toggle-btn__icon theme-toggle-btn__icon--moon">
-              <i class="fa-regular fa-moon"></i>
-            </span>
-            <span class="theme-toggle-btn__text">Тема</span>
-          </button>
-          <a href="#" class="account__profile">Иванов И.И.</a>
-          <a href="#" class="account__logout">Выйти</a>
-        </div>
-      </div>
-    </header>
-    <main>
-      <div class="container">
-        <aside class="app__nav">
-          <h4 class="app__nav-title">Меню</h4>
-          <nav>
-            <ul class="app__menu">
-              <li>
-                <a href="#">Организации</a>
-              </li>
-              <li>
-                <a href="/admin/teachers">Учителя</a>
-              </li>
-              <li>
-                <a href="#">Группы</a>
-              </li>
-              <li>
-                <a href="#">Курсы</a>
-              </li>
-            </ul>
-          </nav>
-        </aside>
-        <div id="component">
-        </div>
-      </div>
-    </main>
+
   </div>
   <script src="/src/main.js" type="module"></script>
 </body>

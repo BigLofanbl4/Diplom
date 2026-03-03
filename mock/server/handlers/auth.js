@@ -27,12 +27,6 @@ export async function loginUser(req, res) {
 }
 
 export async function logoutUser(req, res) {
-  const authContext = requireAuth(req, res);
-
-  if (!authContext) return;
-
-  accessMap.delete(authContext.token);
-
   const cookieHeader = req.headers.cookie;
   if (cookieHeader) {
     const cookieMap = parseCookies(req.headers.cookie);

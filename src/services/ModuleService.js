@@ -2,11 +2,11 @@ import BaseService from "./BaseService";
 
 export default class ModuleService extends BaseService {
   static async getAll(courseId) {
-    return this.request(`/courses/${courseId}/modules`);
+    return this.request(`/courses/${courseId}/modules`, {}, { auth: true });
   }
 
   static async getById(courseId, moduleId) {
-    return this.request(`/courses/${courseId}/modules/${moduleId}`);
+    return this.request(`/courses/${courseId}/modules/${moduleId}`, {}, { auth: true });
   }
 
   static async create(courseId, data) {
@@ -15,7 +15,8 @@ export default class ModuleService extends BaseService {
       {
         method: "POST",
         body: JSON.stringify(data),
-      }
+      },
+      { auth: true }
     );
   }
 
@@ -25,11 +26,12 @@ export default class ModuleService extends BaseService {
       {
         method: "PATCH",
         body: JSON.stringify(data),
-      }
+      },
+      { auth: true }
     );
   }
 
   static async delete(courseId, moduleId) {
-    return this.request(`/courses/${courseId}/modules/${moduleId}`, { method: "DELETE" });
+    return this.request(`/courses/${courseId}/modules/${moduleId}`, { method: "DELETE" }, { auth: true });
   }
 }

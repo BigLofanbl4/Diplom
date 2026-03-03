@@ -1,45 +1,94 @@
+import { refresh } from "../core/auth/api.js";
+import {clearAuth, getAccessToken} from "../core/auth/state.js";
+
+
+let refreshPromise = null;
+
+async function refreshWithLock() {
+  if (!refreshPromise) {
+    refreshPromise = refresh().finally(() => refreshPromise = null);
+  }
+  return refreshPromise;
+}
+
+function buildHeaders(options, { auth }) {
+  const headers = new Headers(options.headers || {});
+  const isFormData = options.body instanceof FormData;
+
+  const token = getAccessToken();
+  if (auth && token) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+
+  if (!isFormData && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+
+  return headers;
+}
+
+async function readBody(response) {
+  if (response.status === 204) return null;
+
+  const text = await response.text();
+  if (!text) return null;
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+}
+
+function apiError(response, data, fallback = `HTTP ${response.status}`) {
+  return {
+    status: response.status,
+    message: data?.detail || fallback,
+    data: data,
+    isApiError: true
+  }
+}
+
 export default class BaseService {
   static BASE_URL = "/api/v1";
   
-  static async request(endpoint, options = {}) {
+  static async request(endpoint, options = {}, { auth = true } = {}) {
     const url = `${this.BASE_URL}${endpoint}`;
 
-    const isFormData = options.body instanceof FormData;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const headers = buildHeaders(options, { auth });
 
-    const headers = {
-      ...options.headers
-    };
-
-    if (!isFormData && !headers["Content-Type"]) {
-      headers["Content-Type"] = "application/json";
-    }
-
-    try {
-      const response = await fetch(url, {...options, headers});
-
-      if (response.status === 204) return true;
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
+      let response;
+      try {
+        response = await fetch(url, { ...options, headers });
+      } catch (error) {
+        // network / CORS / abort / invalid JSON etc.
         throw {
-          status: response.status,
-          message: errorData?.detail || `HTTP ${response.status}`,
-          data: errorData,
-          isApiError: true,
+          status: 0,
+          message: error?.message || "Network error",
+          isNetworkError: true,
+          originalError: error,
         };
       }
 
-      return await response.json();
-    } catch (error) {
-      if (error?.isApiError) throw error;
+      const data = await readBody(response);
 
-      // network / CORS / abort / invalid JSON etc.
-      throw {
-        status: 0,
-        message: error?.message || "Network error",
-        isNetworkError: true,
-        originalError: error,
-      };
+      if (response.ok) return data ?? true;
+
+      if (response.status === 401 && auth && attempt === 0) {
+        try {
+          await refreshWithLock();
+          continue;
+        } catch {
+          clearAuth();
+          throw apiError(response, data);
+        }
+      }
+
+      if (response.status === 401 && auth) clearAuth();
+
+
+      throw apiError(response, data);
     }
   }
 }

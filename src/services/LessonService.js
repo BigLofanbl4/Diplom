@@ -23,11 +23,11 @@ export default class LessonService extends BaseService {
   }
 
   static async getAll(courseId) {
-    return this.request(`/courses/${courseId}/lessons`);
+    return this.request(`/courses/${courseId}/lessons`, {}, { auth: true });
   }
 
   static async getById(courseId, lessonId) {
-    return this.request(`/courses/${courseId}/lessons/${lessonId}`);
+    return this.request(`/courses/${courseId}/lessons/${lessonId}`, {}, { auth: true });
   }
 
   static async create(courseId, data) {
@@ -37,7 +37,8 @@ export default class LessonService extends BaseService {
       {
         method: "POST",
         body: formData,
-      }
+      },
+      { auth: true }
     );
   }
 
@@ -48,11 +49,12 @@ export default class LessonService extends BaseService {
       {
         method: "PATCH",
         body: formData,
-      }
+      },
+      { auth: true }
     );
   }
 
   static async delete(courseId, lessonId) {
-    return this.request(`/courses/${courseId}/lessons/${lessonId}`, { method: "DELETE" });
+    return this.request(`/courses/${courseId}/lessons/${lessonId}`, { method: "DELETE" }, { auth: true });
   }
 }

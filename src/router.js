@@ -1,4 +1,6 @@
 import NotFoundPage from "./components/common/pages/NotFoundPage.js";
+import { initAuthState, getAuthState } from "./core/auth/state.js";
+import { HOME_BY_ROLE } from "./core/auth/constants.js";
 
 export class Router {
   constructor(routes) {
@@ -19,6 +21,7 @@ export class Router {
   handleDOMContentLoaded() {
     document.addEventListener("DOMContentLoaded", async () => {
       this.currentURL = window.location.pathname;
+      await initAuthState();
       await this.resolvePath(this.currentURL);
     });
   }
@@ -74,6 +77,7 @@ export class Router {
   }
 
   async resolvePath(nextURL) {
+    const { user, role } = getAuthState()
     this.currentURL = nextURL;
     const componentContainer = document.getElementById("component");
     const previousHeight = componentContainer?.offsetHeight ?? 0;
@@ -105,6 +109,19 @@ export class Router {
         const notFoundPage = new NotFoundPage();
         await notFoundPage.draw();
         return;
+      }
+
+      if (route.meta.access === "requiresAuth" && !user) {
+        return this.navigate("/login");
+      }
+
+      if (route.meta.access === "requiresAuth" && route.meta.role !== role) {
+        alert("Отказано в доступе");
+        return this.navigate(HOME_BY_ROLE[role] || "/login");
+      }
+
+      if (route.meta.access === "guestOnly" && user) {
+        return this.navigate(HOME_BY_ROLE[role] || "/");
       }
 
       if (this.currentLayout?.constructor !== route.Layout) {

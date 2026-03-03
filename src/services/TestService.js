@@ -4,7 +4,7 @@ import BaseService from './BaseService';
 export default class TestService extends BaseService {
   static async getTestOrNull(courseId, lessonId) {
     try {
-      return await this.request(`/courses/${courseId}/lessons/${lessonId}/test`);
+      return await this.request(`/courses/${courseId}/lessons/${lessonId}/test`, {}, { auth: true });
     } catch (error) {
       if (error.status === 404) return null;
       throw error;
@@ -17,7 +17,8 @@ export default class TestService extends BaseService {
       {
         method: 'POST',
         body: JSON.stringify(data)
-      }
+      },
+      { auth: true }
     );
   }
 
@@ -27,7 +28,8 @@ export default class TestService extends BaseService {
       {
         method: 'PUT',
         body: JSON.stringify(data)
-      }
+      },
+      { auth: true }
     );
   }
 
@@ -36,7 +38,8 @@ export default class TestService extends BaseService {
       `/courses/${courseId}/lessons/${lessonId}/test`,
       {
         method: 'DELETE'
-      }
+      },
+      { auth: true }
     );
   }
 

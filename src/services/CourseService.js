@@ -2,11 +2,11 @@ import BaseService from './BaseService';
 
 export default class CourseService extends BaseService {
   static async getAll() {
-    return this.request("/courses");
+    return this.request("/courses", {}, { auth: true });
   }
 
   static async getById(id) {
-    return this.request(`/courses/${id}`);
+    return this.request(`/courses/${id}`, {}, { auth: true });
   }
 
   static async create(course) {
@@ -15,7 +15,9 @@ export default class CourseService extends BaseService {
       {
         method: "POST",
         body: JSON.stringify(course),
-      });
+      },
+      { auth: true }
+    );
   }
 
   static async update(id, course) {
@@ -24,11 +26,12 @@ export default class CourseService extends BaseService {
       {
         method: "PATCH",
         body: JSON.stringify(course),
-      }
+      },
+      { auth: true }
     );
   }
 
   static async delete(id) {
-    return this.request(`/courses/${id}`, { method: "DELETE" });
+    return this.request(`/courses/${id}`, { method: "DELETE" }, { auth: true });
   }
 }
