@@ -21,9 +21,30 @@ export async function loginUser(req, res) {
   refreshMap.set(refreshToken, user.id);
   accessMap.set(accessToken, user.id);
 
-  res.setHeader("Set-Cookie", `refresh_token=${refreshToken}; HttpOnly; Path=/api/v1/auth/refresh; SameSite=Lax; Max-Age=2592000`);
+  res.setHeader("Set-Cookie", `refresh_token=${refreshToken}; HttpOnly; Path=/; SameSite=Lax; Max-Age=2592000`);
 
   return sendJson(res, 200, { access_token: accessToken, token_type: "bearer" });
+}
+
+export async function logoutUser(req, res) {
+  const authContext = requireAuth(req, res);
+
+  if (!authContext) return;
+
+  accessMap.delete(authContext.token);
+
+  const cookieHeader = req.headers.cookie;
+  if (cookieHeader) {
+    const cookieMap = parseCookies(req.headers.cookie);
+    const refreshToken = cookieMap.refresh_token;
+
+    if (refreshToken) {
+      refreshMap.delete(refreshToken);
+    }
+  }
+
+  res.setHeader("Set-Cookie", `refresh_token=; HttpOnly; Path=/; SameSite=Lax; Max-Age=0`);
+  return sendJson(res, 200, { detail: "Logged out" })
 }
 
 export function refreshToken(req, res) {

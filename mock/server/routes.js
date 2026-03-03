@@ -50,6 +50,7 @@ import {
 import {
   getCurrentUser,
   loginUser,
+  logoutUser,
   refreshToken,
 } from "./handlers/auth.js";
 
@@ -57,6 +58,7 @@ export const routes = [
   { method: "POST", path: `${API_PREFIX}/auth/login`, handler: loginUser },
   { method: "POST", path: `${API_PREFIX}/auth/refresh`, handler: refreshToken },
   { method: "GET", path: `${API_PREFIX}/auth/current_user`, handler: getCurrentUser },
+  { method: "POST", path: `${API_PREFIX}/auth/logout`, handler: logoutUser },
   { method: "GET", path: `${API_PREFIX}/teachers`, handler: getTeachers },
   { method: "GET", path: `${API_PREFIX}/teachers/:id`, handler: getTeacherById },
   { method: "POST", path: `${API_PREFIX}/teachers`, handler: createTeacher },
