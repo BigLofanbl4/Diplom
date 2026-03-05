@@ -86,30 +86,23 @@ export default class FormComponent {
   getFormData() {
     const data = {};
     const formData = new FormData(this.form);
-    const allKeys = [...new Set(Array.from(this.form.elements))]
-      .map(element => element.name)
-      .filter(key => key);
 
-    allKeys.forEach(key => {
+    for (const [key, value] of formData.entries()) {
       const element = this.form.elements[key];
+      if (!element) continue;
 
-      if (key.endsWith("[]")) {
-        const value = formData.getAll(key);
-        const cleanKey = key.slice(0, -2);
-        data[cleanKey] = value;
+      if (element.type === "checkbox") {
+        data[key] = element.checked;
+      } else if (element.type === "number") {
+        data[key] = value === "" ? null : Number(value);
       } else {
-        const value = formData.get(key);
-        if (element.type === "checkbox") {
-          data[key] = element.checked;
-        } else if (element.type === "number") {
-          data[key] = value === "" ? null : Number(value);
-        } else {
-          data[key] = value;
-        }
+        data[key] = value;
       }
-    });
+    }
+
     return data;
   }
+
 
   handleEvents() {
     this.boundClickHandler = async (event) => {
@@ -121,17 +114,18 @@ export default class FormComponent {
 
     this.boundSubmitHandler = async (event) => {
       event.preventDefault();
-      const formData = this.getFormData();
+      const raw = this.getFormData();
+      const payload = this.normalizePayload(raw);
       if (!this.isFormValid()) {
         this.highlightInvalidFields();
         return;
       }
       try {
-        const result = await this.submit(formData);
-        const entity = result ?? {...formData, id: this.id}
-        this.successHandler?.(entity);
+        const result = await this.submit(payload);
+        this.successHandler?.(result);
       } catch (error) {
         alert("Произошла ошибка при отправке формы");
+        console.error(error);
         this.cancelHandler?.();
       }
     }
@@ -160,6 +154,10 @@ export default class FormComponent {
     } else if (this.mode === "update") {
       return await this.Service.update(this.id, data);
     }
+  }
+
+  normalizePayload(payload) {
+    return payload;
   }
 
   destroy() {

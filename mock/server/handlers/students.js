@@ -14,7 +14,7 @@ const STUDENT_UPDATABLE_FIELDS = new Set([
 
 export function getStudents(req, res) {
   if (!requireAuth(req, res)) return;
-  const studentList = db.students.map((studentRecord) => serializeStudent(studentRecord));
+  const studentList = db.students.map((studentRecord) => serializeStudentListItem(studentRecord));
   return sendJson(res, 200, studentList);
 }
 
@@ -23,7 +23,7 @@ export function getStudentById(req, res, params) {
   const studentId = Number(params.id);
   const studentRecord = db.students.find((student) => student.id === studentId);
   if (!studentRecord) return sendJson(res, 404, { detail: "Student not Found" });
-  return sendJson(res, 200, serializeStudent(studentRecord));
+  return sendJson(res, 200, serializeStudentDetails(studentRecord));
 }
 
 export async function createStudent(req, res) {
@@ -67,7 +67,7 @@ export async function createStudent(req, res) {
   });
   db.students.push(studentRecord);
 
-  return sendJson(res, 201, serializeStudent(studentRecord));
+  return sendJson(res, 201, serializeStudentDetails(studentRecord));
 }
 
 export async function updateStudent(req, res, params) {
@@ -110,7 +110,7 @@ export async function updateStudent(req, res, params) {
     });
   }
 
-  return sendJson(res, 200, serializeStudent(studentRecord));
+  return sendJson(res, 200, serializeStudentDetails(studentRecord));
 }
 
 export function deleteStudent(req, res, params) {
@@ -129,7 +129,22 @@ export function deleteStudent(req, res, params) {
   return sendNoContent(res, 204);
 }
 
-function serializeStudent(studentRecord) {
+function serializeStudentListItem(studentRecord) {
+  const groupIds = db.groups
+    .filter((group) => group.student_ids.includes(studentRecord.id))
+    .map((group) => group.id);
+
+  const userData = db.users.find((user) => user.id === studentRecord.user_id);
+  if (!userData) throw { detail: "User Data not Found" };
+
+  return {
+    ...studentRecord,
+    login: userData.login,
+    groups_count: groupIds.length,
+  };
+}
+
+function serializeStudentDetails(studentRecord) {
   const groups = db.groups
     .filter((group) => group.student_ids.includes(studentRecord.id))
     .map((group) => ({ id: group.id, group_number: group.group_number }));
@@ -140,6 +155,7 @@ function serializeStudent(studentRecord) {
   return {
     ...studentRecord,
     login: userData.login,
+    group_ids: groups.map((group) => group.id),
     groups,
   };
 }

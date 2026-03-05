@@ -5,19 +5,19 @@ import SelectFormComponent from "../../../common/forms/SelectFormComponent.js";
 
 export default class TeacherForm extends SelectFormComponent {
   constructor({ id = null, successHandler = null, cancelHandler = null, containerElement = null }) {
-    const msConfigs = [
+    const selectConfigs = [
       {
-        dataKey: "groups",
-        listService: GroupService,
-        dataField: "groups",
-        listKey: "group_ids",
-        name: "group_ids[]",
-        label: group => `${group.group_number}`,
+        field: "group_ids",
+        mode: "multiple",
+        label: "Группы",
         placeholder: "Выберите группы",
+        loadOptions: () => GroupService.getAll(),
+        mapOption: (group) => ({ value: group.id, text: `${group.group_number}` }),
+        getInitialValue: (teacher) => (teacher.groups ?? []).map(group => group.id),
       },
     ];
 
-    super({ Service: TeacherService, id, msConfigs, containerElement });
+    super({ Service: TeacherService, id, selectConfigs, containerElement });
     this.template = template;
     this.successUrl = "/admin/teachers";
     this.cancelUrl = "/admin/teachers";
@@ -29,5 +29,13 @@ export default class TeacherForm extends SelectFormComponent {
   mount() {
     super.mount();
     this.form.querySelector('[name="password"]').required = this.mode === "create";
+  }
+
+  normalizePayload(payload) {
+    const normalizedPayload = {...payload};
+    if (this.mode === "update" && normalizedPayload.password === "") {
+      delete normalizedPayload.password;
+    }
+    return normalizedPayload;
   }
 }

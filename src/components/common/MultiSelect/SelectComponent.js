@@ -1,18 +1,27 @@
-export default class MultiSelect {
+export default class SelectComponent {
   constructor(
-    container = null,
-    options = [],
-    defaultOptions = [],
-    placeholder = "Поиск",
-    name = "",
-    required = false
+    {
+      container = null,
+      options = [],
+      initialValue = [],
+      placeholder = "Поиск",
+      field = "",
+      required = false,
+      mode = "multiple",
+      label = null
+    }
   ) {
     this.container = container;
     this.options = options;
-    this.selected = new Set(defaultOptions.map(v => v.value));
+    const normalizedInitialValue = Array.isArray(initialValue)
+      ? initialValue
+      : (initialValue === null || initialValue === undefined ? [] : [initialValue]);
+    this.selectedValues = new Set(normalizedInitialValue);
     this.placeholder = placeholder;
-    this.name = name;
+    this.label = label ?? this.placeholder;
+    this.field = field;
     this.required = required;
+    this.mode = mode;
     this._onOutsideClick = null;
     this._onMouseDown = null;
 
@@ -26,8 +35,9 @@ export default class MultiSelect {
     this._bindEvents();
   }
 
-  getSelectedValues() {
-    return Array.from(this.selected);
+  getValue() {
+    const selectedValues = Array.from(this.selectedValues);
+    return this.mode === "single" ? selectedValues[0] : selectedValues;
   }
 
   destroy() {
@@ -37,19 +47,21 @@ export default class MultiSelect {
     }
 
     if (!this.container) return;
-    this.container.removeEventListener("click", this._onMouseDown);
+    this.container.removeEventListener("mousedown", this._onMouseDown);
     this.container.remove();
     this.container = null;
     this._onMouseDown = null;
   }
 
   _renderLayout() {
-    if (!this.container) throw new Error("Отсутствует контейнер для мультиселекта");
+    if (!this.container) throw new Error("Отсутствует контейнер для селекта");
+    const inputId = `select-${this.field}`;
     this.container.innerHTML = `
       <div class="ms">
-        <select name="${this.name}" multiple style="display: none;" ${this.required ? "required" : ""}></select>
+        <select name="${this.field}" ${this.mode === "multiple" ? "multiple" : ""} style="display: none;" ${this.required ? "required" : ""}></select>
+        <label for="${inputId}">${this.label}</label>
         <div class="ms__values">
-          <input class="ms__input" id="ms_input" type="text" placeholder="${this.placeholder}">
+          <input class="ms__input" id="${inputId}" type="text" placeholder="${this.placeholder}">
         </div>
         <div class="ms__options">
         </div>
@@ -73,7 +85,7 @@ export default class MultiSelect {
   _renderSelected() {
     this._clearSelected();
     this.options.forEach(opt => {
-      if (this.selected.has(opt.value)) {
+      if (this.selectedValues.has(opt.value)) {
         const chip = document.createElement("span");
         chip.classList.add("ms__value");
         chip.dataset.value = opt.value;
@@ -90,7 +102,7 @@ export default class MultiSelect {
 
   _renderDropdown(filter = "") {
     const filtered = this.options.filter(opt => {
-      return !this.selected.has(opt.value) &&
+      return !this.selectedValues.has(opt.value) &&
         opt.text.toLowerCase().includes(filter.toLowerCase());
     });
 
@@ -117,9 +129,9 @@ export default class MultiSelect {
     this.input.addEventListener("input", (e) => this._renderDropdown(e.target.value.trim()));
     this.input.addEventListener("focus", () => this._renderDropdown());
     this.input.addEventListener("keydown", (e) => {
-      if (e.key === "Backspace" && this.input.value === "" && this.selected.size > 0) {
-        const lastValue = Array.from(this.selected).pop();
-        this.selected.delete(lastValue);
+      if (e.key === "Backspace" && this.input.value === "" && this.selectedValues.size > 0) {
+        const lastValue = Array.from(this.selectedValues).pop();
+        this.selectedValues.delete(lastValue);
         this._renderSelected();
         this._renderDropdown();
       }
@@ -143,7 +155,12 @@ export default class MultiSelect {
       if (optionEl) {
         e.preventDefault();
         const val = optionEl.dataset.value;
-        this.selected.add(Number(val) || val);
+        if (this.mode === "single") {
+          this.selectedValues.clear();
+        }
+        const parsed = Number(val);
+        const normalized = isNaN(parsed) ? val : parsed;
+        this.selectedValues.add(normalized);
         this.input.value = "";
         this._renderSelected();
         this._renderDropdown();
@@ -151,7 +168,9 @@ export default class MultiSelect {
 
       if (chipEl) {
         const val = chipEl.dataset.value;
-        this.selected.delete(Number(val) || val);
+        const parsed = Number(val);
+        const normalized = isNaN(parsed) ? val : parsed;
+        this.selectedValues.delete(normalized);
         this._renderSelected();
       }
     }

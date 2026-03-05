@@ -11,7 +11,7 @@ const GROUP_UPDATABLE_FIELDS = new Set([
 
 export function getGroups(req, res) {
   if (!requireAuth(req, res)) return;
-  const groupsList = db.groups.map(groupRecord => serializeGroup(groupRecord));
+  const groupsList = db.groups.map(groupRecord => serializeGroupListItem(groupRecord));
   return sendJson(res, 200, groupsList);
 }
 
@@ -22,7 +22,7 @@ export function getGroupById(req, res, params) {
   if (!groupRecord) {
     return sendJson(res, 404, { detail: "Group not found" });
   }
-  return sendJson(res, 200, serializeGroup(groupRecord));
+  return sendJson(res, 200, serializeGroupDetails(groupRecord));
 }
 
 export async function createGroup(req, res) {
@@ -50,7 +50,7 @@ export async function createGroup(req, res) {
 
   db.groups.push(groupRecord);
 
-  return sendJson(res, 201, serializeGroup(groupRecord));
+  return sendJson(res, 201, serializeGroupDetails(groupRecord));
 }
 
 export async function updateGroup(req, res, params) {
@@ -84,7 +84,7 @@ export async function updateGroup(req, res, params) {
     groupRecord.student_ids = studentIds;
   }
 
-  return sendJson(res, 200, serializeGroup(groupRecord));
+  return sendJson(res, 200, serializeGroupDetails(groupRecord));
 }
 
 export function deleteGroup(req, res, params) {
@@ -99,12 +99,28 @@ export function deleteGroup(req, res, params) {
   return sendNoContent(res, 204);
 }
 
-function serializeGroup(groupRecord) {
+function serializeGroupListItem(groupRecord) {
+  return {
+    id: groupRecord.id,
+    group_number: groupRecord.group_number,
+    teacher_id: groupRecord.teacher_id,
+    course_id: groupRecord.course_id,
+    students_count: groupRecord.student_ids.length,
+  };
+}
+
+function serializeGroupDetails(groupRecord) {
   const students = db.students
     .filter((student => groupRecord.student_ids.includes(student.id)))
 
+  const course = db.courses.find((course) => course.id === groupRecord.course_id);
+
+  const teacher = db.teachers.find((teacher) => teacher.id === groupRecord.teacher_id);
+
   return {
     ...groupRecord,
-    students
+    teacher,
+    students,
+    course
   }
 }

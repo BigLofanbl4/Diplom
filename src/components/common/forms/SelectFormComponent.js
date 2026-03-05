@@ -1,12 +1,13 @@
 import FormComponent from "../../../core/FormComponent.js";
-import MultiSelect from "../MultiSelect/MultiSelect.js";
+import SelectComponent from "../MultiSelect/SelectComponent.js";
 
 export default class SelectFormComponent extends FormComponent {
-  constructor({ Service, id = null, containerElement = null, msConfigs = [] }) {
+  constructor({ Service, id = null, containerElement = null, selectConfigs = [] }) {
     const mode = id ? "update" : "create";
     super({Service: Service, mode, id, containerElement });
-    this.msLists = {};
-    this.msConfigs = msConfigs;
+    this.selectConfigs = selectConfigs;
+    this.optionsByField = {};
+    this.selectComponents = [];
   }
 
   async fetchData() {
@@ -14,68 +15,80 @@ export default class SelectFormComponent extends FormComponent {
       if (this.id && this.mode === "update") {
         this.data = await this.Service.getById(this.id);
       }
-      const entries = await Promise.all(this.msConfigs.map(async config => {
-        const items = await config.listService.getAll();
-        const key = config.dataKey;
-        return [key, items];
+
+      const entries = await Promise.all(this.selectConfigs.map(async config => {
+        const options = await config.loadOptions();
+        const mappedOptions = options.map(option => config.mapOption(option));
+        return [config.field, mappedOptions];
       }));
-      this.msLists = Object.fromEntries(entries);
+
+      this.optionsByField = Object.fromEntries(entries);
     } catch (error) {
       console.error(error);
     }
+    console.log(this.data);
   }
 
   initCustomFields() {
-    this.msConfigs.forEach(config => {
-      const options = (this.msLists?.[config.dataKey] ?? []).map(entity => ({
-        value: entity.id,
-        text: config.label(entity)
-      }));
-
-      const defaultOptions = (this.data?.[config.dataField] ?? []).map(entity => ({
-        value: entity.id,
-        text: config.label(entity)
-      }));
-
-      const msContainer = this.form.querySelector(`[data-ms=${config.dataKey}]`);
-      new MultiSelect(
-        msContainer,
-        options,
-        defaultOptions,
-        config.placeholder,
-        config.name
+    this.selectConfigs.forEach(config => {
+      const options = this.optionsByField[config.field] ?? [];
+      const initialValue = config.getInitialValue(this.data);
+      const selectContainer = this.form.querySelector(`[data-select=${config.field}]`);
+      const select = new SelectComponent(
+        {
+          container: selectContainer,
+          options: options,
+          initialValue: initialValue,
+          placeholder: config.placeholder,
+          field: config.field,
+          mode: config.mode,
+          label: config.label
+        }
       );
+      this.selectComponents.push(select);
     });
   }
 
   getFormData() {
-    const formData = super.getFormData();
-    this.msConfigs.forEach(config => {
-      const key = config.listKey;
-      formData[key] = (formData[key] ?? []).map((id) => Number(id));
+    const payload = super.getFormData();
+
+    this.selectComponents.forEach(select => {
+      payload[select.field] = select.getValue();
     });
-    return formData;
+
+    return payload;
   }
 
   _calculateDiff(original, current) {
     const diff = {};
 
-    this.msConfigs.forEach(config => {
-      const currentEntityIds = (current?.[config.listKey] ?? []);
-      const initialEntityIds = (original?.[config.dataField] ?? []).map(e => e.id);
-      const initialSet = new Set(initialEntityIds);
+    this.selectConfigs.forEach(config => {
+      const currentValue = current?.[config.field];
+      const initialValue = config.getInitialValue(original);
+      console.log(initialValue, currentValue);
 
-      const same = currentEntityIds.length === initialEntityIds.length &&
-        currentEntityIds.every(id => initialSet.has(id));
+      if (config.mode === "single") {
+        if (currentValue !== initialValue) {
+          diff[config.field] = currentValue;
+        }
+        return;
+      }
+
+      const currentValues = Array.isArray(currentValue) ? currentValue : [];
+      const initialValues = Array.isArray(initialValue) ? initialValue : [];
+      const initialSet = new Set(initialValues);
+
+      const same = currentValues.length === initialValues.length &&
+        currentValues.every(id => initialSet.has(id));
 
       if (!same) {
-        diff[config.listKey] = currentEntityIds;
+        diff[config.field] = currentValues;
       }
     });
 
-    const listKeysSet = new Set(this.msConfigs.map(config => config.listKey));
+    const selectFields = new Set(this.selectConfigs.map(config => config.field));
     for (const key in current) {
-      if (listKeysSet.has(key)) continue;
+      if (selectFields.has(key)) continue;
       if (current[key] !== original[key]) {
         diff[key] = current[key];
       }

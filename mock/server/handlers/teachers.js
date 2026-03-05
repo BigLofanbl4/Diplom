@@ -17,7 +17,7 @@ const TEACHER_UPDATABLE_FIELDS = new Set([
 
 export function getTeachers(req, res) {
   if (!requireAuth(req, res)) return;
-  const teachersList = db.teachers.map(teacherRecord => serializeTeacher(teacherRecord));
+  const teachersList = db.teachers.map(teacherRecord => serializeTeacherListItem(teacherRecord));
   return sendJson(res, 200, teachersList);
 }
 
@@ -26,7 +26,7 @@ export function getTeacherById(req, res, params) {
   const teacherId = Number(params.id);
   const teacherRecord = db.teachers.find((teacher) => teacher.id === teacherId);
   if (!teacherRecord) return sendJson(res, 404, { detail: "Teacher not found" });
-  return sendJson(res, 200, serializeTeacher(teacherRecord));
+  return sendJson(res, 200, serializeTeacherDetails(teacherRecord));
 }
 
 export async function createTeacher(req, res) {
@@ -76,7 +76,7 @@ export async function createTeacher(req, res) {
   db.users.push(userRecord);
   db.teachers.push(teacherRecord);
 
-  return sendJson(res, 201, serializeTeacher(teacherRecord));
+  return sendJson(res, 201, serializeTeacherDetails(teacherRecord));
 }
 
 export async function updateTeacher(req, res, params) {
@@ -130,7 +130,7 @@ export async function updateTeacher(req, res, params) {
     });
   }
 
-  return sendJson(res, 200, serializeTeacher(teacherRecord));
+  return sendJson(res, 200, serializeTeacherDetails(teacherRecord));
 }
 
 export function deleteTeacher(req, res, params) {
@@ -154,7 +154,22 @@ export function deleteTeacher(req, res, params) {
   return sendNoContent(res, 204);
 }
 
-function serializeTeacher(teacherRecord) {
+function serializeTeacherListItem(teacherRecord) {
+  const groupIds = db.groups
+    .filter(group => group.teacher_id === teacherRecord.id)
+    .map(group => group.id);
+
+  const userData = db.users.find(user => user.id === teacherRecord.user_id);
+  if (!userData) throw { detail: "User Data not found" };
+
+  return {
+    ...teacherRecord,
+    login: userData.login,
+    groups_count: groupIds.length,
+  };
+}
+
+function serializeTeacherDetails(teacherRecord) {
   const groups = db.groups
     .filter(group => group.teacher_id === teacherRecord.id)
     .map(group => ({ id: group.id, group_number: group.group_number }))
@@ -170,6 +185,7 @@ function serializeTeacher(teacherRecord) {
   return {
     ...teacherRecord,
     login: userData.login,
+    group_ids: groups.map((group) => group.id),
     groups
   }
 }

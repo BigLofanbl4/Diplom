@@ -32,6 +32,7 @@ export function serializeLesson(lessonRecord) {
     title: lessonRecord.title,
     lesson_number: lessonRecord.lesson_number,
     description: lessonRecord.description,
+    homework_text: lessonRecord.homework_text,
     course_id: lessonRecord.course_id,
     module_id: lessonRecord.module_id,
     test_id: test?.id ?? null,

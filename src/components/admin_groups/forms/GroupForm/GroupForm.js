@@ -2,22 +2,32 @@ import template from "./GroupForm.html?raw";
 import GroupService from "../../../../services/GroupService.js";
 import StudentService from "../../../../services/StudentService.js";
 import SelectFormComponent from "../../../common/forms/SelectFormComponent.js";
+import CourseService from "../../../../services/CourseService.js";
 
 export default class GroupForm extends SelectFormComponent {
   constructor({ id = null, successHandler = null, cancelHandler = null, containerElement = null }) {
-    const msConfigs = [
+    const selectConfigs = [
       {
-        dataKey: "students",
-        listService: StudentService,
-        dataField: "students",
-        listKey: "student_ids",
-        name: "student_ids[]",
-        label: s => `${s.last_name} ${s.first_name}`,
+        field: "student_ids",
+        mode: "multiple",
+        label: "Студенты",
         placeholder: "Выберите студентов",
+        loadOptions: () => StudentService.getAll(),
+        mapOption: (student) => ({value: student.id, text: `${student.last_name} ${student.first_name}`}),
+        getInitialValue: (group) => (group.students ?? []).map(student => student.id),
       },
+      {
+        field: "course_id",
+        mode: "single",
+        label: "Курс",
+        placeholder: "Выберите курс",
+        loadOptions: () => CourseService.getAll(),
+        mapOption: (course) => ({value: course.id, text: course.title}),
+        getInitialValue: (group) => group.course?.id ?? null,
+      }
     ];
 
-    super({ Service: GroupService, id, msConfigs, containerElement });
+    super({ Service: GroupService, id, selectConfigs, containerElement });
     this.template = template;
     this.successUrl = "/admin/groups";
     this.cancelUrl = "/admin/groups";
