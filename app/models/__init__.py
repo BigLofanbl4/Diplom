@@ -1,10 +1,9 @@
 from app.database import Base
-
-from .organization import Admin, Organization
-from .teachers import Teacher
-from .courses import Course, CourseLesson, CourseMaterial, CourseModule, File
+from .courses import Course, CourseLesson, CourseMaterial, CourseModule, File, Test, Question
 from .groups import Group, GroupLesson, group_students
+from .organization import Admin, Organization
 from .students import Student, StudentHomework
+from .teachers import Teacher
 
 __all__ = [
     "Base",
@@ -21,4 +20,6 @@ __all__ = [
     "group_students",
     "Student",
     "StudentHomework",
+    "Test",
+    "Question",
 ]

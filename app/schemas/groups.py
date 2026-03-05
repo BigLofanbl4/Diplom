@@ -14,6 +14,7 @@ class GroupBase(BaseModel):
 
 class GroupCreate(GroupBase):
     student_ids: list[int] = Field(default_factory=list)
+    organization_id: int
 
 
 class GroupUpdate(BaseModel):

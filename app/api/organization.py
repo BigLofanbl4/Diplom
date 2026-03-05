@@ -1,11 +1,14 @@
-from fastapi import APIRouter, Form, Depends
 from typing import Annotated
-from ..schemas import AdminCreate
+
+from fastapi import APIRouter, Form, Depends
 from sqlalchemy.orm import Session
+
 from ..database import get_db
 from ..repositories import AdminRepository
+from ..schemas import AdminCreate
 
 router = APIRouter(prefix='/organization', tags=['organization'])
+
 
 @router.get('/')
 def index():

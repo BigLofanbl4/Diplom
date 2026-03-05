@@ -2,13 +2,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Integer, String, Text, UniqueConstraint, JSON
+from sqlalchemy import ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
 
 if TYPE_CHECKING:
     from .groups import Group
+    from .organization import Organization
 
 
 class Course(Base):
@@ -17,6 +18,12 @@ class Course(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    organization_id: Mapped[int] = mapped_column(ForeignKey('organizations.id', ondelete="CASCADE"), nullable=False)
+
+    organization: Mapped["Organization"] = relationship(
+        'Organization', back_populates='courses'
+    )
 
     modules: Mapped[list["CourseModule"]] = relationship(
         "CourseModule", back_populates="course", cascade="all, delete-orphan"
@@ -27,7 +34,7 @@ class Course(Base):
     materials: Mapped[list["CourseMaterial"]] = relationship(
         "CourseMaterial", back_populates="course", cascade="all, delete-orphan"
     )
-    groups: Mapped[list["Group"]] = relationship("Group", back_populates="course")
+    groups: Mapped[list["Group"]] = relationship("Group", back_populates="template_course")
 
 
 class CourseModule(Base):
@@ -63,6 +70,7 @@ class CourseLesson(Base):
     materials: Mapped[list["CourseMaterial"]] = relationship(
         "CourseMaterial", back_populates="lesson", cascade="all, delete-orphan"
     )
+    test: Mapped["Test"] = relationship('Test', back_populates="lesson")
 
     __table_args__ = (UniqueConstraint("course_id", "lesson_number", name="uq_course_lesson_number"),)
 
@@ -79,6 +87,54 @@ class CourseMaterial(Base):
     files: Mapped[list["File"]] = relationship("File", back_populates='material', cascade="all, delete-orphan")
     course: Mapped["Course"] = relationship("Course", back_populates="materials")
     lesson: Mapped["CourseLesson"] = relationship("CourseLesson", back_populates="materials")
+
+
+class Test(Base):
+    __tablename__ = "tests"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    course_id: Mapped[int] = mapped_column(ForeignKey("courses.id", ondelete="CASCADE"), nullable=False)
+    lesson_id: Mapped[int] = mapped_column(ForeignKey("course_lessons.id", ondelete="CASCADE"), nullable=False)
+
+    course: Mapped["Course"] = relationship("Course")
+    lesson: Mapped["CourseLesson"] = relationship("CourseLesson", back_populates="test")
+
+    questions: Mapped[list['Question']] = relationship("Question", back_populates="test", cascade='all, delete-orphan')
+
+
+class Question(Base):
+    __tablename__ = "questions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    front_id: Mapped[str] = mapped_column(String(50), nullable=False)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+
+    test_id: Mapped[int] = mapped_column(ForeignKey("tests.id", ondelete="CASCADE"), nullable=False)
+    type_id: Mapped[int] = mapped_column(ForeignKey("question_types.id", ondelete="NO ACTION"), nullable=False)
+
+    type: Mapped["QuestionType"] = relationship("QuestionType")
+    test: Mapped["Test"] = relationship("Test", back_populates="questions")
+    answers: Mapped[list['Answer']] = relationship("Answer", back_populates="question")
+
+
+class QuestionType(Base):
+    __tablename__ = "question_types"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    type: Mapped[str] = mapped_column(String(30), nullable=False)
+
+
+class Answer(Base):
+    __tablename__ = 'answers'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+    is_right: Mapped[bool] = mapped_column(default=False)
+
+    question_id: Mapped[int] = mapped_column(ForeignKey("questions.id", ondelete="CASCADE"), nullable=False)
+
+    question: Mapped['Question'] = relationship("Question", back_populates="answers")
 
 
 class File(Base):

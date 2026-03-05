@@ -1,9 +1,8 @@
 from sqlalchemy import select
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session
 
 import app.utils.security as security
-from app.models import Teacher
-from app.models.organization import Organization, Admin
+from app.models.organization import Organization, Admin, User, UserType
 
 
 class OrganizationRepository:
@@ -30,11 +29,11 @@ class OrganizationRepository:
             return org
         return None
 
-    def get_all_teachers(self, organization_id: int) -> list[Teacher] | None:
-        stmt = select(Organization).where(Organization.id == organization_id).options(
-            selectinload(Organization.teachers))
-        org = self.db.scalar(stmt)
-        return org.teachers
+    # def get_all_teachers(self, organization_id: int) -> list[Teacher] | None:
+    #     stmt = select(Organization).where(Organization.id == organization_id).options(
+    #         selectinload(Organization.teachers))
+    #     org = self.db.scalar(stmt)
+    #     return org.teachers
 
 
 class AdminRepository:
@@ -46,39 +45,55 @@ class AdminRepository:
         admins = self.db.scalars(stmt).all()
         return admins
 
-    def create(self, login: str, password: str, organization_id: int):
-        hashed_password = security.hash_password(password)
-        admin = Admin(
-            login=login,
-            password_hash=hashed_password,
-            organization_id=organization_id
-        )
-        self.db.add(admin)
-        self.db.commit()
+    # def create(self, login: str, password: str, organization_id: int):
+    #     hashed_password = security.hash_password(password)
+    #     admin = Admin(
+    #         login=login,
+    #         password_hash=hashed_password,
+    #         organization_id=organization_id
+    #     )
+    #     self.db.add(admin)
+    #     self.db.commit()
 
-    def get_admin(self, admin_login: str = None, admin_id: int = None):
-        if admin_id is not None:
-            teacher = self.db.get(Admin, admin_id)
-            if teacher is not None:
-                return teacher
-        elif admin_login is not None:
-            stmt = select(Admin).where(Admin.login == admin_login)
-            teacher = self.db.scalar(stmt)
-            if teacher is not None:
-                return teacher
-        return None
+    # def get_admin(self, admin_login: str = None, admin_id: int = None):
+    #     if admin_id is not None:
+    #         teacher = self.db.get(Admin, admin_id)
+    #         if teacher is not None:
+    #             return teacher
+    #     elif admin_login is not None:
+    #         stmt = select(Admin).where(Admin.login == admin_login)
+    #         teacher = self.db.scalar(stmt)
+    #         if teacher is not None:
+    #             return teacher
+    #     return None
 
     def delete(self, admin_id: int):
         admin = self.db.get(Admin, admin_id)
         self.db.delete(admin)
         self.db.commit()
 
-    def verify_password(self, login: str, password: str):
-        stmt = select(Admin).where(Admin.login == login)
-        admin = self.db.scalar(stmt)
-        if admin is None:
-            return False
-        return security.verify_password(password, admin.password_hash)
-
     def update_password(self, login: str, new_password: str):
         pass
+
+
+class UserRepository:
+    def __init__(self, db: Session):
+        self.db = db
+
+    def create(self, login: str, password: str, organization_id: int, role: UserType):
+        hashed_password = security.hash_password(password)
+        admin = User(
+            login=login,
+            password_hash=hashed_password,
+            organization_id=organization_id,
+            role=role,
+        )
+        self.db.add(admin)
+        self.db.commit()
+
+    def verify_password(self, login: str, password: str):
+        stmt = select(User).where(User.login == login)
+        user = self.db.execute(stmt).scalar_one_or_none()
+        if user is not None:
+            return security.verify_password(password, user.password_hash)
+        return False

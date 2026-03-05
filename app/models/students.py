@@ -1,17 +1,18 @@
 from __future__ import annotations
 
+from datetime import date, datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey, Integer, String, Text, UniqueConstraint, Date
-from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.hybrid import hybrid_property
-from datetime import date, datetime
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
 from .groups import group_students
 
 if TYPE_CHECKING:
     from .groups import Group, GroupLesson
+    from .organization import User
 
 
 class Student(Base):
@@ -30,13 +31,16 @@ class Student(Base):
         "StudentHomework", back_populates="student", cascade="all, delete-orphan"
     )
 
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'), unique=True, nullable=False)
+    user: Mapped['User'] = relationship('User', back_populates="student")
+
     @hybrid_property
     def age(self) -> int | None:
         if self.birth_date is None:
             return None
         today = datetime.now().date()
         bday = self.birth_date
-        if today.month > bday.month or (today.month == bday.month and today.day > bday.day):
+        if today.month > bday.month or (today.month == bday.month and today.day >= bday.day):
             return today.year - bday.year
         return today.year - bday.year - 1
 
