@@ -1,7 +1,7 @@
 export default class CardListComponent {
   constructor( template, cardsContainerId, cardRenderer, emptyListTitle = "" ) {
     this.template = template;
-    this.cardsData = [];
+    this.cardsData = { data: [] };
     this.cardRenderer = cardRenderer;
     this.cardsHTML = "";
     this.cardsContainerId = cardsContainerId;
@@ -12,13 +12,13 @@ export default class CardListComponent {
   }
 
   render() {
-    if (this.cardsData.length === 0) {
+    if (this.cardsData.data.length === 0) {
       this.cardsHTML = "";
       this.cardInstances = [];
       return;
     }
 
-    const rendered = this.cardsData.map(c => this.cardRenderer(c));
+    const rendered = this.cardsData.data.map(c => this.cardRenderer(c));
 
     if (typeof(rendered[0]) === "string") {
       this.cardInstances = [];

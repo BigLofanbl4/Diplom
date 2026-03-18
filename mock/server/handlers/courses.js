@@ -15,7 +15,9 @@ const COURSE_UPDATABLE_FIELDS = new Set([
 
 export function getCourses(req, res) {
   if (!requireAuth(req, res)) return;
-  return sendJson(res, 200, db.courses.map(courseRecord => serializeCourse(courseRecord)));
+  return sendJson(res, 200, {
+    data: db.courses.map(courseRecord => serializeCourse(courseRecord))
+  });
 }
 
 export function getCourseById(req, res, params) {

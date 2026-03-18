@@ -15,7 +15,9 @@ const STUDENT_UPDATABLE_FIELDS = new Set([
 export function getStudents(req, res) {
   if (!requireAuth(req, res)) return;
   const studentList = db.students.map((studentRecord) => serializeStudentListItem(studentRecord));
-  return sendJson(res, 200, studentList);
+  return sendJson(res, 200, {
+    data: studentList
+  });
 }
 
 export function getStudentById(req, res, params) {

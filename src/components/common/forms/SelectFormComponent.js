@@ -18,7 +18,7 @@ export default class SelectFormComponent extends FormComponent {
 
       const entries = await Promise.all(this.selectConfigs.map(async config => {
         const options = await config.loadOptions();
-        const mappedOptions = options.map(option => config.mapOption(option));
+        const mappedOptions = options.data.map(option => config.mapOption(option));
         return [config.field, mappedOptions];
       }));
 

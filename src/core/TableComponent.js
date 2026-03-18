@@ -20,13 +20,15 @@ export default class TableComponent {
     try {
       this.data = await this.Service.getAll();
     } catch (error) {
-      this.data = [];
+      this.data = {
+        data: []
+      };
       console.error(error);
     }
   }
 
   render() {
-    this.rowsHTML = this.data.map(entity => this.rowRenderer(entity)).join("");
+    this.rowsHTML = this.data.data.map(entity => this.rowRenderer(entity)).join("");
     if (!this.rowsHTML) {
       this.rowsHTML = this.emptyRow;
     }

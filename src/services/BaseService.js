@@ -49,11 +49,25 @@ function apiError(response, data, fallback = `HTTP ${response.status}`) {
   }
 }
 
+function getQueryString(params) {
+  if (!params) return "";
+
+  const cleanParams = Object.fromEntries(
+    Object.entries(params).filter(([_, value]) => value !== undefined && value !== null && value !== "")
+  );
+  let queryString = new URLSearchParams(cleanParams).toString();
+  if (queryString !== "") {
+    queryString = "?" + queryString;
+  }
+  return queryString;
+}
+
 export default class BaseService {
   static BASE_URL = "/api/v1";
   
   static async request(endpoint, options = {}, { auth = true } = {}) {
-    const url = `${this.BASE_URL}${endpoint}`;
+    const queryString = getQueryString(options?.params);
+    const url = `${this.BASE_URL}${endpoint}${queryString}`;
 
     for (let attempt = 0; attempt < 2; attempt++) {
       const headers = buildHeaders(options, { auth });

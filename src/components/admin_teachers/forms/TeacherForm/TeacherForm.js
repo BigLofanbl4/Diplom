@@ -1,23 +1,11 @@
 import template from "./TeacherForm.html?raw";
 import TeacherService from "../../../../services/TeacherService.js";
-import GroupService from "../../../../services/GroupService.js";
-import SelectFormComponent from "../../../common/forms/SelectFormComponent.js";
+import FormComponent from "../../../../core/FormComponent.js";
 
-export default class TeacherForm extends SelectFormComponent {
+export default class TeacherForm extends FormComponent {
   constructor({ id = null, successHandler = null, cancelHandler = null, containerElement = null }) {
-    const selectConfigs = [
-      {
-        field: "group_ids",
-        mode: "multiple",
-        label: "Группы",
-        placeholder: "Выберите группы",
-        loadOptions: () => GroupService.getAll(),
-        mapOption: (group) => ({ value: group.id, text: `${group.group_number}` }),
-        getInitialValue: (teacher) => (teacher.groups ?? []).map(group => group.id),
-      },
-    ];
-
-    super({ Service: TeacherService, id, selectConfigs, containerElement });
+    const mode = id ? "update" : "create";
+    super({ Service: TeacherService, id, mode, containerElement });
     this.template = template;
     this.successUrl = "/admin/teachers";
     this.cancelUrl = "/admin/teachers";

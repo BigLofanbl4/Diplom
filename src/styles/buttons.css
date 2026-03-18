@@ -44,6 +44,11 @@
   min-width: 120px;
 }
 
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .btn-primary {
   background: var(--cl-primary);
   color: white;

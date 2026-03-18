@@ -2,8 +2,8 @@ import BaseService from "./BaseService";
 
 
 export default class GroupService extends BaseService {
-  static async getAll() {
-    return await this.request("/groups", {}, { auth: true });
+  static async getAll(params = {}) {
+    return await this.request(`/groups`, { params }, { auth: true });
   }
 
   static async getById(id) {

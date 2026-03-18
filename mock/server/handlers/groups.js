@@ -11,8 +11,31 @@ const GROUP_UPDATABLE_FIELDS = new Set([
 
 export function getGroups(req, res) {
   if (!requireAuth(req, res)) return;
-  const groupsList = db.groups.map(groupRecord => serializeGroupListItem(groupRecord));
-  return sendJson(res, 200, groupsList);
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const params = url.searchParams;
+
+  const limit = parseInt(params.get("limit"), 10);
+  const offset = parseInt(params.get("offset"), 10) || 0;
+  const search = params.get("search");
+
+  let groupsList = db.groups.map(groupRecord => serializeGroupListItem(groupRecord));
+  if (search !== null) {
+    groupsList = groupsList.filter((group) => group.group_number.includes(search));
+  }
+
+  let start = isNaN(offset) ? 0 : offset;
+  let end = isNaN(limit) ? undefined : limit;
+
+  groupsList = groupsList.slice(start, end);
+  return sendJson(res, 200, {
+    data: groupsList,
+    meta: {
+      totals: db.groups.length,
+      limit: limit,
+      offset: offset,
+      search: search,
+    }
+  });
 }
 
 export function getGroupById(req, res, params) {
@@ -100,10 +123,12 @@ export function deleteGroup(req, res, params) {
 }
 
 function serializeGroupListItem(groupRecord) {
+  const course = db.courses.find(course => course.id === groupRecord.course_id) ?? null;
   return {
     id: groupRecord.id,
     group_number: groupRecord.group_number,
     teacher_id: groupRecord.teacher_id,
+    course,
     course_id: groupRecord.course_id,
     students_count: groupRecord.student_ids.length,
   };

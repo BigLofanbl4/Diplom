@@ -18,7 +18,9 @@ const TEACHER_UPDATABLE_FIELDS = new Set([
 export function getTeachers(req, res) {
   if (!requireAuth(req, res)) return;
   const teachersList = db.teachers.map(teacherRecord => serializeTeacherListItem(teacherRecord));
-  return sendJson(res, 200, teachersList);
+  return sendJson(res, 200, {
+    data: teachersList
+  });
 }
 
 export function getTeacherById(req, res, params) {
@@ -172,7 +174,15 @@ function serializeTeacherListItem(teacherRecord) {
 function serializeTeacherDetails(teacherRecord) {
   const groups = db.groups
     .filter(group => group.teacher_id === teacherRecord.id)
-    .map(group => ({ id: group.id, group_number: group.group_number }))
+    .map(group => {
+      const course = db.courses.find((course) => course.id === group.course_id) ?? null;
+      return {
+        id: group.id,
+        group_number: group.group_number,
+        course_id: group.course_id,
+        course: course
+      };
+    });
 
   const userData = db.users.find(user => user.id === teacherRecord.user_id);
 
