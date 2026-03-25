@@ -12,9 +12,13 @@ export const TeacherRow = (teacher) => {
     <td class="table__col table__large-col" data-label="ФИО">${fullName}</td>
     <td class="table__col table__small-col" data-label="Возраст">${teacher.age}</td>
     <td class="table__col table__small-col" data-label="ОВЗ">${ovz}</td>
-    <td class="table__col table__medium-col" data-label="Группы">
-        <span>${groupsLabel}</span>
-        <a href="/admin/teachers/${teacher.id}/groups" data-spa-link>Управлять группами</a>
+    <td class="table__col table__medium-col teachers-table__groups-col" data-label="Группы">
+      <div class="teachers-table__groups">
+        <span class="teachers-table__groups-count">${groupsLabel}</span>
+        <a href="/admin/teachers/${teacher.id}/groups" class="teachers-table__groups-link" data-spa-link>
+          Управлять
+        </a>
+      </div>
     </td>
     <td class="table__col table__small-col" data-label="Действия">
       <div class="table__actions">

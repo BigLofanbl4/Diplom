@@ -3,7 +3,12 @@ import BaseService from "./BaseService";
 
 export default class GroupService extends BaseService {
   static async getAll(params = {}) {
-    return await this.request(`/groups`, { params }, { auth: true });
+    const response = await this.request(`/groups`, { params }, { auth: true });
+    if (!Array.isArray(response.data)) {
+      throw new Error("Invalid Response");
+    }
+
+    return  response;
   }
 
   static async getById(id) {

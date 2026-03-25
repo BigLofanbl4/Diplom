@@ -1,0 +1,52 @@
+.teachers-table__groups-col {
+  min-width: 220px;
+}
+
+.teachers-table__groups {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--mg-300);
+  flex-wrap: nowrap;
+}
+
+.teachers-table__groups-count {
+  color: var(--cl-text-secondary);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.teachers-table__groups-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  background: rgba(23, 102, 208, 0.08);
+  border: 1px solid rgba(23, 102, 208, 0.16);
+  color: var(--cl-primary);
+  font-size: var(--fz-200);
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+.teachers-table__groups-link:hover {
+  background: rgba(23, 102, 208, 0.14);
+  border-color: rgba(23, 102, 208, 0.24);
+}
+
+@media (max-width: 768px) {
+  .teachers-table__groups {
+    width: 100%;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .teachers-table__groups-link {
+    margin-left: 0;
+    white-space: normal;
+    text-align: center;
+  }
+}
