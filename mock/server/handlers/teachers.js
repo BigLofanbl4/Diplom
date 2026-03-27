@@ -17,9 +17,33 @@ const TEACHER_UPDATABLE_FIELDS = new Set([
 
 export function getTeachers(req, res) {
   if (!requireAuth(req, res)) return;
-  const teachersList = db.teachers.map(teacherRecord => serializeTeacherListItem(teacherRecord));
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const params = url.searchParams;
+
+  const limit = parseInt(params.get("limit"), 10);
+  const offset = parseInt(params.get("offset"), 10) || 0;
+  const search = params.get("search");
+
+  let teacherList = db.teachers.map((teacher) => serializeTeacherListItem(teacher));
+  if (search !== null) {
+    teacherList = teacherList.filter((teacher) => {
+      const fullName = `${teacher.last_name} ${teacher.first_name}`;
+      return fullName.includes(search);
+    });
+  }
+
+  let start = isNaN(offset) ? 0 : offset;
+  let end = isNaN(limit) ? undefined : limit;
+
+  teacherList = teacherList.slice(start, end);
   return sendJson(res, 200, {
-    data: teachersList
+    data: teacherList,
+    meta: {
+      totals: db.teachers.length,
+      limit: limit,
+      offset: offset,
+      search: search,
+    }
   });
 }
 

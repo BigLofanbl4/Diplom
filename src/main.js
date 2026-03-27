@@ -8,6 +8,7 @@ import { GroupForm, GroupsTable } from "./components/admin_groups/index.js";
 import { CourseForm, CoursePage, CoursesList } from "./components/admin_courses/index.js";
 import TestConstructor from "./components/admin_courses/features/TestConstructor/TestConstructor.js";
 import TeacherGroups from "./components/admin_teachers/pages/TeacherGroups/TeacherGroups.js";
+import AssignTeacher from "./components/admin_groups/pages/AssignTeacher/AssignTeacher.js";
 
 const ROUTES = {
   "/login": {
@@ -139,6 +140,14 @@ const ROUTES = {
   "/admin/teachers/:teacherId/groups": {
     Layout: AdminLayout,
     Component:TeacherGroups,
+    meta: {
+      access: "requiresAuth",
+      role: "admin"
+    }
+  },
+  "/admin/groups/:groupId/teacher": {
+    Layout: AdminLayout,
+    Component: AssignTeacher,
     meta: {
       access: "requiresAuth",
       role: "admin"

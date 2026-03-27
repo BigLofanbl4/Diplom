@@ -22,6 +22,14 @@ export const GroupRow = (group) => {
        <td class="table__col table__small-col" data-label="Преподаватель">${teacher}</td>
       <td class="table__col table__small-col" data-label="Действия">
         <div class="table__actions">
+          <a
+            href="/admin/groups/${group.id}/teacher"
+            class="table__action-btn"
+            data-spa-link
+            title="Назначить преподавателя"
+          >
+            👨‍🏫
+          </a>
           <a href="/admin/groups/update/${group.id}" class="table__action-btn" data-action="update" data-spa-link title="Редактировать">
             ✏️
           </a>
