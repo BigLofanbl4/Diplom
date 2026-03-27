@@ -37,7 +37,7 @@ export default class CardListComponent {
     this.cardsContainer = componentContainer.querySelector(`#${this.cardsContainerId}`);
     if (!this.cardsContainer) return;
 
-    this.listContainer = this.cardsContainer.closest(".cards")
+    this.listContainer = componentContainer.querySelector("[data-card-list-root]") || this.cardsContainer.closest(".cards");
     this.cardsContainer.innerHTML = this.cardsHTML;
 
     if (this.cardsContainer.innerHTML === "") {

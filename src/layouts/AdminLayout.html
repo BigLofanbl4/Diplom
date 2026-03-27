@@ -1,51 +1,94 @@
-<header class="header">
-  <div class="container">
-    <div class="header__logo">
-      <h3>
-        <a href="/admin" data-spa-link>Digital Classroom</a>
-      </h3>
+<div class="admin-shell">
+  <header class="header">
+    <div class="container header__container">
+      <div class="header__brand">
+        <a href="/admin" class="header__logo" data-spa-link>
+          <span class="header__logo-mark">
+            <i class="fa-solid fa-grid-2"></i>
+          </span>
+          <span class="header__logo-copy">
+            <span class="header__logo-title">Digital Classroom</span>
+            <span class="header__logo-subtitle">Администрирование платформы</span>
+          </span>
+        </a>
+      </div>
+
+      <div class="header__account account">
+        <button class="theme-toggle-btn" type="button" data-action="toggle-theme" aria-label="Переключить тему" title="Сменить тему">
+          <span class="theme-toggle-btn__icon theme-toggle-btn__icon--sun">
+            <i class="fa-regular fa-sun"></i>
+          </span>
+          <span class="theme-toggle-btn__icon theme-toggle-btn__icon--moon">
+            <i class="fa-regular fa-moon"></i>
+          </span>
+          <span class="theme-toggle-btn__text">Тема</span>
+        </button>
+        <div class="account__card">
+          <span class="account__label">Авторизован</span>
+          <a href="/admin" class="account__profile" data-user-full-name data-spa-link>Иванов И.И.</a>
+        </div>
+        <button class="account__logout" data-action="logout">Выйти</button>
+      </div>
     </div>
-    <div class="header__account account"> 
-      <button class="theme-toggle-btn" type="button" data-action="toggle-theme" aria-label="Переключить тему" title="Сменить тему">
-        <span class="theme-toggle-btn__icon theme-toggle-btn__icon--sun">
-          <i class="fa-regular fa-sun"></i>
-        </span>
-        <span class="theme-toggle-btn__icon theme-toggle-btn__icon--moon">
-          <i class="fa-regular fa-moon"></i>
-        </span>
-        <span class="theme-toggle-btn__text">Тема</span>
-      </button>
-      <a href="#" class="account__profile" data-user-full-name data-spa-link>Иванов И.И.</a>
-      <button class="account__logout" data-action="logout">Выйти</button>
+  </header>
+
+  <main class="app-main">
+    <div class="container app-frame">
+      <aside class="app__nav">
+        <div class="app__nav-header">
+          <span class="app__nav-eyebrow">Навигация</span>
+          <h2 class="app__nav-title">Разделы панели</h2>
+          <p class="app__nav-description">
+            Переходите между сущностями и держите все операции в одном рабочем пространстве.
+          </p>
+        </div>
+
+        <nav>
+          <ul class="app__menu">
+            <li>
+              <a href="/admin" data-spa-link data-route-match="/admin" data-route-exact="true">
+                <i class="fa-solid fa-house"></i>
+                <span>Обзор</span>
+              </a>
+            </li>
+            <li>
+              <a href="/admin/teachers" data-spa-link data-route-match="/admin/teachers">
+                <i class="fa-solid fa-chalkboard-user"></i>
+                <span>Учителя</span>
+              </a>
+            </li>
+            <li>
+              <a href="/admin/groups" data-spa-link data-route-match="/admin/groups">
+                <i class="fa-solid fa-users-rectangle"></i>
+                <span>Группы</span>
+              </a>
+            </li>
+            <li>
+              <a href="/admin/courses" data-spa-link data-route-match="/admin/courses">
+                <i class="fa-solid fa-book-open-reader"></i>
+                <span>Курсы</span>
+              </a>
+            </li>
+            <li>
+              <a href="/admin/students" data-spa-link data-route-match="/admin/students">
+                <i class="fa-solid fa-user-graduate"></i>
+                <span>Студенты</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+        <div class="app__nav-footer">
+          <div class="app__nav-hint">
+            <span class="app__nav-hint-label">Режим</span>
+            <strong class="app__nav-hint-value">Админ-панель</strong>
+          </div>
+        </div>
+      </aside>
+
+      <section class="app__content">
+        <div class="app__content-inner" id="component"></div>
+      </section>
     </div>
-  </div>
-</header>
-<main>
-  <div class="container">
-    <aside class="app__nav">
-      <h4 class="app__nav-title">Меню</h4>
-      <nav>
-        <ul class="app__menu">
-          <li>
-            <a href="#" data-spa-link>Организации</a>
-          </li>
-          <li>
-            <a href="/admin/teachers" data-spa-link>Учителя</a>
-          </li>
-          <li>
-            <a href="/admin/groups" data-spa-link>Группы</a>
-          </li>
-          <li>
-            <a href="/admin/courses" data-spa-link>Курсы</a>
-          </li>
-          <li>
-            <a href="/admin/students" data-spa-link>Студенты</a>
-          </li>
-        </ul>
-      </nav>
-    </aside>
-    <div id="component">
-      
-    </div>
-  </div>
-</main>
+  </main>
+</div>

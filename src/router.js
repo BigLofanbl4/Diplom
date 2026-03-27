@@ -137,6 +137,8 @@ export class Router {
         this.currentComponent = new route.Component(params);
         await this.currentComponent.draw();
       }
+
+      this.currentLayout?.onRouteChange?.(nextURL);
     } finally {
       if (componentContainer) {
         componentContainer.style.minHeight = "";

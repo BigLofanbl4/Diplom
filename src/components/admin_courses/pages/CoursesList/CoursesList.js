@@ -11,7 +11,10 @@ class CourseCard {
     return `
     <article class="card" data-course-id="${this.cardData.id}">
       <header class="card__header">
-          <h4 class="card__title" data-card-title>${this.cardData.title}</h4>
+          <div class="card__title-block">
+            <span class="card__eyebrow">Курс #${this.cardData.id}</span>
+            <h4 class="card__title" data-card-title>${this.cardData.title}</h4>
+          </div>
           <div class="card__badges">
               <span class="card__badge" data-course-modules>Модулей: ${this.cardData.modules?.length ?? 0}</span>
               <span class="card__badge" data-course-lessons>Уроков: ${this.cardData.lessons?.length ?? 0}</span>
@@ -20,9 +23,9 @@ class CourseCard {
       <p class="card__description" data-card-desc>${this.cardData.description}</p>
       <footer class="card__footer">
           <a href="/admin/courses/${this.cardData.id}" class="btn btn-primary" data-spa-link data-course-link>Перейти на страницу курса</a>
-          <button class="btn btn-primary" data-action="delete">Удалить курс</button>
+          <button class="btn btn-danger" data-action="delete">Удалить курс</button>
           <a href="/admin/courses/update/${this.cardData.id}" 
-             class="btn btn-primary"
+             class="btn btn-secondary"
              data-spa-link
              data-action="update"
              title="Редактировать">

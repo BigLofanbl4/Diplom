@@ -1,7 +1,9 @@
 .ms {
-  width: 100%;
-  max-width: 100%;
   position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mg-200);
 }
 
 .ms__control {
@@ -11,144 +13,86 @@
 
 .ms__values {
   display: flex;
-  background: rgba(255, 255, 255, 0.9);
-  padding: var(--pd-200);
+  align-items: center;
   flex-wrap: wrap;
   gap: var(--mg-200);
-  border: 1px solid rgba(147, 165, 192, 0.48);
+  min-height: 5rem;
+  padding: var(--pd-200);
   border-radius: var(--radius-md);
-  min-height: 48px;
-  align-items: center;
-  transition: all var(--transition-fast);
-  cursor: text;
+  border: 1px solid var(--cl-border-light);
+  background: var(--cl-surface);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.ms__values.ms__values--focused {
+.ms__values.ms__values--focused,
+.ms__values:focus-within {
   border-color: var(--cl-primary);
-  box-shadow: 0 0 0 4px rgba(23, 102, 208, 0.12);
-  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .ms__input {
-  max-width: 100%;
   flex: 1;
-  min-width: 120px;
-  padding: var(--pd-200) var(--pd-100);
+  min-width: 12rem;
+  padding: 0 var(--pd-200);
   border: none;
-  border-radius: var(--radius-sm);
   background: transparent;
-  font-size: var(--fz-300);
-  font-family: var(--primary-font);
   color: var(--cl-text-primary);
   outline: none;
 }
 
-.ms__input::placeholder {
-  color: var(--cl-text-muted);
-}
-
 .ms__options {
-  max-height: 240px;
-  overflow-y: auto;
-  background: var(--cl-surface);
-  border: 1px solid rgba(147, 165, 192, 0.44);
-  border-top: none;
-  border-radius: 0 0 var(--radius-md) var(--radius-md);
-  box-shadow: var(--shadow-lg);
-  z-index: 1000;
   position: absolute;
-  width: 100%;
-  top: 100%;
+  top: calc(100% + 0.8rem);
   left: 0;
-}
-
-.ms__options::-webkit-scrollbar {
-  width: 6px;
-}
-
-.ms__options::-webkit-scrollbar-track {
-  background: var(--cl-bg-secondary);
-}
-
-.ms__options::-webkit-scrollbar-thumb {
-  background: var(--cl-border-medium);
-  border-radius: var(--radius-sm);
+  width: 100%;
+  max-height: 24rem;
+  overflow-y: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--cl-border-light);
+  background: var(--cl-surface);
+  box-shadow: var(--shadow-lg);
+  z-index: 20;
 }
 
 .ms__option {
   padding: var(--pd-300) var(--pd-400);
   color: var(--cl-text-secondary);
   cursor: pointer;
-  transition: all var(--transition-fast);
-  font-size: var(--fz-300);
-  font-family: var(--primary-font);
-  border-bottom: 1px solid rgba(216, 224, 237, 0.9);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
-.ms__option:last-child {
-  border-bottom: none;
+.ms__option + .ms__option {
+  border-top: 1px solid var(--cl-border-light);
 }
 
 .ms__option:hover {
-  background-color: rgba(226, 239, 255, 0.65);
+  background: var(--cl-primary-light);
   color: var(--cl-text-primary);
 }
 
 .ms__value {
-  position: relative;
-  padding: var(--pd-200) var(--pd-300) var(--pd-200) var(--pd-600);
-  background: linear-gradient(120deg, var(--cl-primary), #2780dc);
-  color: white;
-  border-radius: 999px;
-  cursor: pointer;
-  flex: 0 0 auto;
-  font-size: var(--fz-200);
-  font-weight: 600;
-  transition: all var(--transition-fast);
   display: inline-flex;
   align-items: center;
   gap: var(--mg-200);
-}
-
-.ms__value:hover {
-  background: linear-gradient(120deg, var(--cl-primary-hover), #1f6ec2);
-  transform: translateY(-1px);
+  min-height: 3.2rem;
+  padding: 0 var(--pd-300) 0 var(--pd-500);
+  border-radius: 999px;
+  background: var(--gradient-accent);
+  color: #fff;
+  font-size: var(--fz-100);
+  font-weight: 700;
+  position: relative;
 }
 
 .ms__value::before {
-  content: "✕";
-  font-size: var(--fz-200);
-  font-weight: 700;
+  content: "×";
   position: absolute;
   left: var(--pd-200);
-  top: 50%;
-  transform: translateY(-50%);
-  opacity: 0.8;
-  transition: opacity var(--transition-fast);
-}
-
-.ms__value:hover::before {
-  opacity: 1;
+  font-size: var(--fz-200);
+  line-height: 1;
 }
 
 .ms__empty {
   color: var(--cl-text-muted);
-  font-size: var(--fz-300);
-  padding: var(--pd-200) 0;
-}
-
-.ms__options {
-  animation: slideDown 0.2s ease-out;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  font-size: var(--fz-200);
 }

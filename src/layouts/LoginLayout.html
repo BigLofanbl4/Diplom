@@ -1,4 +1,14 @@
 <main class="login-page">
+  <button class="theme-toggle-btn login-page__theme-toggle" type="button" data-action="toggle-theme" aria-label="Переключить тему" title="Сменить тему">
+    <span class="theme-toggle-btn__icon theme-toggle-btn__icon--sun">
+      <i class="fa-regular fa-sun"></i>
+    </span>
+    <span class="theme-toggle-btn__icon theme-toggle-btn__icon--moon">
+      <i class="fa-regular fa-moon"></i>
+    </span>
+    <span class="theme-toggle-btn__text">Тема</span>
+  </button>
+
   <section class="login-shell">
     <aside class="login-intro">
       <p class="login-intro__eyebrow">Digital Classroom</p>
@@ -6,6 +16,22 @@
       <p class="login-intro__text">
         Войдите в аккаунт, чтобы управлять курсами, группами и расписанием.
       </p>
+      <div class="login-intro__features">
+        <div class="login-intro__feature">
+          <span class="login-intro__feature-icon"><i class="fa-solid fa-users-gear"></i></span>
+          <div>
+            <strong>Управление сущностями</strong>
+            <p>Преподаватели, группы, курсы и студенты в одной панели.</p>
+          </div>
+        </div>
+        <div class="login-intro__feature">
+          <span class="login-intro__feature-icon"><i class="fa-solid fa-palette"></i></span>
+          <div>
+            <strong>Две темы интерфейса</strong>
+            <p>Светлый и темный режимы для комфортной работы в любое время.</p>
+          </div>
+        </div>
+      </div>
     </aside>
 
     <div id="component" class="login-panel">

@@ -1,0 +1,221 @@
+.landing-page {
+  position: relative;
+  min-height: 100vh;
+  padding: var(--pd-600) var(--pd-500);
+}
+
+.landing-page__theme-toggle {
+  position: absolute;
+  top: var(--pd-500);
+  right: var(--pd-500);
+  z-index: 2;
+}
+
+.landing-shell {
+  width: min(100%, 124rem);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mg-600);
+}
+
+.landing-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mg-400);
+  padding: var(--pd-300) 0;
+}
+
+.landing-header__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mg-300);
+  color: var(--cl-text-primary);
+}
+
+.landing-header__mark {
+  width: 4.8rem;
+  height: 4.8rem;
+  border-radius: 1.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-accent);
+  color: #fff;
+  box-shadow: var(--shadow-md);
+  font-size: 2rem;
+}
+
+.landing-header__brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.landing-header__title {
+  font-family: var(--heading-font);
+  font-size: var(--fz-500);
+  font-weight: 700;
+}
+
+.landing-header__subtitle {
+  color: var(--cl-text-muted);
+  font-size: var(--fz-200);
+  font-weight: 600;
+}
+
+.landing-header__login-link {
+  min-width: 14rem;
+}
+
+.landing-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(30rem, 0.9fr);
+  gap: var(--mg-500);
+  align-items: stretch;
+  padding: var(--pd-800);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--cl-border-light);
+  background: var(--gradient-hero);
+  box-shadow: var(--shadow-lg);
+}
+
+.landing-hero__copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mg-400);
+}
+
+.landing-hero__eyebrow {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  background: var(--cl-primary-light);
+  color: var(--cl-primary);
+  font-size: var(--fz-100);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.landing-hero__title {
+  margin: 0;
+  max-width: 14ch;
+}
+
+.landing-hero__text {
+  max-width: 62rem;
+  font-size: var(--fz-400);
+}
+
+.landing-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mg-300);
+}
+
+.landing-hero__panel {
+  display: grid;
+  gap: var(--mg-300);
+}
+
+.landing-stat,
+.landing-card {
+  padding: var(--pd-500);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--cl-border-light);
+  background: var(--gradient-surface);
+  box-shadow: var(--shadow-md);
+}
+
+.landing-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mg-100);
+}
+
+.landing-stat__label {
+  color: var(--cl-text-muted);
+  font-size: var(--fz-100);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.landing-stat__value {
+  color: var(--cl-text-primary);
+  font-size: var(--fz-500);
+}
+
+.landing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--mg-400);
+}
+
+.landing-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mg-300);
+}
+
+.landing-card__icon {
+  width: 4.8rem;
+  height: 4.8rem;
+  border-radius: 1.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cl-primary-light);
+  color: var(--cl-primary);
+  font-size: 2rem;
+}
+
+.landing-card__title {
+  margin: 0;
+  font-size: var(--fz-500);
+}
+
+.landing-card__text {
+  font-size: var(--fz-200);
+}
+
+@media (max-width: 980px) {
+  .landing-hero,
+  .landing-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .landing-page {
+    padding: var(--pd-500) var(--pd-300);
+  }
+
+  .landing-page__theme-toggle {
+    position: static;
+    margin: 0 0 var(--mg-400) auto;
+  }
+
+  .landing-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .landing-hero {
+    padding: var(--pd-500);
+    border-radius: var(--radius-lg);
+  }
+
+  .landing-hero__title {
+    max-width: none;
+  }
+
+  .landing-stat,
+  .landing-card {
+    padding: var(--pd-400);
+    border-radius: var(--radius-md);
+  }
+}

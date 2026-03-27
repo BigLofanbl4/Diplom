@@ -1,90 +1,107 @@
 :root {
-  --cl-bg-primary: #f3f6fb;
-  --cl-bg-secondary: #e8eef7;
-  --cl-bg-tertiary: #dde5f3;
+  color-scheme: light;
+
+  --cl-bg-primary: #eef3f8;
+  --cl-bg-secondary: #e1e9f2;
+  --cl-bg-tertiary: #d4deeb;
 
   --cl-surface: #ffffff;
-  --cl-surface-elevated: #fdfefe;
+  --cl-surface-elevated: #f8fbff;
+  --cl-surface-muted: #f3f7fb;
+  --cl-surface-glass: rgba(255, 255, 255, 0.74);
 
-  --cl-border-light: #d8e0ed;
-  --cl-border-medium: #bcc8da;
-  --cl-border-strong: #93a5c0;
+  --cl-border-light: rgba(119, 145, 178, 0.18);
+  --cl-border-medium: rgba(95, 121, 156, 0.28);
+  --cl-border-strong: rgba(70, 97, 134, 0.44);
 
-  --cl-primary: #1766d0;
-  --cl-primary-hover: #0f57b7;
-  --cl-primary-light: #e2efff;
-  --cl-primary-soft: #cddff8;
+  --cl-primary: #1f5eff;
+  --cl-primary-hover: #1747c5;
+  --cl-primary-light: #e8efff;
+  --cl-primary-soft: #c8d8ff;
 
-  --cl-secondary: #4c5f78;
-  --cl-secondary-hover: #35465f;
+  --cl-secondary: #38506e;
+  --cl-secondary-hover: #24354c;
 
-  --cl-text-primary: #10233f;
-  --cl-text-secondary: #334a68;
-  --cl-text-muted: #5a7090;
-  --cl-text-disabled: #8ca0bd;
+  --cl-text-primary: #14263f;
+  --cl-text-secondary: #435774;
+  --cl-text-muted: #6e819d;
+  --cl-text-disabled: #98a8bf;
 
-  --cl-success: #177a57;
-  --cl-success-light: #d6f2e6;
+  --cl-success: #0e8b61;
+  --cl-success-light: #ddf7ee;
 
-  --cl-warning: #c77515;
-  --cl-warning-light: #fce7ca;
+  --cl-warning: #b87819;
+  --cl-warning-light: #ffefd5;
 
-  --cl-danger: #c4464d;
-  --cl-danger-medium: #dc6066;
-  --cl-danger-light: #ffe1e3;
+  --cl-danger: #c14652;
+  --cl-danger-medium: #b53b48;
+  --cl-danger-light: #ffe3e7;
 
-  --cl-info: #00779b;
-  --cl-info-light: #d9f1f8;
+  --cl-info: #186f9b;
+  --cl-info-light: #dff2fb;
 
-  --shadow-sm: 0 1px 4px rgba(16, 35, 63, 0.08);
-  --shadow-md: 0 4px 12px rgba(16, 35, 63, 0.1);
-  --shadow-lg: 0 8px 20px rgba(16, 35, 63, 0.12);
-  --shadow-xl: 0 12px 28px rgba(16, 35, 63, 0.14);
+  --gradient-page:
+    radial-gradient(circle at top left, rgba(31, 94, 255, 0.1), transparent 30%),
+    radial-gradient(circle at top right, rgba(24, 111, 155, 0.08), transparent 34%),
+    linear-gradient(180deg, #f4f7fb 0%, #edf2f8 48%, #e7edf5 100%);
+  --gradient-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 250, 255, 0.96));
+  --gradient-surface-strong: linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(241, 246, 252, 0.98));
+  --gradient-hero:
+    radial-gradient(circle at top right, rgba(31, 94, 255, 0.16), transparent 34%),
+    radial-gradient(circle at bottom left, rgba(14, 139, 97, 0.11), transparent 30%),
+    linear-gradient(140deg, rgba(255, 255, 255, 0.98), rgba(243, 248, 254, 0.95));
+  --gradient-accent: linear-gradient(135deg, var(--cl-primary), #4a84ff);
+
+  --shadow-sm: 0 8px 18px rgba(20, 38, 63, 0.06);
+  --shadow-md: 0 18px 34px rgba(20, 38, 63, 0.1);
+  --shadow-lg: 0 24px 52px rgba(20, 38, 63, 0.14);
+  --shadow-xl: 0 32px 68px rgba(20, 38, 63, 0.18);
 
   --primary-font: "Manrope", "Segoe UI", sans-serif;
   --heading-font: "Space Grotesk", "Manrope", sans-serif;
   --mono-font: "JetBrains Mono", "Fira Code", monospace;
 
-  --fz-100: 1.2rem; /* 12px - мелкие подписи, метки */
-  --fz-200: 1.4rem; /* 14px - вспомогательный текст */
-  --fz-300: 1.6rem; /* 16px - БАЗОВЫЙ РАЗМЕР (body text) */
-  --fz-400: 1.8rem; /* 18px - увеличенный текст */
-  --fz-500: 2.0rem; /* 20px - подзаголовки */
-  --fz-600: 2.4rem; /* 24px - H4 / заголовки карточек */
-  --fz-700: 2.8rem; /* 28px - H3 / средние заголовки */
-  --fz-800: 3.2rem; /* 32px - H2 / крупные заголовки */
-  --fz-900: 4.0rem; /* 40px - H1 / главный заголовок */
-  --fz-1000: 4.8rem; /* 48px - H1 на десктопе */
+  --fz-100: 1.2rem;
+  --fz-200: 1.4rem;
+  --fz-300: 1.6rem;
+  --fz-400: 1.8rem;
+  --fz-500: 2rem;
+  --fz-600: 2.4rem;
+  --fz-700: 3rem;
+  --fz-800: 3.6rem;
+  --fz-900: 4.4rem;
 
-  /* Отступы и размеры */
-  --pd-100: 0.4rem;  /* 4px  - микро-отступы */
-  --pd-200: 0.8rem;  /* 8px  - маленькие отступы */
-  --pd-300: 1.2rem;  /* 12px - стандартные маленькие */
-  --pd-400: 1.6rem;  /* 16px - БАЗОВЫЙ отступ */
-  --pd-500: 2.0rem;  /* 20px */
-  --pd-600: 2.4rem;  /* 24px */
-  --pd-700: 2.8rem;  /* 28px */
-  --pd-800: 3.2rem;  /* 32px */
-  --pd-900: 4.0rem;  /* 40px - крупные отступы */
+  --pd-100: 0.4rem;
+  --pd-200: 0.8rem;
+  --pd-300: 1.2rem;
+  --pd-400: 1.6rem;
+  --pd-500: 2rem;
+  --pd-600: 2.4rem;
+  --pd-700: 3.2rem;
+  --pd-800: 4rem;
+  --pd-900: 4.8rem;
 
-  --mg-100: 0.4rem;  /* 4px  */
-  --mg-200: 0.8rem;  /* 8px  */
-  --mg-300: 1.2rem;  /* 12px */
-  --mg-400: 1.6rem;  /* 16px - БАЗОВЫЙ межэлементный */
-  --mg-500: 2.0rem;  /* 20px */
-  --mg-600: 2.4rem;  /* 24px */
-  --mg-700: 2.8rem;  /* 28px */
-  --mg-800: 3.2rem;  /* 32px */
-  --mg-900: 4.0rem;  /* 40px */
+  --mg-100: 0.4rem;
+  --mg-200: 0.8rem;
+  --mg-300: 1.2rem;
+  --mg-400: 1.6rem;
+  --mg-500: 2rem;
+  --mg-600: 2.4rem;
+  --mg-700: 3.2rem;
+  --mg-800: 4rem;
+  --mg-900: 4.8rem;
 
-  /* Радиусы скругления */
-  --radius-sm: 0.6rem;
-  --radius-md: 1rem;
-  --radius-lg: 1.4rem;
-  --radius-xl: 2rem;
+  --radius-xs: 0.8rem;
+  --radius-sm: 1.2rem;
+  --radius-md: 1.8rem;
+  --radius-lg: 2.4rem;
+  --radius-xl: 3rem;
 
-  /* Переходы */
-  --transition-fast: 150ms ease;
-  --transition-normal: 250ms ease;
-  --transition-slow: 350ms ease;
+  --transition-fast: 160ms ease;
+  --transition-normal: 240ms ease;
+  --transition-slow: 360ms ease;
+
+  --focus-ring: 0 0 0 4px rgba(31, 94, 255, 0.16);
+  --content-max-width: 1480px;
+  --sidebar-width: 30rem;
 }

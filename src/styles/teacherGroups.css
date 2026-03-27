@@ -1,57 +1,26 @@
 .teacher-groups-page {
-  --teacher-groups-accent: linear-gradient(135deg, rgba(23, 102, 208, 0.12), rgba(0, 119, 155, 0.12));
   display: flex;
   flex-direction: column;
-  gap: var(--mg-700);
+  gap: var(--mg-500);
 }
 
 .teacher-groups-page__topbar {
   display: flex;
-  align-items: center;
-}
-
-.teacher-groups-page__back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--mg-200);
-  padding: var(--pd-200) var(--pd-400);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(147, 165, 192, 0.34);
-  color: var(--cl-text-secondary);
-  font-size: var(--fz-200);
-  font-weight: 700;
-  box-shadow: var(--shadow-sm);
-}
-
-.teacher-groups-page__back-link::before {
-  content: "←";
-  font-size: var(--fz-300);
-  line-height: 1;
-}
-
-.teacher-groups-page__back-link:hover {
-  background: rgba(255, 255, 255, 0.92);
-  border-color: rgba(147, 165, 192, 0.48);
-  color: var(--cl-text-primary);
 }
 
 .teacher-groups-page__hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.9fr);
-  gap: var(--mg-600);
-  align-items: stretch;
-  padding: var(--pd-800);
+  grid-template-columns: minmax(0, 1.5fr) minmax(28rem, 0.9fr);
+  gap: var(--mg-500);
+  padding: var(--pd-700);
   border-radius: var(--radius-xl);
-  background:
-    radial-gradient(circle at top right, rgba(23, 102, 208, 0.18), transparent 32%),
-    radial-gradient(circle at bottom left, rgba(0, 119, 155, 0.16), transparent 28%),
-    linear-gradient(160deg, rgba(255, 255, 255, 0.96), rgba(243, 247, 253, 0.94));
-  border: 1px solid rgba(147, 165, 192, 0.25);
-  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--cl-border-light);
+  background: var(--gradient-hero);
+  box-shadow: var(--shadow-md);
 }
 
-.teacher-groups-page__hero-copy {
+.teacher-groups-page__hero-copy,
+.teacher-groups-page__hero-note {
   display: flex;
   flex-direction: column;
   gap: var(--mg-300);
@@ -61,9 +30,9 @@
 .teacher-groups-page__note-label {
   display: inline-flex;
   align-self: flex-start;
-  padding: var(--pd-100) var(--pd-300);
+  padding: 0.6rem 1.2rem;
   border-radius: 999px;
-  background: rgba(16, 35, 63, 0.06);
+  background: var(--cl-surface-glass);
   color: var(--cl-text-secondary);
   font-size: var(--fz-100);
   font-weight: 800;
@@ -73,66 +42,34 @@
 
 .teacher-groups-page__title {
   margin: 0;
-  font-family: var(--heading-font);
-  font-size: clamp(var(--fz-700), 2vw + 1.6rem, var(--fz-900));
-  line-height: 1.05;
-  color: var(--cl-text-primary);
 }
 
 .teacher-groups-page__subtitle,
 .teacher-groups-page__note-text {
-  margin: 0;
-  max-width: 62ch;
   color: var(--cl-text-secondary);
-  font-size: var(--fz-300);
-  line-height: 1.6;
-}
-
-.teacher-groups-page__hero-note {
-  display: flex;
-  flex-direction: column;
-  gap: var(--mg-300);
-  justify-content: center;
-  padding: var(--pd-600);
-  border-radius: var(--radius-lg);
-  background: var(--teacher-groups-accent);
-  border: 1px solid rgba(147, 165, 192, 0.28);
 }
 
 .teacher-groups-page__grid {
   display: grid;
-  gap: var(--mg-600);
+  gap: var(--mg-400);
 }
 
 .teacher-groups-panel {
   display: flex;
   flex-direction: column;
-  gap: var(--mg-500);
-  padding: var(--pd-700);
+  gap: var(--mg-400);
+  padding: var(--pd-600);
   border-radius: var(--radius-xl);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(249, 251, 255, 0.94));
-  border: 1px solid rgba(147, 165, 192, 0.24);
+  border: 1px solid var(--cl-border-light);
+  background: var(--gradient-surface);
   box-shadow: var(--shadow-md);
-}
-
-.teacher-groups-panel--assigned {
-  position: relative;
-}
-
-.teacher-groups-panel--assigned::before,
-.teacher-groups-panel--available::before {
-  content: "";
-  width: 56px;
-  height: 4px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--cl-primary), rgba(0, 119, 155, 0.7));
 }
 
 .teacher-groups-panel__header {
   display: flex;
   justify-content: space-between;
-  gap: var(--mg-500);
   align-items: end;
+  gap: var(--mg-400);
 }
 
 .teacher-groups-panel__header--stacked {
@@ -140,65 +77,43 @@
 }
 
 .teacher-groups-panel__title {
-  margin: 0 0 var(--mg-100);
-  font-family: var(--heading-font);
-  font-size: var(--fz-600);
-  color: var(--cl-text-primary);
+  margin-bottom: var(--mg-100);
 }
 
 .teacher-groups-panel__description {
-  margin: 0;
   color: var(--cl-text-muted);
   font-size: var(--fz-200);
-  line-height: 1.5;
 }
 
 .teacher-groups-filter {
   display: flex;
   flex-direction: column;
   gap: var(--mg-200);
-  min-width: min(100%, 340px);
+  min-width: 30rem;
 }
 
 .teacher-groups-filter__label {
-  color: var(--cl-text-secondary);
+  color: var(--cl-text-primary);
   font-size: var(--fz-200);
-  font-weight: 700;
-}
-
-.teacher-groups-filter__input {
-  min-height: 48px;
+  font-weight: 800;
 }
 
 .teacher-groups-panel__table-wrap {
   overflow-x: auto;
-  border-radius: var(--radius-lg);
-}
-
-.teacher-groups-table {
-  min-width: 680px;
 }
 
 .teacher-groups-page__actions {
   display: flex;
   justify-content: flex-end;
-  position: sticky;
-  bottom: var(--mg-400);
-  z-index: 2;
-  pointer-events: none;
 }
 
 .teacher-groups-page__save-btn {
-  pointer-events: auto;
-  min-width: 240px;
-  padding-inline: var(--pd-700);
-  box-shadow: var(--shadow-lg);
+  min-width: 24rem;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 900px) {
   .teacher-groups-page__hero {
     grid-template-columns: 1fr;
-    padding: var(--pd-700);
   }
 
   .teacher-groups-panel__header {
@@ -208,100 +123,5 @@
 
   .teacher-groups-filter {
     min-width: 0;
-  }
-}
-
-@media (max-width: 768px) {
-  .teacher-groups-page {
-    gap: var(--mg-500);
-  }
-
-  .teacher-groups-page__hero,
-  .teacher-groups-panel {
-    padding: var(--pd-500);
-    border-radius: var(--radius-lg);
-  }
-
-  .teacher-groups-page__title {
-    font-size: var(--fz-700);
-  }
-
-  .teacher-groups-page__subtitle,
-  .teacher-groups-page__note-text {
-    font-size: var(--fz-200);
-  }
-
-  .teacher-groups-panel__title {
-    font-size: var(--fz-500);
-  }
-
-  .teacher-groups-panel__table-wrap {
-    overflow: visible;
-  }
-
-  .teacher-groups-table {
-    min-width: 0;
-  }
-
-  .teacher-groups-table .table__tbody {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--mg-300);
-  }
-
-  .teacher-groups-table .table__row {
-    height: 100%;
-  }
-
-  .teacher-groups-table .table__col {
-    align-items: flex-start;
-  }
-
-  .teacher-groups-table .table__col::before {
-    flex: 0 0 38%;
-    max-width: 38%;
-  }
-
-  .teacher-groups-table .table__col[data-label="Действия"] {
-    justify-content: space-between;
-    align-items: center;
-    gap: var(--mg-200);
-    flex-wrap: wrap;
-  }
-
-  .teacher-groups-table .table__col[data-label="Действия"] .btn {
-    width: auto;
-    min-width: 0;
-    max-width: 100%;
-    padding: var(--pd-200) var(--pd-400);
-    font-size: var(--fz-200);
-    line-height: 1.2;
-    white-space: normal;
-    text-align: center;
-  }
-
-  .teacher-groups-page__actions {
-    position: static;
-  }
-
-  .teacher-groups-page__save-btn {
-    width: 100%;
-    min-width: 0;
-  }
-}
-
-@media (max-width: 560px) {
-  .teacher-groups-table .table__tbody {
-    grid-template-columns: 1fr;
-  }
-
-  .teacher-groups-table .table__col {
-    align-items: flex-start;
-    gap: var(--mg-200);
-  }
-
-  .teacher-groups-table .table__col::before {
-    flex: 0 0 42%;
-    max-width: 42%;
   }
 }

@@ -25,6 +25,7 @@ export default class FormComponent {
     this.boundSubmitHandler = null;
 
     this.form = null;
+    this.root = null;
     this.containerElement = containerElement;
 
     this.validatorClass = FormValidator;
@@ -56,6 +57,7 @@ export default class FormComponent {
     this.containerElement = this.containerElement ? this.containerElement : document.getElementById("component");
     if (!this.containerElement) return;
     this.containerElement.innerHTML = this.template;
+    this.root = this.containerElement.firstElementChild;
     this.form = this.containerElement.querySelector("form");
     this.validator = new this.validatorClass(this.form);
   }
@@ -161,7 +163,9 @@ export default class FormComponent {
   }
 
   destroy() {
-    if (this.form) this.form.remove();
+    if (this.root) this.root.remove();
+    else if (this.form) this.form.remove();
     this.removeEventListeners();
+    this.root = null;
   }
 }

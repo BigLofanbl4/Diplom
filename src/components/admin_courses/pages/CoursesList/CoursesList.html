@@ -1,6 +1,21 @@
-<div class="cards">
-  <div class="cards__controls">
-    <a href="/admin/courses/create" class="createBtn" data-spa-link>Создать курс</a>
+<section class="page-shell" data-card-list-root>
+  <header class="page-hero">
+    <div class="page-hero__main">
+      <span class="page-hero__eyebrow">Курсы</span>
+      <h1 class="page-hero__title">Каталог учебных программ</h1>
+      <p class="page-hero__description">
+        Управляйте структурой курсов, их описанием, модулями, уроками и тестами в едином каталоге.
+      </p>
+    </div>
+    <div class="page-hero__actions">
+      <a href="/admin/courses/create" class="createBtn" data-spa-link>Создать курс</a>
+    </div>
+  </header>
+
+  <div class="cards">
+    <div class="cards__controls">
+      <p class="cards__controls-note">Карточки курсов собраны в одном списке для быстрого перехода к структуре и редактированию.</p>
+    </div>
+    <div class="cards__list" id="courses-list"></div>
   </div>
-  <div class="cards__list" id="courses-list"></div>
-</div>
+</section>

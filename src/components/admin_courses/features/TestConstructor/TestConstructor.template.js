@@ -8,7 +8,14 @@ export const TestConstructorTemplate = (test, { backHref = "/admin/courses" } = 
             <span>К курсу</span>
           </a>
         </div>
-        <input class="test__title" type="text" placeholder="Введите название теста" value="${test?.title || ""}" data-title-input>      
+        <div class="test__hero">
+          <div class="test__hero-copy">
+            <span class="page-hero__eyebrow">Тест</span>
+            <h1 class="test__heading">Конструктор теста</h1>
+            <p class="test__subtitle">Соберите структуру вопросов, отредактируйте формулировки и сохраните итоговый вариант для урока.</p>
+          </div>
+        </div>
+        <input class="test__title" type="text" placeholder="Введите название теста" value="${test?.title || ""}" data-title-input>
       </header>
       <div class="test__body">
           <ul class="test__questions" data-question-list></ul>
@@ -35,6 +42,7 @@ export const TestConstructorTemplate = (test, { backHref = "/admin/courses" } = 
                 </ul>
                 <button class="btn btn-primary test__add-btn">
                     <i class="fa-solid fa-plus"></i>
+                    <span>Добавить вопрос</span>
                 </button>
               </div>
           </div>

@@ -1,140 +1,112 @@
 @keyframes modalBgShow {
   from {
     opacity: 0;
-    background: rgba(10, 30, 56, 0);
   }
 
   to {
     opacity: 1;
-    background: rgba(10, 30, 56, 0.34);
   }
 }
 
 @keyframes modalContentShow {
   from {
     opacity: 0;
+    transform: translateY(10px) scale(0.98);
   }
 
   to {
     opacity: 1;
-  }
-}
-
-@keyframes modalBgHide {
-  from {
-    opacity: 1;
-    background: rgba(10, 30, 56, 0.34);
-  }
-
-  to {
-    opacity: 0;
-    background: rgba(10, 30, 56, 0);
-  }
-}
-
-@keyframes modalContentHide {
-  from {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 0;
+    transform: translateY(0) scale(1);
   }
 }
 
 .modal {
-  background: rgba(10, 30, 56, 0);
   position: fixed;
-  justify-content: center;
-  align-items: center;
   inset: 0;
-  z-index: 30;
-  transition: all var(--transition-normal);
-  overflow: hidden;
+  z-index: 60;
   display: flex;
+  align-items: center;
+  justify-content: center;
   padding: var(--pd-400);
-}
-
-.modal[data-hidden="false"] {
-  animation-name: modalBgShow;
-  animation-duration: 0.25s;
-  animation-iteration-count: 1;
-  animation-timing-function: ease;
-  animation-fill-mode: forwards;
+  background: rgba(14, 24, 37, 0.42);
+  backdrop-filter: blur(12px);
 }
 
 .modal[data-hidden="true"] {
   opacity: 0;
   visibility: hidden;
-  animation-name: modalBgHide;
-  animation-duration: 0.25s;
-  animation-iteration-count: 1;
-  animation-timing-function: ease;
-  animation-fill-mode: forwards;
+  pointer-events: none;
+}
+
+.modal[data-hidden="false"] {
+  animation: modalBgShow 0.2s ease-out forwards;
 }
 
 .modal__content {
-  background: var(--cl-surface);
-  padding: var(--pd-600) var(--pd-800);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-lg);
-  border: 1px solid rgba(147, 165, 192, 0.35);
-  display: flex;
-  flex-direction: column;
-  gap: var(--mg-700);
   position: relative;
-  min-width: min(540px, 100%);
-  max-width: 92vw;
+  width: min(100%, 74rem);
   max-height: 92vh;
   overflow-y: auto;
-}
-
-.modal[data-hidden="false"] .modal__content {
-  animation-name: modalContentShow;
-  animation-duration: 0.2s;
-  animation-iteration-count: 1;
-  animation-timing-function: ease;
-}
-
-.modal[data-hidden="true"] .modal__content {
-  animation-name: modalContentHide;
-  animation-duration: 0.2s;
-  animation-iteration-count: 1;
-  animation-timing-function: ease;
+  padding: var(--pd-700);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--cl-border-light);
+  background: var(--gradient-surface-strong);
+  box-shadow: var(--shadow-xl);
+  animation: modalContentShow 0.22s ease-out;
 }
 
 .modal__top {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: var(--mg-400);
+  gap: var(--mg-300);
+  margin-bottom: var(--mg-500);
 }
 
 .modal__title {
-  text-align: left;
-  font-size: var(--fz-600);
-  font-weight: 700;
+  margin: 0;
+}
+
+.modal__component {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal__component .student-form,
+.modal__component .teacher-form,
+.modal__component .form {
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.modal__component .form-actions {
+  margin-bottom: 0;
 }
 
 .modal__close-btn {
-  background: rgba(226, 239, 255, 0.85);
-  border: 1px solid rgba(147, 165, 192, 0.4);
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  font-size: var(--fz-400);
+  width: 4rem;
+  height: 4rem;
+  border-radius: 1.4rem;
+  background: var(--cl-surface-muted);
+  border: 1px solid var(--cl-border-light);
   color: var(--cl-text-secondary);
-  cursor: pointer;
-  position: absolute;
-  right: 16px;
-  top: 16px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
 .modal__close-btn:hover {
-  background: rgba(255, 225, 227, 0.8);
-  border-color: rgba(196, 70, 77, 0.35);
+  background: var(--cl-danger-light);
   color: var(--cl-danger);
+  border-color: rgba(193, 70, 82, 0.24);
+}
+
+@media (max-width: 640px) {
+  .modal__content {
+    padding: var(--pd-500);
+    border-radius: var(--radius-lg);
+  }
 }

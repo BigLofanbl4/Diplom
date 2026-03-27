@@ -2,8 +2,10 @@ export default class NotFoundPage {
   async draw() {
     document.getElementById("app").innerHTML = `
       <div class="not-found">
-        <h1>404</h1>
-        <p>Страница не найдена</p>
+        <div class="not-found__badge">404</div>
+        <h1 class="not-found__title">Страница не найдена</h1>
+        <p class="not-found__text">Похоже, адрес устарел или был введен с ошибкой.</p>
+        <a href="/admin" class="btn btn-primary" data-spa-link>Вернуться в админ-панель</a>
       </div>
     `;
   }

@@ -2,6 +2,8 @@ import './styles/index.css'
 import { Router } from "./router";
 import { AdminLayout } from "./layouts/AdminLayout";
 import { LoginLayout } from "./layouts/LoginLayout.js";
+import { PublicLayout } from "./layouts/PublicLayout.js";
+import { setTheme } from "./utils/themeToggle.js";
 import { TeacherForm, TeachersTable } from "./components/admin_teachers/index.js";
 import { StudentForm, StudentsTable } from "./components/admin_students/index.js";
 import { GroupForm, GroupsTable } from "./components/admin_groups/index.js";
@@ -10,7 +12,16 @@ import TestConstructor from "./components/admin_courses/features/TestConstructor
 import TeacherGroups from "./components/admin_teachers/pages/TeacherGroups/TeacherGroups.js";
 import AssignTeacher from "./components/admin_groups/pages/AssignTeacher/AssignTeacher.js";
 
+setTheme();
+
 const ROUTES = {
+  "/": {
+    Layout: PublicLayout,
+    meta: {
+      access: "public",
+      role: "guest"
+    }
+  },
   "/login": {
     Layout: LoginLayout,
     meta: {

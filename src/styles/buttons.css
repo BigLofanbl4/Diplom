@@ -1,156 +1,114 @@
-.course-lesson__actions button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
+.btn,
 .createBtn {
-  background: var(--cl-primary);
-  color: #fff;
-  font-family: var(--heading-font);
-  font-size: var(--fz-300);
-  font-weight: 700;
-  padding: var(--pd-300) var(--pd-500);
-  border: none;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  box-shadow: none;
-}
-
-.createBtn:visited,
-.createBtn:hover,
-.createBtn:active,
-.createBtn:focus-visible {
-  color: #fff;
-}
-
-.createBtn:hover {
-  background: var(--cl-primary-hover);
-}
-
-.btn {
-  padding: var(--pd-300) var(--pd-600);
-  border: none;
-  border-radius: 999px;
-  font-size: var(--fz-300);
-  font-weight: 700;
-  font-family: var(--heading-font);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  text-decoration: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 120px;
+  gap: var(--mg-200);
+  min-height: 4.8rem;
+  padding: 0 var(--pd-500);
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: var(--fz-200);
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+  transition:
+    transform var(--transition-fast),
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
-.btn:disabled {
-  opacity: 0.5;
+.btn:hover,
+.createBtn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active,
+.createBtn:active {
+  transform: translateY(0);
+}
+
+.btn:disabled,
+.createBtn:disabled,
+.course-lesson__actions button:disabled {
+  opacity: 0.55;
   cursor: not-allowed;
-}
-
-.btn-primary {
-  background: var(--cl-primary);
-  color: white;
+  transform: none;
   box-shadow: none;
 }
 
-.btn-primary:visited,
-.btn-primary:hover,
-.btn-primary:active,
-.btn-primary:focus-visible {
+.createBtn,
+.btn-primary {
+  background: var(--gradient-accent);
+  color: #fff;
+  box-shadow: var(--shadow-md);
+}
+
+.createBtn:hover,
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--cl-primary-hover), #2f68f6);
   color: #fff;
 }
 
-.btn-primary:hover {
-  background: var(--cl-primary-hover);
+.createBtn:visited,
+.createBtn:focus-visible,
+.createBtn:active,
+.btn-primary:visited,
+.btn-primary:focus-visible,
+.btn-primary:active {
+  color: #fff;
 }
 
 .btn-secondary {
-  background-color: rgba(255, 255, 255, 0.8);
+  background: var(--cl-surface);
   color: var(--cl-text-secondary);
-  border: 1px solid rgba(147, 165, 192, 0.46);
-}
-
-.btn-secondary:visited,
-.btn-secondary:active,
-.btn-secondary:focus-visible {
-  color: var(--cl-text-secondary);
+  border-color: var(--cl-border-light);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-secondary:hover {
-  background-color: #ffffff;
-  border-color: var(--cl-border-strong);
+  background: var(--cl-surface-elevated);
+  border-color: var(--cl-border-medium);
   color: var(--cl-text-primary);
 }
 
 .btn-danger {
-  background: var(--cl-danger-medium);
-  color: var(--cl-surface);
-}
-
-.btn-danger:visited,
-.btn-danger:hover,
-.btn-danger:active,
-.btn-danger:focus-visible {
-  color: var(--cl-surface);
+  background: var(--cl-danger);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-danger:hover {
-  background: var(--cl-danger);
-}
-
-.btn:active {
-  transform: translateY(0);
+  background: var(--cl-danger-medium);
+  color: #fff;
 }
 
 .course-module__action-btn,
-.course-lesson__action-btn {
-  min-width: auto;
-  width: 36px;
-  height: 36px;
+.course-lesson__action-btn,
+.test__question-controls button {
+  width: 4rem;
+  min-width: 4rem;
+  height: 4rem;
   padding: 0;
-  border-radius: 10px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: 1.4rem;
 }
 
-.course-module__action-btn,
-.course-lesson__action-btn {
-  border: 1px solid rgba(147, 165, 192, 0.4);
-  background: rgba(255, 255, 255, 0.9);
-  color: var(--cl-text-secondary);
+.course-module__action-btn i,
+.course-lesson__action-btn i,
+.test__question-controls i {
+  pointer-events: none;
 }
 
-.course-module__action-btn:hover,
-.course-lesson__action-btn:hover {
-  background: rgba(226, 239, 255, 0.72);
-  border-color: var(--cl-border-strong);
-  color: var(--cl-text-primary);
+.course-modules__add-btn,
+.test__add-btn {
+  padding-inline: var(--pd-400);
 }
 
-.btn-danger.course-module__action-btn,
-.btn-danger.course-lesson__action-btn {
-  color: var(--cl-danger);
-}
-
-.btn-danger.course-module__action-btn:hover,
-.btn-danger.course-lesson__action-btn:hover {
-  background: rgba(255, 225, 227, 0.85);
-  border-color: var(--cl-danger-medium);
-  color: var(--cl-danger);
-}
-
-.course-modules__add-btn {
-  gap: var(--mg-200);
-  padding: var(--pd-300) var(--pd-400);
-  border-radius: var(--radius-md);
-  background: var(--cl-primary);
-  color: var(--cl-surface);
-  border: none;
-}
-
-.course-modules__add-btn:hover {
-  background: var(--cl-primary-hover);
+@media (max-width: 640px) {
+  .btn,
+  .createBtn {
+    width: 100%;
+  }
 }

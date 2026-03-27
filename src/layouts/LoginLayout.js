@@ -3,6 +3,7 @@ import Layout from '../core/Layout'
 import {getCurrentUser, login} from "../core/auth/api.js";
 import {setUser} from "../core/auth/state.js";
 import {HOME_BY_ROLE} from "../core/auth/constants.js";
+import { themeToggle } from "../utils/themeToggle.js";
 
 export class LoginLayout extends Layout {
   async fetchData() {}
@@ -18,6 +19,9 @@ export class LoginLayout extends Layout {
 
   handleEvents() {
     this.loginForm = document.querySelector("[data-login-form]");
+    this.themeToggleButton = document.querySelector('[data-action="toggle-theme"]');
+    this.handleThemeToggle = themeToggle;
+    this.themeToggleButton?.addEventListener("click", this.handleThemeToggle);
     if (!this.loginForm) return;
     this.boundLoginHandler = async (e) => {
       e.preventDefault();
@@ -45,7 +49,10 @@ export class LoginLayout extends Layout {
 
   removeGlobalEventListeners() {
     this.loginForm?.removeEventListener("submit", this.boundLoginHandler);
+    this.themeToggleButton?.removeEventListener("click", this.handleThemeToggle);
     this.loginForm = null;
     this.boundLoginHandler = null;
+    this.themeToggleButton = null;
+    this.handleThemeToggle = null;
   }
 }
