@@ -16,6 +16,7 @@ export class TeacherGroupsController {
       handleRemoveGroup: this.handleRemoveGroup.bind(this),
       handleSave: this.handleSave.bind(this),
       handleFilter: this.handleFilter.bind(this),
+      handleLoadMore: this.handleLoadMore.bind(this),
     });
     this.view.handleEvents();
   }
@@ -73,5 +74,18 @@ export class TeacherGroupsController {
       alert('Возникла ошибка при фильтрации групп');
       console.log(error);
     }
+  }
+
+  async handleLoadMore() {
+    const offset = this.groupsStore.getSnapshot().length;
+
+    if (this.groupsStore.isSearchMode) {
+      const search = this.groupsStore.searchValue;
+      await this.groupsStore.fetchSearchedGroups({ search, offset });
+    } else {
+      await this.groupsStore.fetchGroupsData(offset);
+    }
+
+    this.syncView();
   }
 }

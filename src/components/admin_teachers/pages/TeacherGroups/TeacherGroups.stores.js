@@ -61,6 +61,7 @@ export class GroupsStore {
     this.fetchedGroups = { data: [] };
     this.searchResults = { data: [] };
     this.isSearchMode = false;
+    this.searchValue = "";
   }
 
   async fetchGroupsData(offset = null) {
@@ -88,9 +89,31 @@ export class GroupsStore {
       this.searchResults = { data: [] };
       return;
     }
-
-    this.searchResults = await GroupService.getAll({ limit: 50, offset, search });
+    this.searchValue = search;
     this.isSearchMode = true;
+
+    const oldGroups = this.searchResults.data;
+    const response = await GroupService.getAll({ limit: 50, offset, search });
+
+    if (!offset) {
+      this.searchResults = response;
+      return;
+    }
+
+    const mergedGroups = new Map();
+
+    oldGroups.forEach((group) => {
+      mergedGroups.set(group.id, group);
+    });
+
+    response.data.forEach((group) => {
+      mergedGroups.set(group.id, group);
+    });
+
+    this.searchResults = {
+      ...response,
+      data: Array.from(mergedGroups.values())
+    };
   }
 
   findGroup(groupId) {

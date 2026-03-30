@@ -24,7 +24,7 @@ export function getGroups(req, res) {
   }
 
   let start = isNaN(offset) ? 0 : offset;
-  let end = isNaN(limit) ? undefined : limit;
+  let end = isNaN(limit) ? undefined : limit + offset;
 
   groupsList = groupsList.slice(start, end);
   return sendJson(res, 200, {

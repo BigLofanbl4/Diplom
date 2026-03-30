@@ -85,7 +85,8 @@
 .test__question-types {
   position: absolute;
   left: 50%;
-  bottom: calc(100% + 1.2rem);
+  bottom: calc(100% - 0.2rem);
+  z-index: 1;
   min-width: 24rem;
   list-style: none;
   padding: var(--pd-200);

@@ -12,10 +12,12 @@ export class TeacherGroupsView {
     this.saveButton = null;
     this.textFilter = null;
     this.titleElement = null;
+    this.loadMoreBtn = null;
 
     this.handleAddGroup = null;
     this.handleRemoveGroup = null;
     this.handleSave = null;
+    this.handleLoadMore = null;
     this.debouncedHandleFilter = null;
   }
 
@@ -32,6 +34,7 @@ export class TeacherGroupsView {
     this.groupsTable = this.pageElement.querySelector('[data-all-groups]');
     this.saveButton = this.pageElement.querySelector("[data-action='save']");
     this.textFilter = this.pageElement.querySelector('[data-text-filter]');
+    this.loadMoreBtn = this.pageElement.querySelector("[data-action='loadMore']");
 
     this.titleElement.textContent = `Группы учителя ${teacherSnapshot.last_name} ${teacherSnapshot.first_name}`;
     this.containerElement.append(this.pageElement);
@@ -74,10 +77,11 @@ export class TeacherGroupsView {
     tbody.innerHTML = groups.reduce((html, group) => html + this.renderAvailableGroupRow(group), '');
   }
 
-  bindHandlers({ handleAddGroup, handleRemoveGroup, handleSave, handleFilter }) {
+  bindHandlers({ handleAddGroup, handleRemoveGroup, handleSave, handleFilter, handleLoadMore }) {
     this.handleAddGroup = handleAddGroup;
     this.handleRemoveGroup = handleRemoveGroup;
     this.handleSave = handleSave;
+    this.handleLoadMore = handleLoadMore;
     this.debouncedHandleFilter = debounce(handleFilter, 400);
   }
 
@@ -101,7 +105,11 @@ export class TeacherGroupsView {
     this.saveButton.addEventListener('click', async () => this.handleSave());
 
     this.textFilter.addEventListener('input', async (event) => {
-      this.debouncedHandleFilter(event.target.value);
+      await this.debouncedHandleFilter(event.target.value);
+    });
+
+    this.loadMoreBtn.addEventListener("click", async () => {
+      await this.handleLoadMore();
     });
   }
 

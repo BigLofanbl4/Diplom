@@ -11,14 +11,17 @@ export default class AssignTeacherView {
     this.removeTeacherBtn = null;
     this.filterElement = null;
     this.teachersTable = null;
+    this.loadMoreBtn = null;
 
     this.handleRemove = null;
     this.handleAssign = null;
     this.debounceHandleFilter = null;
+    this.handleLoadMore = null;
 
     this.boundHandleRemove = null;
     this.boundHandleAssign = null;
     this.boundHandleFilter = null;
+    this.boundHandleLoadMore = null;
   }
 
   render(group) {
@@ -46,6 +49,7 @@ export default class AssignTeacherView {
 
     this.currentTeacherElem = wrapper.querySelector("[data-current-teacher]");
     this.removeTeacherBtn = wrapper.querySelector("[data-action='removeTeacher']");
+    this.loadMoreBtn = wrapper.querySelector("[data-action='loadMore']");
 
     this.rootElement = wrapper.querySelector("[data-component-root]");
     this.filterElement = wrapper.querySelector("[data-teacher-filter]");
@@ -75,10 +79,11 @@ export default class AssignTeacherView {
       : "Преподаватель не назначен";
   }
 
-  bindHandlers({ handleRemove, handleAssign, handleFilter }) {
+  bindHandlers({ handleRemove, handleAssign, handleFilter, handleLoadMore }) {
     this.handleRemove = handleRemove;
     this.handleAssign = handleAssign;
     this.debounceHandleFilter = debounce(handleFilter, 400);
+    this.handleLoadMore = handleLoadMore;
   }
 
   assignHandlers() {
@@ -100,12 +105,18 @@ export default class AssignTeacherView {
       await this.debounceHandleFilter(searchInput);
     };
     this.filterElement.addEventListener("input", this.boundHandleFilter);
+
+    this.boundHandleLoadMore = async (event) => {
+      await this.handleLoadMore();
+    };
+    this.loadMoreBtn.addEventListener("click", this.boundHandleLoadMore);
   }
 
   cleanHandlers() {
     this.teachersTable?.removeEventListener("click", this.boundHandleAssign);
     this.removeTeacherBtn?.removeEventListener("click", this.boundHandleRemove);
     this.filterElement?.removeEventListener("input", this.boundHandleFilter);
+    this.loadMoreBtn?.removeEventListener("click", this.boundHandleLoadMore);
 
     this.handleRemove = null;
     this.handleAssign = null;

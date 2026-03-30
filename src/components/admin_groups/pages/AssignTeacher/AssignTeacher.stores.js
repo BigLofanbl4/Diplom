@@ -30,6 +30,7 @@ export class TeacherStore {
     this.teachers = { data: [] };
     this.searchedTeachers = { data: [] };
     this.isSearchMode = false;
+    this.searchValue = "";
   }
 
   async fetchTeachers({ offset = null } = {}) {
@@ -52,8 +53,30 @@ export class TeacherStore {
       return;
     }
 
-    this.searchedTeachers = await TeacherService.getAll({ limit, offset, search });
+    this.searchValue = search;
     this.isSearchMode = true;
+    const response = await TeacherService.getAll({ limit, offset, search })
+
+    if (!offset) {
+      this.searchedTeachers = response;
+      return;
+    }
+
+    const mergedTeachers = new Map();
+    const old = this.searchedTeachers.data;
+
+    old.forEach((teacher) => {
+      mergedTeachers.set(teacher.id, teacher);
+    });
+
+    response.data.forEach((teacher) => {
+      mergedTeachers.set(teacher.id, teacher);
+    });
+
+    this.searchedTeachers = {
+      ...response,
+      data: Array.from(mergedTeachers.values())
+    };
   }
 
   getSnapshot() {

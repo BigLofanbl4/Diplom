@@ -22,7 +22,8 @@ export default class AssignTeacherController {
     this.view.bindHandlers({
       handleRemove: this.handleRemove.bind(this),
       handleAssign: this.handleAssign.bind(this),
-      handleFilter: this.handleFilter.bind(this)
+      handleFilter: this.handleFilter.bind(this),
+      handleLoadMore: this.handleLoadMore.bind(this)
     });
     this.view.assignHandlers();
   }
@@ -73,6 +74,17 @@ export default class AssignTeacherController {
       alert('Возникла ошибка при фильтрации преподавателей');
       console.log(error);
     }
+  }
+
+  async handleLoadMore() {
+    const offset = this.teacherStore.getSnapshot().length;
+    if (this.teacherStore.isSearchMode) {
+      const search = this.teacherStore.searchValue;
+      await this.teacherStore.fetchSearchTeachers({search, offset});
+    } else {
+      await this.teacherStore.fetchTeachers({ offset });
+    }
+    this.syncView();
   }
 
   destroy() {
