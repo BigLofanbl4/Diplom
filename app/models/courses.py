@@ -70,7 +70,12 @@ class CourseLesson(Base):
     materials: Mapped[list["CourseMaterial"]] = relationship(
         "CourseMaterial", back_populates="lesson", cascade="all, delete-orphan"
     )
-    test: Mapped["Test"] = relationship('Test', back_populates="lesson")
+    test: Mapped["Test | None"] = relationship(
+        'Test',
+        back_populates="lesson",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
 
     __table_args__ = (UniqueConstraint("course_id", "lesson_number", name="uq_course_lesson_number"),)
 
@@ -95,7 +100,11 @@ class Test(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     course_id: Mapped[int] = mapped_column(ForeignKey("courses.id", ondelete="CASCADE"), nullable=False)
-    lesson_id: Mapped[int] = mapped_column(ForeignKey("course_lessons.id", ondelete="CASCADE"), nullable=False)
+    lesson_id: Mapped[int] = mapped_column(
+        ForeignKey("course_lessons.id", ondelete="CASCADE"),
+        unique=True,
+        nullable=False,
+    )
 
     course: Mapped["Course"] = relationship("Course")
     lesson: Mapped["CourseLesson"] = relationship("CourseLesson", back_populates="test")
@@ -140,6 +149,9 @@ class Answer(Base):
 class File(Base):
     __tablename__ = "files"
     id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    size: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    url: Mapped[str] = mapped_column(String(500), nullable=False, default="")
     path: Mapped[str] = mapped_column(String(255), nullable=False)
     material_id: Mapped[int] = mapped_column(ForeignKey("course_materials.id", ondelete="CASCADE"), nullable=False)
 

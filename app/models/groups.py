@@ -26,17 +26,24 @@ class Group(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     group_number: Mapped[str] = mapped_column(String(50), nullable=False)
-    template_course_id: Mapped[int] = mapped_column(ForeignKey("courses.id", ondelete="NO ACTION"), nullable=False)
-    custom_course_id: Mapped[int | None] = mapped_column(ForeignKey("group_courses.id", ondelete="SET NULL"),
-                                                         nullable=True)
+    template_course_id: Mapped[int | None] = mapped_column(
+        ForeignKey("courses.id", ondelete="SET NULL"),
+        nullable=True,
+    )
     organization_id: Mapped[int] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False)
     teacher_id: Mapped[int | None] = mapped_column(ForeignKey("teachers.id", ondelete="SET NULL"), nullable=True)
 
-    template_course: Mapped["Course"] = relationship("Course", foreign_keys=[template_course_id],
-                                                     back_populates="groups")
+    template_course: Mapped["Course | None"] = relationship(
+        "Course",
+        foreign_keys=[template_course_id],
+        back_populates="groups",
+    )
     custom_course: Mapped["GroupCourse | None"] = relationship(
         "GroupCourse",
-        foreign_keys=[custom_course_id],
+        back_populates="group",
+        uselist=False,
+        cascade="all, delete-orphan",
+        single_parent=True,
     )
 
     teacher: Mapped["Teacher"] = relationship("Teacher", back_populates="groups")
@@ -56,9 +63,10 @@ class GroupCourse(Base):
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
     organization_id: Mapped[int] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False)
-    group_id: Mapped[int] = mapped_column(ForeignKey("groups.id", ondelete="CASCADE"), nullable=False)
+    group_id: Mapped[int] = mapped_column(ForeignKey("groups.id", ondelete="CASCADE"), unique=True, nullable=False)
 
     organization: Mapped["Organization"] = relationship('Organization')
+    group: Mapped["Group"] = relationship("Group", back_populates="custom_course")
     modules: Mapped[list["GroupModule"]] = relationship(
         'GroupModule', back_populates="course", cascade="all, delete-orphan")
     lessons: Mapped[list["GroupLesson"]] = relationship('GroupLesson', back_populates="course",
