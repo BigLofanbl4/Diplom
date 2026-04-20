@@ -1,3 +1,5 @@
+import { getPanelPath } from "../../../../utils/panelRoute.js";
+
 export const StudentRow = (student) => {
   const groups = Array.isArray(student.groups)
     ? student.groups.map(group => `<span class="table__chip">${group.group_number}</span>`).join("")
@@ -17,7 +19,7 @@ export const StudentRow = (student) => {
       </td>
       <td class="table__col table__small-col" data-label="Действия">
         <div class="table__actions">
-          <a href="/admin/students/update/${student.id}" class="table__action-btn" data-action="update" data-spa-link title="Редактировать">
+          <a href="${getPanelPath(`/students/update/${student.id}`)}" class="table__action-btn" data-action="update" data-spa-link title="Редактировать">
             <i class="fa-solid fa-pen-to-square"></i>
           </a>
           <button class="table__action-btn table__action-btn--danger" data-action="delete" title="Удалить">

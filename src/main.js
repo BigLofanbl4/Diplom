@@ -240,6 +240,30 @@ const ROUTES = {
       role: "manager"
     }
   },
+  "/manager/students": {
+    Layout: AdminLayout,
+    Component: StudentsTable,
+    meta: {
+      access: "requiresAuth",
+      role: "manager"
+    }
+  },
+  "/manager/students/create": {
+    Layout: AdminLayout,
+    Component: StudentForm,
+    meta: {
+      access: "requiresAuth",
+      role: "manager"
+    }
+  },
+  "/manager/students/update/:id": {
+    Layout: AdminLayout,
+    Component: StudentForm,
+    meta: {
+      access: "requiresAuth",
+      role: "manager"
+    }
+  },
   "/teacher": {
     Layout: TeacherLayout,
     Component: TeacherDashboard,

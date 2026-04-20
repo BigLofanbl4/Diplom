@@ -19,6 +19,12 @@ function getOverviewCardsMarkup(role) {
       title: "Группы",
       text: "Создавайте группы, задавайте им расписание и подбирайте преподавателя под конкретный слот.",
     },
+    {
+      href: getPanelPath("/students", role),
+      icon: "fa-solid fa-user-graduate",
+      title: "Студенты",
+      text: "Создавайте карточки учеников и сразу привязывайте их к нужным учебным группам.",
+    },
   ];
 
   if (isAdminRole(role)) {
@@ -28,12 +34,6 @@ function getOverviewCardsMarkup(role) {
         icon: "fa-solid fa-book-open-reader",
         title: "Курсы",
         text: "Редактируйте структуру курсов, модули, уроки, материалы и тесты.",
-      },
-      {
-        href: "/admin/students",
-        icon: "fa-solid fa-user-graduate",
-        title: "Студенты",
-        text: "Управляйте карточками студентов и отслеживайте их распределение по группам.",
       },
       {
         href: "/admin/managers",
@@ -74,6 +74,12 @@ function getNavigationMarkup(role) {
       icon: "fa-solid fa-users-rectangle",
       label: "Группы",
     },
+    {
+      href: getPanelPath("/students", role),
+      match: getPanelPath("/students", role),
+      icon: "fa-solid fa-user-graduate",
+      label: "Студенты",
+    },
   ];
 
   if (isAdminRole(role)) {
@@ -83,12 +89,6 @@ function getNavigationMarkup(role) {
         match: "/admin/courses",
         icon: "fa-solid fa-book-open-reader",
         label: "Курсы",
-      },
-      {
-        href: "/admin/students",
-        match: "/admin/students",
-        icon: "fa-solid fa-user-graduate",
-        label: "Студенты",
       },
       {
         href: "/admin/managers",
@@ -127,7 +127,7 @@ function getOverviewMarkup(user) {
           <p class="page-hero__description">
             ${isAdminRole(role)
               ? "Работайте с преподавателями, курсами, группами, студентами и менеджерами в одном интерфейсе."
-              : "Создавайте группы, задавайте им расписание и подбирайте преподавателей под реальные временные окна."}
+              : "Создавайте группы и карточки учеников, задавайте расписание и подбирайте преподавателей под реальные временные окна."}
           </p>
         </div>
         <div class="page-hero__meta">

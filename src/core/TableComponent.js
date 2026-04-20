@@ -1,7 +1,7 @@
 export default class TableComponent {
   constructor({Service, template, rowRenderer, idAttr, entityName, emptyRow = "", containerElement } ) {
-
-    this.data = null;
+    this.response = null;
+    this.items = [];
     this.template = template;
     this.rowRenderer = rowRenderer;
     this.idAttr = idAttr;
@@ -18,17 +18,17 @@ export default class TableComponent {
 
   async fetchData() {
     try {
-      this.data = await this.Service.getAll();
+      this.response = await this.Service.getAll();
+      this.items = Array.isArray(this.response?.data) ? this.response.data : [];
     } catch (error) {
-      this.data = {
-        data: []
-      };
+      this.response = { data: [] };
+      this.items = [];
       console.error(error);
     }
   }
 
   render() {
-    this.rowsHTML = this.data.data.map(entity => this.rowRenderer(entity)).join("");
+    this.rowsHTML = this.items.map(entity => this.rowRenderer(entity)).join("");
     if (!this.rowsHTML) {
       this.rowsHTML = this.emptyRow;
     }
@@ -83,7 +83,8 @@ export default class TableComponent {
     if (this.root) this.root.remove();
 
     this.elements = {};
-    this.data = null;
+    this.response = null;
+    this.items = [];
 
     this.removeEventListeners();
   }

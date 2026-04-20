@@ -15,7 +15,7 @@ export const TeacherRow = (teacher) => {
         <i class="fa-solid fa-trash"></i>
       </button>
     `
-    : `<span class="table__muted">Доступно в профиле администратора</span>`;
+    : `<span class="table__badge table__badge--info" title="Редактирование доступно только администратору">Только админ</span>`;
 
   return `
     <tr class="table__row" data-teacher-id="${teacher.id}">
