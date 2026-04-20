@@ -1,6 +1,11 @@
 import { db, nextId } from "../db.js";
 import { parseBody, sendJson, sendNoContent } from "../utils/http.js";
 import { normalizeNullableField, normalizeNullableId } from "../utils/normalize.js";
+import {
+  getTeacherAvailabilityForGroup,
+  getTeacherAvailabilityForReplacement,
+  normalizeScheduleSlots,
+} from "../utils/teacherAvailability.js";
 import { requireAuth } from "./auth.js";
 
 const TEACHER_UPDATABLE_FIELDS = new Set([
@@ -25,8 +30,14 @@ export function getTeachers(req, res) {
   const limit = parseInt(params.get("limit"), 10);
   const offset = parseInt(params.get("offset"), 10) || 0;
   const search = params.get("search");
+  const groupId = Number(params.get("group_id"));
+  const replacementDate = params.get("replacement_date");
+  const replacementStart = params.get("replacement_start");
+  const replacementEnd = params.get("replacement_end");
 
-  let teacherList = db.teachers.map((teacher) => serializeTeacherListItem(teacher));
+  const groupRecord = Number.isNaN(groupId) ? null : db.groups.find((group) => group.id === groupId) ?? null;
+
+  let teacherList = db.teachers.map((teacher) => serializeTeacherListItem(teacher, { groupRecord, replacementDate, replacementStart, replacementEnd }));
   if (search !== null) {
     teacherList = teacherList.filter((teacher) => {
       const fullName = `${teacher.last_name} ${teacher.first_name}`;
@@ -84,7 +95,7 @@ export async function createTeacher(req, res) {
     is_ovz: normalizeNullableField(payload.is_ovz),
     organization_id: normalizeNullableId(payload.organization_id),
     course_ids: Array.isArray(payload.course_ids) ? payload.course_ids.map((id) => Number(id)).filter((id) => !Number.isNaN(id)) : [],
-    schedule_preferences: Array.isArray(payload.schedule_preferences) ? payload.schedule_preferences : [],
+    schedule_preferences: normalizeScheduleSlots(payload.schedule_preferences),
   };
 
   const userRecord = {
@@ -142,7 +153,7 @@ export async function updateTeacher(req, res, params) {
       continue;
     }
     if (key === "schedule_preferences") {
-      teacherRecord[key] = Array.isArray(payload[key]) ? payload[key] : [];
+      teacherRecord[key] = normalizeScheduleSlots(payload[key]);
       continue;
     }
     if (key === "phone" || key === "birth_date" || key === "is_ovz") {
@@ -194,7 +205,7 @@ export function deleteTeacher(req, res, params) {
   return sendNoContent(res, 204);
 }
 
-function serializeTeacherListItem(teacherRecord) {
+function serializeTeacherListItem(teacherRecord, { groupRecord = null, replacementDate = null, replacementStart = null, replacementEnd = null } = {}) {
   const groupIds = db.groups
     .filter(group => group.teacher_id === teacherRecord.id)
     .map(group => group.id);
@@ -202,10 +213,30 @@ function serializeTeacherListItem(teacherRecord) {
   const userData = db.users.find(user => user.id === teacherRecord.user_id);
   if (!userData) throw { detail: "User Data not found" };
 
+  const availabilityForGroup = groupRecord
+    ? getTeacherAvailabilityForGroup({
+        db,
+        teacherRecord,
+        groupRecord,
+      })
+    : null;
+
+  const availabilityForReplacement = replacementDate && replacementStart && replacementEnd
+    ? getTeacherAvailabilityForReplacement({
+        db,
+        teacherRecord,
+        date: replacementDate,
+        start: replacementStart,
+        end: replacementEnd,
+      })
+    : null;
+
   return {
     ...teacherRecord,
     login: userData.login,
     groups_count: groupIds.length,
+    availability_for_group: availabilityForGroup,
+    availability_for_replacement: availabilityForReplacement,
   };
 }
 

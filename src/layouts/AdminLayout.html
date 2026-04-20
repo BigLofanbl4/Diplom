@@ -2,13 +2,13 @@
   <header class="header">
     <div class="container header__container">
       <div class="header__brand">
-        <a href="/admin" class="header__logo" data-spa-link>
+        <a href="/admin" class="header__logo" data-spa-link data-panel-home-link>
           <span class="header__logo-mark">
             <i class="fa-solid fa-grid-2"></i>
           </span>
           <span class="header__logo-copy">
             <span class="header__logo-title">Digital Classroom</span>
-            <span class="header__logo-subtitle">Администрирование платформы</span>
+            <span class="header__logo-subtitle" data-panel-subtitle>Администрирование платформы</span>
           </span>
         </a>
       </div>
@@ -25,7 +25,7 @@
         </button>
         <div class="account__card">
           <span class="account__label">Авторизован</span>
-          <a href="/admin" class="account__profile" data-user-full-name data-spa-link>Иванов И.И.</a>
+          <a href="/admin" class="account__profile" data-user-full-name data-spa-link data-panel-home-link>Иванов И.И.</a>
         </div>
         <button class="account__logout" data-action="logout">Выйти</button>
       </div>
@@ -43,45 +43,12 @@
           </p>
         </div>
 
-        <nav>
-          <ul class="app__menu">
-            <li>
-              <a href="/admin" data-spa-link data-route-match="/admin" data-route-exact="true">
-                <i class="fa-solid fa-house"></i>
-                <span>Обзор</span>
-              </a>
-            </li>
-            <li>
-              <a href="/admin/teachers" data-spa-link data-route-match="/admin/teachers">
-                <i class="fa-solid fa-chalkboard-user"></i>
-                <span>Учителя</span>
-              </a>
-            </li>
-            <li>
-              <a href="/admin/groups" data-spa-link data-route-match="/admin/groups">
-                <i class="fa-solid fa-users-rectangle"></i>
-                <span>Группы</span>
-              </a>
-            </li>
-            <li>
-              <a href="/admin/courses" data-spa-link data-route-match="/admin/courses">
-                <i class="fa-solid fa-book-open-reader"></i>
-                <span>Курсы</span>
-              </a>
-            </li>
-            <li>
-              <a href="/admin/students" data-spa-link data-route-match="/admin/students">
-                <i class="fa-solid fa-user-graduate"></i>
-                <span>Студенты</span>
-              </a>
-            </li>
-          </ul>
-        </nav>
+        <nav data-panel-navigation></nav>
 
         <div class="app__nav-footer">
           <div class="app__nav-hint">
             <span class="app__nav-hint-label">Режим</span>
-            <strong class="app__nav-hint-value">Админ-панель</strong>
+            <strong class="app__nav-hint-value" data-panel-mode-label>Админ-панель</strong>
           </div>
         </div>
       </aside>

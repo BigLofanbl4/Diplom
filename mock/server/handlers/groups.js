@@ -1,13 +1,21 @@
 import { db, nextId } from "../db.js";
 import { parseBody, sendJson, sendNoContent } from "../utils/http.js";
 import { normalizeNullableId } from "../utils/normalize.js";
+import { normalizeScheduleSlots } from "../utils/teacherAvailability.js";
 import { requireAuth } from "./auth.js";
 
 const GROUP_UPDATABLE_FIELDS = new Set([
   "group_number",
   "teacher_id",
   "course_id",
+  "planned_start_date",
+  "planned_end_date",
+  "planned_schedule_slots",
 ]);
+
+function normalizeDateField(value) {
+  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value.trim()) ? value.trim() : null;
+}
 
 export function getGroups(req, res) {
   if (!requireAuth(req, res)) return;
@@ -69,6 +77,9 @@ export async function createGroup(req, res) {
     student_ids: studentIds,
     teacher_id: teacherId,
     course_id: courseId,
+    planned_start_date: normalizeDateField(payload.planned_start_date),
+    planned_end_date: normalizeDateField(payload.planned_end_date),
+    planned_schedule_slots: normalizeScheduleSlots(payload.planned_schedule_slots),
   };
 
   db.groups.push(groupRecord);
@@ -95,6 +106,14 @@ export async function updateGroup(req, res, params) {
     }
     if (key === "teacher_id" || key === "course_id") {
       groupRecord[key] = normalizeNullableId(payload[key]);
+      continue;
+    }
+    if (key === "planned_start_date" || key === "planned_end_date") {
+      groupRecord[key] = normalizeDateField(payload[key]);
+      continue;
+    }
+    if (key === "planned_schedule_slots") {
+      groupRecord[key] = normalizeScheduleSlots(payload[key]);
       continue;
     }
     groupRecord[key] = payload[key];
@@ -124,12 +143,17 @@ export function deleteGroup(req, res, params) {
 
 function serializeGroupListItem(groupRecord) {
   const course = db.courses.find(course => course.id === groupRecord.course_id) ?? null;
+  const teacher = db.teachers.find((teacherRecord) => teacherRecord.id === groupRecord.teacher_id) ?? null;
   return {
     id: groupRecord.id,
     group_number: groupRecord.group_number,
     teacher_id: groupRecord.teacher_id,
+    teacher,
     course,
     course_id: groupRecord.course_id,
+    planned_start_date: groupRecord.planned_start_date ?? null,
+    planned_end_date: groupRecord.planned_end_date ?? null,
+    planned_schedule_slots: groupRecord.planned_schedule_slots ?? [],
     students_count: groupRecord.student_ids.length,
   };
 }
@@ -144,6 +168,9 @@ function serializeGroupDetails(groupRecord) {
 
   return {
     ...groupRecord,
+    planned_start_date: groupRecord.planned_start_date ?? null,
+    planned_end_date: groupRecord.planned_end_date ?? null,
+    planned_schedule_slots: groupRecord.planned_schedule_slots ?? [],
     teacher,
     students,
     course

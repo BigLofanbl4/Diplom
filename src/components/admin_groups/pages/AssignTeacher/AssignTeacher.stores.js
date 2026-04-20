@@ -15,6 +15,10 @@ export class GroupStore {
     return structuredClone(this.groupData);
   }
 
+  async updateScheduling(data) {
+    this.groupData = await GroupService.update(this.groupId, data);
+  }
+
   async assignTeacher(teacherId) {
     this.groupData = await GroupService.update(this.groupId, { teacher_id: teacherId });
   }
@@ -31,11 +35,13 @@ export class TeacherStore {
     this.searchedTeachers = { data: [] };
     this.isSearchMode = false;
     this.searchValue = "";
+    this.groupId = null;
   }
 
-  async fetchTeachers({ offset = null } = {}) {
+  async fetchTeachers({ offset = null, groupId = null } = {}) {
+    this.groupId = groupId ?? this.groupId;
     const oldTeachers = this.teachers;
-    const response = await TeacherService.getAll({ limit: 50, offset });
+    const response = await TeacherService.getAll({ limit: 50, offset, group_id: this.groupId });
 
     const mergedTeachers = new Map();
     oldTeachers.data.forEach((teacher) => mergedTeachers.set(teacher.id, teacher));
@@ -47,15 +53,17 @@ export class TeacherStore {
     };
   }
 
-  async fetchSearchTeachers({ search, limit = null, offset = null}) {
+  async fetchSearchTeachers({ search, limit = null, offset = null, groupId = null }) {
+    this.groupId = groupId ?? this.groupId;
     if (search.trim() === "") {
       this.isSearchMode = false;
+      await this.fetchTeachers({ groupId: this.groupId });
       return;
     }
 
     this.searchValue = search;
     this.isSearchMode = true;
-    const response = await TeacherService.getAll({ limit, offset, search })
+    const response = await TeacherService.getAll({ limit, offset, search, group_id: this.groupId });
 
     if (!offset) {
       this.searchedTeachers = response;

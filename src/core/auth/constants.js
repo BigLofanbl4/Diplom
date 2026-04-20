@@ -1,1 +1,7 @@
-export const HOME_BY_ROLE = { admin: "/admin", teacher: "/teacher", student: "/student", guest: "/login" };
+export const HOME_BY_ROLE = {
+  admin: "/admin",
+  manager: "/manager",
+  teacher: "/teacher",
+  student: "/student",
+  guest: "/login",
+};

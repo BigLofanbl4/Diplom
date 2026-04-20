@@ -1,0 +1,48 @@
+<section class="form-page">
+  <header class="page-hero page-hero--compact">
+    <div class="page-hero__main">
+      <span class="page-hero__eyebrow">Менеджеры</span>
+      <h1 class="page-hero__title">Карточка менеджера</h1>
+      <p class="page-hero__description">Задайте учетные данные и контакты сотрудника, который будет работать с группами и назначениями.</p>
+    </div>
+  </header>
+
+  <form class="teacher-form">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="first_name" class="form-label">Имя</label>
+        <input type="text" id="first_name" name="first_name" class="form-input" required>
+        <span class="form-error">Имя должно быть заполнено</span>
+      </div>
+
+      <div class="form-group">
+        <label for="last_name" class="form-label">Фамилия</label>
+        <input type="text" id="last_name" name="last_name" class="form-input" required>
+        <span class="form-error">Фамилия должна быть заполнена</span>
+      </div>
+
+      <div class="form-group">
+        <label for="login" class="form-label">Логин</label>
+        <input type="text" id="login" name="login" class="form-input" required>
+        <span class="form-error">Логин должен быть заполнен</span>
+      </div>
+
+      <div class="form-group">
+        <label for="password" class="form-label">Пароль</label>
+        <input type="password" id="password" name="password" class="form-input">
+        <span class="form-error">Пароль должен быть заполнен</span>
+      </div>
+
+      <div class="form-group form-group--full-width">
+        <label for="phone" class="form-label">Телефон</label>
+        <input type="tel" id="phone" name="phone" class="form-input" placeholder="+7 (999) 999-99-99">
+        <span class="form-error">Неверный формат номера телефона</span>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" data-action="submit">Сохранить</button>
+      <button type="button" class="btn btn-secondary" data-action="cancel">Отмена</button>
+    </div>
+  </form>
+</section>

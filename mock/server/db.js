@@ -1,9 +1,10 @@
 export const counters = {
-  users: 5,
+  users: 7,
   admins: 2,
-  teachers: 2,
+  managers: 2,
+  teachers: 3,
   students: 3,
-  groups: 3,
+  groups: 4,
   courses: 4,
   modules: 6,
   lessons: 5,
@@ -44,7 +45,19 @@ export const db = {
       login: "dima",
       password: "dima123",
       role: "student",
-    }
+    },
+    {
+      id: 5,
+      login: "teacher2",
+      password: "teacher234",
+      role: "teacher",
+    },
+    {
+      id: 6,
+      login: "manager",
+      password: "manager123",
+      role: "manager",
+    },
 
   ],
   admins: [
@@ -54,6 +67,15 @@ export const db = {
       first_name: "Владислав",
       last_name: "Плугатырев",
       role: "admin"
+    }
+  ],
+  managers: [
+    {
+      id: 1,
+      user_id: 6,
+      first_name: "Мария",
+      last_name: "Орлова",
+      phone: "+79990000005",
     }
   ],
   teachers: [
@@ -73,13 +95,39 @@ export const db = {
           id: "slot-1",
           day: "monday",
           start: "10:00",
-          end: "12:00",
+          end: "15:00",
         },
         {
           id: "slot-2",
           day: "wednesday",
           start: "14:00",
           end: "17:00",
+        },
+      ],
+    },
+    {
+      id: 2,
+      user_id: 5,
+      phone: "+79990000004",
+      first_name: "Елена",
+      last_name: "Соколова",
+      age: 28,
+      is_ovz: false,
+      birth_date: null,
+      organization_id: null,
+      course_ids: [1],
+      schedule_preferences: [
+        {
+          id: "slot-3",
+          day: "monday",
+          start: "12:00",
+          end: "18:00",
+        },
+        {
+          id: "slot-4",
+          day: "thursday",
+          start: "11:00",
+          end: "16:00",
         },
       ],
     },
@@ -103,8 +151,57 @@ export const db = {
     },
   ],
   groups: [
-    { id: 1, group_number: "101", course_id: 1, teacher_id: 1, student_ids: [1, 2] },
-    { id: 2, group_number: "102", course_id: 1, teacher_id: 1, student_ids: [1] },
+    {
+      id: 1,
+      group_number: "101",
+      course_id: 1,
+      teacher_id: 1,
+      student_ids: [1, 2],
+      planned_start_date: "2026-04-06",
+      planned_end_date: null,
+      planned_schedule_slots: [
+        {
+          id: "group-slot-1",
+          day: "monday",
+          start: "10:00",
+          end: "12:00",
+        },
+      ],
+    },
+    {
+      id: 2,
+      group_number: "102",
+      course_id: 1,
+      teacher_id: 1,
+      student_ids: [1],
+      planned_start_date: "2026-05-18",
+      planned_end_date: null,
+      planned_schedule_slots: [
+        {
+          id: "group-slot-2",
+          day: "monday",
+          start: "12:00",
+          end: "15:00",
+        },
+      ],
+    },
+    {
+      id: 3,
+      group_number: "103",
+      course_id: 1,
+      teacher_id: null,
+      student_ids: [2],
+      planned_start_date: "2026-05-04",
+      planned_end_date: null,
+      planned_schedule_slots: [
+        {
+          id: "group-slot-3",
+          day: "monday",
+          start: "12:00",
+          end: "15:00",
+        },
+      ],
+    },
   ],
   courses: [
     {

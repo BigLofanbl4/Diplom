@@ -8,10 +8,8 @@ export default class AssignTeacherController {
 
   async init() {
     try {
-      await Promise.all([
-        this.groupStore.fetchGroupData(),
-        this.teacherStore.fetchTeachers()
-      ]);
+      await this.groupStore.fetchGroupData();
+      await this.teacherStore.fetchTeachers({ groupId: this.groupStore.groupId });
     } catch (error) {
       alert("Ошибка загрузки данных");
       console.error(error);
@@ -22,6 +20,7 @@ export default class AssignTeacherController {
     this.view.bindHandlers({
       handleRemove: this.handleRemove.bind(this),
       handleAssign: this.handleAssign.bind(this),
+      handleApplySchedule: this.handleApplySchedule.bind(this),
       handleFilter: this.handleFilter.bind(this),
       handleLoadMore: this.handleLoadMore.bind(this)
     });
@@ -33,15 +32,29 @@ export default class AssignTeacherController {
     const groupTeacher = groupSnapshot.teacher ?? null;
     const teachers = this.teacherStore
       .getSnapshot()
-      .filter((teacher) => teacher.id !== groupTeacher?.id);
+      .filter((teacher) => teacher.id !== groupTeacher?.id)
+      .sort((left, right) => {
+        const leftAvailable = left.availability_for_group?.is_available ? 1 : 0;
+        const rightAvailable = right.availability_for_group?.is_available ? 1 : 0;
+        return rightAvailable - leftAvailable;
+      });
 
+    this.view.toggleRemoveTeacherBtn(groupTeacher);
+    this.view.renderGroupSchedule(groupSnapshot);
     this.view.renderTeachersTable(teachers);
     this.view.renderGroupTeacher(groupTeacher);
   }
 
+  async syncSchedulingCriteria() {
+    const payload = this.view.getSchedulingPayload();
+    await this.groupStore.updateScheduling(payload);
+  }
+
   async handleAssign(teacherId) {
     try {
+      await this.syncSchedulingCriteria();
       await this.groupStore.assignTeacher(teacherId);
+      await this.teacherStore.fetchTeachers({ groupId: this.groupStore.groupId });
       this.syncView();
     } catch (error) {
       alert("Ошибка при попытке назначить учителя");
@@ -52,9 +65,21 @@ export default class AssignTeacherController {
   async handleRemove() {
     try {
       await this.groupStore.removeTeacher();
+      await this.teacherStore.fetchTeachers({ groupId: this.groupStore.groupId });
       this.syncView();
     } catch (error) {
       alert("Ошибка при попытке снять преподавателя");
+      console.error(error);
+    }
+  }
+
+  async handleApplySchedule() {
+    try {
+      await this.syncSchedulingCriteria();
+      await this.teacherStore.fetchTeachers({ groupId: this.groupStore.groupId });
+      this.syncView();
+    } catch (error) {
+      alert("Ошибка при обновлении расписания группы");
       console.error(error);
     }
   }
@@ -63,7 +88,12 @@ export default class AssignTeacherController {
     const requestId = ++this.lastFilterRequestId;
 
     try {
-      await this.teacherStore.fetchSearchTeachers({ search: searchInput, limit: 50 });
+      await this.syncSchedulingCriteria();
+      await this.teacherStore.fetchSearchTeachers({
+        search: searchInput,
+        limit: 50,
+        groupId: this.groupStore.groupId,
+      });
 
       if (requestId !== this.lastFilterRequestId) return;
 
@@ -78,11 +108,12 @@ export default class AssignTeacherController {
 
   async handleLoadMore() {
     const offset = this.teacherStore.getSnapshot().length;
+    await this.syncSchedulingCriteria();
     if (this.teacherStore.isSearchMode) {
       const search = this.teacherStore.searchValue;
-      await this.teacherStore.fetchSearchTeachers({search, offset});
+      await this.teacherStore.fetchSearchTeachers({ search, offset, groupId: this.groupStore.groupId });
     } else {
-      await this.teacherStore.fetchTeachers({ offset });
+      await this.teacherStore.fetchTeachers({ offset, groupId: this.groupStore.groupId });
     }
     this.syncView();
   }

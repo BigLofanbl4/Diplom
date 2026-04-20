@@ -15,12 +15,34 @@
         <span class="form-error">Номер группы обязателен для заполенения</span>
       </div>
 
+      <div class="form-group">
+        <label for="planned_start_date" class="form-label">Дата старта занятий</label>
+        <input type="date" id="planned_start_date" name="planned_start_date" class="form-input" required>
+        <span class="form-error">Дата старта обязательна</span>
+      </div>
+
+      <div class="form-group">
+        <label for="planned_end_date" class="form-label">Дата окончания</label>
+        <input type="date" id="planned_end_date" name="planned_end_date" class="form-input">
+        <span class="form-error">Некорректная дата окончания</span>
+      </div>
+
       <div class="form-group form-group--full-width">
         <div data-select="student_ids"></div>
       </div>
 
       <div class="form-group form-group--full-width">
         <div data-select="course_id"></div>
+      </div>
+
+      <div class="form-group form-group--full-width">
+        <div class="assign-teacher-slots">
+          <div class="assign-teacher-slots__header">
+            <strong>Weekly-слоты группы</strong>
+            <button class="btn btn-secondary" type="button" data-action="addSlot">Добавить слот</button>
+          </div>
+          <div data-schedule-slots></div>
+        </div>
       </div>
     </div>
 

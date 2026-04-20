@@ -9,6 +9,7 @@ import { setTheme } from "./utils/themeToggle.js";
 import { TeacherForm, TeachersTable } from "./components/admin_teachers/index.js";
 import { StudentForm, StudentsTable } from "./components/admin_students/index.js";
 import { GroupForm, GroupsTable } from "./components/admin_groups/index.js";
+import { ManagerForm, ManagersTable } from "./components/admin_managers/index.js";
 import { CourseForm, CoursePage, CoursesList } from "./components/admin_courses/index.js";
 import TestConstructor from "./components/admin_courses/features/TestConstructor/TestConstructor.js";
 import TeacherGroups from "./components/admin_teachers/pages/TeacherGroups/TeacherGroups.js";
@@ -83,6 +84,30 @@ const ROUTES = {
   "/admin/students/update/:id": {
     Layout: AdminLayout,
     Component: StudentForm,
+    meta: {
+      access: "requiresAuth",
+      role: "admin"
+    }
+  },
+  "/admin/managers": {
+    Layout: AdminLayout,
+    Component: ManagersTable,
+    meta: {
+      access: "requiresAuth",
+      role: "admin"
+    }
+  },
+  "/admin/managers/create": {
+    Layout: AdminLayout,
+    Component: ManagerForm,
+    meta: {
+      access: "requiresAuth",
+      role: "admin"
+    }
+  },
+  "/admin/managers/update/:id": {
+    Layout: AdminLayout,
+    Component: ManagerForm,
     meta: {
       access: "requiresAuth",
       role: "admin"
@@ -166,6 +191,53 @@ const ROUTES = {
     meta: {
       access: "requiresAuth",
       role: "admin"
+    }
+  },
+  "/manager": {
+    Layout: AdminLayout,
+    meta: {
+      access: "requiresAuth",
+      role: "manager"
+    }
+  },
+  "/manager/teachers": {
+    Layout: AdminLayout,
+    Component: TeachersTable,
+    meta: {
+      access: "requiresAuth",
+      role: "manager"
+    }
+  },
+  "/manager/groups": {
+    Layout: AdminLayout,
+    Component: GroupsTable,
+    meta: {
+      access: "requiresAuth",
+      role: "manager"
+    }
+  },
+  "/manager/groups/create": {
+    Layout: AdminLayout,
+    Component: GroupForm,
+    meta: {
+      access: "requiresAuth",
+      role: "manager"
+    }
+  },
+  "/manager/groups/update/:id": {
+    Layout: AdminLayout,
+    Component: GroupForm,
+    meta: {
+      access: "requiresAuth",
+      role: "manager"
+    }
+  },
+  "/manager/groups/:groupId/teacher": {
+    Layout: AdminLayout,
+    Component: AssignTeacher,
+    meta: {
+      access: "requiresAuth",
+      role: "manager"
     }
   },
   "/teacher": {

@@ -80,14 +80,34 @@ export function requireAuth(req, res) {
   return { token, userId: accessMap.get(token) };
 }
 
-export function getCurrentUser(req, res) {
+export function getAuthenticatedUser(req, res) {
   const authContext = requireAuth(req, res);
-  if (!authContext) return;
+  if (!authContext) return null;
 
   const user = db.users.find((dbUser) => dbUser.id === authContext.userId);
   if (!user) {
-    return sendJson(res, 500, { detail: "User not found" });
+    sendJson(res, 500, { detail: "User not found" });
+    return null;
   }
+
+  return user;
+}
+
+export function requireRole(req, res, roles = []) {
+  const user = getAuthenticatedUser(req, res);
+  if (!user) return null;
+
+  if (!roles.includes(user.role)) {
+    sendJson(res, 403, { detail: "Access denied" });
+    return null;
+  }
+
+  return user;
+}
+
+export function getCurrentUser(req, res) {
+  const user = getAuthenticatedUser(req, res);
+  if (!user) return;
 
   const basePayload = {
     login: user.login,
@@ -122,6 +142,20 @@ export function getCurrentUser(req, res) {
           is_ovz: teacherProfile.is_ovz,
           age: teacherProfile.age,
           phone: teacherProfile.phone,
+        });
+      }
+    case "manager":
+      {
+        const managerProfile = db.managers.find((manager) => manager.user_id === user.id);
+        if (!managerProfile) {
+          return sendJson(res, 500, { detail: "Manager profile not found" });
+        }
+        return sendJson(res, 200, {
+          ...basePayload,
+          id: managerProfile.id,
+          first_name: managerProfile.first_name,
+          last_name: managerProfile.last_name,
+          phone: managerProfile.phone,
         });
       }
     case "student":

@@ -2,6 +2,7 @@ import { db } from "../db.js";
 import { parseBody, sendJson } from "../utils/http.js";
 import { ensureCourseInstance, findCourseInstanceByGroupId } from "../utils/courseTemplates.js";
 import { serializeCourse, serializeCourseDetails } from "../utils/serializers.js";
+import { normalizeScheduleSlots } from "../utils/teacherAvailability.js";
 import { requireAuth } from "./auth.js";
 
 const HOMEWORK_REVIEW_STATUSES = new Set(["pending", "approved", "needs_revision"]);
@@ -140,14 +141,7 @@ export async function updateMyPreferences(req, res) {
     : [];
 
   teacherContext.teacher.schedule_preferences = Array.isArray(payload.schedule_preferences)
-    ? payload.schedule_preferences
-        .map((slot) => ({
-          id: slot.id || crypto.randomUUID(),
-          day: slot.day ?? "",
-          start: slot.start ?? "",
-          end: slot.end ?? "",
-        }))
-        .filter((slot) => slot.day && slot.start && slot.end)
+    ? normalizeScheduleSlots(payload.schedule_preferences)
     : [];
 
   return sendJson(res, 200, serializePreferences(teacherContext.teacher));

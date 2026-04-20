@@ -7,6 +7,13 @@ import {
   updateTeacher,
 } from "./handlers/teachers.js";
 import {
+  createManager,
+  deleteManager,
+  getManagerById,
+  getManagers,
+  updateManager,
+} from "./handlers/managers.js";
+import {
   getMyGroupById,
   getMyGroups,
   getMyLessonHomeworkSubmissions,
@@ -92,6 +99,11 @@ export const routes = [
   { method: "POST", path: `${API_PREFIX}/teachers`, handler: createTeacher },
   { method: "PATCH", path: `${API_PREFIX}/teachers/:id`, handler: updateTeacher },
   { method: "DELETE", path: `${API_PREFIX}/teachers/:id`, handler: deleteTeacher },
+  { method: "GET", path: `${API_PREFIX}/managers`, handler: getManagers },
+  { method: "GET", path: `${API_PREFIX}/managers/:id`, handler: getManagerById },
+  { method: "POST", path: `${API_PREFIX}/managers`, handler: createManager },
+  { method: "PATCH", path: `${API_PREFIX}/managers/:id`, handler: updateManager },
+  { method: "DELETE", path: `${API_PREFIX}/managers/:id`, handler: deleteManager },
   { method: "GET", path: `${API_PREFIX}/students`, handler: getStudents },
   { method: "GET", path: `${API_PREFIX}/students/:id`, handler: getStudentById },
   { method: "POST", path: `${API_PREFIX}/students`, handler: createStudent },
