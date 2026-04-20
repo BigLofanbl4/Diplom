@@ -1,20 +1,5 @@
-# ----------------------------
-# OS / Editors
-# ----------------------------
-.DS_Store
-.idea/
-.vscode/*
-!.vscode/extensions.json
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# ----------------------------
 # Logs
-# ----------------------------
-logs/
+logs
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -22,57 +7,35 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# ----------------------------
-# Node / Frontend
-# ----------------------------
-node_modules/
-dist/
-dist-ssr/
-.vite/
+node_modules
+dist
+dist-ssr
 *.local
 
-# ----------------------------
-# Python cache / tooling
-# ----------------------------
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-*.so
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-.coverage.*
-htmlcov/
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# ----------------------------
-# Virtual environments
-# ----------------------------
-.venv/
-venv/
-env/
-ENV/
-backend/venv/
-
-# ----------------------------
-# Local env files
-# ----------------------------
-.env
-.env.*
-!.env.example
-
-# ----------------------------
-# Local DB / runtime artifacts
-# ----------------------------
-*.db
-*.sqlite
-*.sqlite3
-app.db
 backend/database.db
+backend/__pycache__
+app/__pycache__
 
-# ----------------------------
-# Secrets / generated keys
-# ----------------------------
+.vite/
+
 certs/
-*.pem
+__pycache__/
+*.pyc
+*.pyo
+
+*.db
+
+.venv/
+.env
+/docs/
