@@ -2,6 +2,7 @@ import './styles/index.css'
 import { Router } from "./router";
 import { AdminLayout } from "./layouts/AdminLayout";
 import { TeacherLayout } from "./layouts/TeacherLayout.js";
+import { StudentLayout } from "./layouts/StudentLayout.js";
 import { LoginLayout } from "./layouts/LoginLayout.js";
 import { PublicLayout } from "./layouts/PublicLayout.js";
 import { setTheme } from "./utils/themeToggle.js";
@@ -13,6 +14,7 @@ import TestConstructor from "./components/admin_courses/features/TestConstructor
 import TeacherGroups from "./components/admin_teachers/pages/TeacherGroups/TeacherGroups.js";
 import AssignTeacher from "./components/admin_groups/pages/AssignTeacher/AssignTeacher.js";
 import { TeacherDashboard, TeacherGroupPage, TeacherPreferences } from "./components/teacher/index.js";
+import { StudentDashboard, StudentCoursePage, StudentTestPage } from "./components/student/index.js";
 
 setTheme();
 
@@ -204,6 +206,30 @@ const ROUTES = {
     meta: {
       access: "requiresAuth",
       role: "teacher"
+    }
+  },
+  "/student": {
+    Layout: StudentLayout,
+    Component: StudentDashboard,
+    meta: {
+      access: "requiresAuth",
+      role: "student"
+    }
+  },
+  "/student/courses/:courseId": {
+    Layout: StudentLayout,
+    Component: StudentCoursePage,
+    meta: {
+      access: "requiresAuth",
+      role: "student"
+    }
+  },
+  "/student/courses/:courseId/lessons/:lessonId/test": {
+    Layout: StudentLayout,
+    Component: StudentTestPage,
+    meta: {
+      access: "requiresAuth",
+      role: "student"
     }
   }
 };

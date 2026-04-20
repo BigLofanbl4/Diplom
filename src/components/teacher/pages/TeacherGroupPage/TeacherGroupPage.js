@@ -8,6 +8,326 @@ import TeacherPortalService from "../../../../services/TeacherPortalService.js";
 import TestService from "../../../../services/TestService.js";
 import { getModuleData } from "../../../../utils/courseUtils.js";
 
+function formatDateTime(value) {
+  if (!value) return "";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+
+  return new Intl.DateTimeFormat("ru-RU", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
+}
+
+function renderFileLinks(files = []) {
+  if (!files.length) {
+    return `<span class="teacher-muted">Файлы не прикреплены</span>`;
+  }
+
+  return files.map((file) => `
+    <a href="${file.url ?? "#"}" class="teacher-review-card__file" target="_blank" rel="noreferrer">
+      <i class="fa-regular fa-file-lines"></i>
+      <span>${file.name}</span>
+    </a>
+  `).join("");
+}
+
+function getHomeworkStatusMeta(status, hasSubmission = true) {
+  if (!hasSubmission) {
+    return {
+      label: "Не отправлено",
+      className: "teacher-review-card__status--muted",
+    };
+  }
+
+  switch (status) {
+    case "approved":
+      return {
+        label: "Принято",
+        className: "teacher-review-card__status--approved",
+      };
+    case "needs_revision":
+      return {
+        label: "Нужна доработка",
+        className: "teacher-review-card__status--revision",
+      };
+    default:
+      return {
+        label: "Ожидает проверки",
+        className: "teacher-review-card__status--pending",
+      };
+  }
+}
+
+function getAttemptStatusMeta(attempt) {
+  if (!attempt) {
+    return {
+      label: "Не проходил",
+      className: "teacher-review-card__status--muted",
+    };
+  }
+
+  if (attempt.is_passed) {
+    return {
+      label: "Тест пройден",
+      className: "teacher-review-card__status--approved",
+    };
+  }
+
+  return {
+    label: "Тест не пройден",
+    className: "teacher-review-card__status--revision",
+  };
+}
+
+function renderLessonSummary(lesson) {
+  const homeworkStats = lesson.homework_review ?? {};
+  const testStats = lesson.test_review ?? {};
+
+  return `
+    <div class="teacher-lesson-summary">
+      <div class="teacher-lesson-summary__item">
+        <span class="teacher-lesson-summary__label">Домашнее задание</span>
+        <strong class="teacher-lesson-summary__value">${homeworkStats.checked_count ?? 0}/${homeworkStats.submitted_count ?? 0} проверено</strong>
+        <span class="teacher-lesson-summary__hint">Сдали: ${homeworkStats.submitted_count ?? 0} из ${homeworkStats.total_students ?? 0}</span>
+      </div>
+      <div class="teacher-lesson-summary__item">
+        <span class="teacher-lesson-summary__label">Тест</span>
+        <strong class="teacher-lesson-summary__value">${testStats.passed_count ?? 0}/${testStats.total_students ?? 0} прошли</strong>
+        <span class="teacher-lesson-summary__hint">Попытка есть у ${testStats.attempted_count ?? 0} студентов</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderTeacherLessonActions() {
+  return `
+    <button class="btn btn-secondary" data-action="viewHomework">Проверить ДЗ</button>
+    <button class="btn btn-secondary" data-action="viewTestAttempts">Результаты тестов</button>
+  `;
+}
+
+class TeacherHomeworkReviewPanel {
+  constructor({ groupId, lessonId, containerElement = null }) {
+    this.groupId = Number(groupId);
+    this.lessonId = Number(lessonId);
+    this.containerElement = containerElement;
+    this.root = null;
+    this.data = null;
+    this.boundClickHandler = null;
+  }
+
+  async fetchData() {
+    this.data = await TeacherPortalService.getLessonHomeworkSubmissions(this.groupId, this.lessonId);
+  }
+
+  renderSubmissionItem(item) {
+    const statusMeta = getHomeworkStatusMeta(item.submission?.status, Boolean(item.submission));
+    const submission = item.submission;
+
+    if (!submission) {
+      return `
+        <article class="teacher-review-card">
+          <div class="teacher-review-card__header">
+            <div>
+              <h3 class="teacher-review-card__title">${item.student.last_name} ${item.student.first_name}</h3>
+            </div>
+            <span class="teacher-review-card__status ${statusMeta.className}">${statusMeta.label}</span>
+          </div>
+          <p class="teacher-review-card__text teacher-muted">Ученик пока не отправлял ответ по этому уроку.</p>
+        </article>
+      `;
+    }
+
+    return `
+      <article class="teacher-review-card" data-submission-id="${submission.id}">
+        <div class="teacher-review-card__header">
+          <div>
+            <h3 class="teacher-review-card__title">${item.student.last_name} ${item.student.first_name}</h3>
+            <p class="teacher-review-card__meta">Отправлено: ${formatDateTime(submission.created_at)}</p>
+          </div>
+          <span class="teacher-review-card__status ${statusMeta.className}">${statusMeta.label}</span>
+        </div>
+        <div class="teacher-review-card__section">
+          <strong>Ответ ученика</strong>
+          <p class="teacher-review-card__text">${submission.text || "Текстовый ответ не добавлен."}</p>
+        </div>
+        <div class="teacher-review-card__section">
+          <strong>Файлы</strong>
+          <div class="teacher-review-card__files">
+            ${renderFileLinks(submission.files)}
+          </div>
+        </div>
+        <div class="teacher-review-card__section">
+          <label class="form-label" for="homework-status-${submission.id}">Статус проверки</label>
+          <select id="homework-status-${submission.id}" name="status" class="form-input">
+            <option value="pending" ${submission.status === "pending" ? "selected" : ""}>Ожидает проверки</option>
+            <option value="approved" ${submission.status === "approved" ? "selected" : ""}>Принято</option>
+            <option value="needs_revision" ${submission.status === "needs_revision" ? "selected" : ""}>Нужна доработка</option>
+          </select>
+        </div>
+        <div class="teacher-review-card__section">
+          <label class="form-label" for="homework-feedback-${submission.id}">Комментарий преподавателя</label>
+          <textarea id="homework-feedback-${submission.id}" name="feedback" class="form-input" placeholder="Напишите, что нужно поправить или что уже хорошо">${submission.feedback ?? ""}</textarea>
+        </div>
+        <div class="teacher-review-card__footer">
+          <span class="teacher-review-card__meta">
+            ${submission.checked_at ? `Проверено: ${formatDateTime(submission.checked_at)}` : "Проверка еще не выполнена"}
+          </span>
+          <button type="button" class="btn btn-primary" data-action="saveHomeworkReview">Сохранить проверку</button>
+        </div>
+      </article>
+    `;
+  }
+
+  renderContent() {
+    const stats = this.data?.stats ?? {};
+    const items = this.data?.data ?? [];
+
+    this.root.innerHTML = `
+      <section class="teacher-review">
+        <div class="teacher-review__header">
+          <div>
+            <span class="teacher-section__eyebrow">Урок ${this.data?.lesson?.lesson_number ?? ""}</span>
+            <h2 class="teacher-section__title">${this.data?.lesson?.title ?? "Проверка ДЗ"}</h2>
+          </div>
+          <div class="teacher-review__stats">
+            <span class="teacher-review__stat">Сдали: ${stats.submitted_count ?? 0}/${stats.total_students ?? 0}</span>
+            <span class="teacher-review__stat">Проверено: ${stats.checked_count ?? 0}</span>
+            <span class="teacher-review__stat">На доработке: ${stats.needs_revision_count ?? 0}</span>
+          </div>
+        </div>
+        <div class="teacher-review__list">
+          ${items.map((item) => this.renderSubmissionItem(item)).join("")}
+        </div>
+      </section>
+    `;
+  }
+
+  mount() {
+    this.root = document.createElement("div");
+    this.containerElement.appendChild(this.root);
+  }
+
+  handleEvents() {
+    this.boundClickHandler = async (event) => {
+      const saveButton = event.target.closest('[data-action="saveHomeworkReview"]');
+      if (!saveButton) return;
+
+      const card = saveButton.closest("[data-submission-id]");
+      const submissionId = Number(card?.dataset.submissionId);
+      if (!submissionId) return;
+
+      const status = card.querySelector('[name="status"]')?.value ?? "pending";
+      const feedback = card.querySelector('[name="feedback"]')?.value ?? "";
+
+      saveButton.disabled = true;
+      try {
+        await TeacherPortalService.reviewLessonHomeworkSubmission(this.groupId, this.lessonId, submissionId, {
+          status,
+          feedback,
+        });
+        await this.fetchData();
+        this.renderContent();
+      } finally {
+        saveButton.disabled = false;
+      }
+    };
+
+    this.root.addEventListener("click", this.boundClickHandler);
+  }
+
+  async draw() {
+    await this.fetchData();
+    this.mount();
+    this.renderContent();
+    this.handleEvents();
+  }
+
+  destroy() {
+    this.root?.removeEventListener("click", this.boundClickHandler);
+    this.root?.remove();
+  }
+}
+
+class TeacherTestAttemptsPanel {
+  constructor({ groupId, lessonId, containerElement = null }) {
+    this.groupId = Number(groupId);
+    this.lessonId = Number(lessonId);
+    this.containerElement = containerElement;
+    this.root = null;
+    this.data = null;
+  }
+
+  async fetchData() {
+    this.data = await TeacherPortalService.getLessonTestAttempts(this.groupId, this.lessonId);
+  }
+
+  renderAttemptItem(item) {
+    const statusMeta = getAttemptStatusMeta(item.attempt);
+
+    return `
+      <article class="teacher-review-card">
+        <div class="teacher-review-card__header">
+          <div>
+            <h3 class="teacher-review-card__title">${item.student.last_name} ${item.student.first_name}</h3>
+            <p class="teacher-review-card__meta">
+              ${item.attempt ? `Последняя попытка: ${formatDateTime(item.attempt.created_at)}` : "Попыток пока нет"}
+            </p>
+          </div>
+          <span class="teacher-review-card__status ${statusMeta.className}">${statusMeta.label}</span>
+        </div>
+        <div class="teacher-review-card__section">
+          <strong>Результат</strong>
+          <p class="teacher-review-card__text">
+            ${item.attempt ? `${item.attempt.score}/${item.attempt.total}` : "Тест еще не был отправлен"}
+          </p>
+        </div>
+      </article>
+    `;
+  }
+
+  renderContent() {
+    const stats = this.data?.stats ?? {};
+    const items = this.data?.data ?? [];
+
+    this.root.innerHTML = `
+      <section class="teacher-review">
+        <div class="teacher-review__header">
+          <div>
+            <span class="teacher-section__eyebrow">Урок ${this.data?.lesson?.lesson_number ?? ""}</span>
+            <h2 class="teacher-section__title">${this.data?.lesson?.title ?? "Результаты тестов"}</h2>
+          </div>
+          <div class="teacher-review__stats">
+            <span class="teacher-review__stat">Прошли: ${stats.passed_count ?? 0}/${stats.total_students ?? 0}</span>
+            <span class="teacher-review__stat">Есть попытка: ${stats.attempted_count ?? 0}</span>
+            <span class="teacher-review__stat">Не прошли: ${stats.failed_count ?? 0}</span>
+          </div>
+        </div>
+        <div class="teacher-review__list">
+          ${items.map((item) => this.renderAttemptItem(item)).join("")}
+        </div>
+      </section>
+    `;
+  }
+
+  mount() {
+    this.root = document.createElement("div");
+    this.containerElement.appendChild(this.root);
+  }
+
+  async draw() {
+    await this.fetchData();
+    this.mount();
+    this.renderContent();
+  }
+
+  destroy() {
+    this.root?.remove();
+  }
+}
+
 export default class TeacherGroupPage {
   constructor({ groupId }) {
     this.groupId = Number(groupId);
@@ -123,6 +443,8 @@ export default class TeacherGroupPage {
       const item = new ModuleItem(moduleData, {
         lessonCardOptions: {
           testHref: (lesson) => `/teacher/groups/${this.groupId}/courses/${this.data.course_instance.id}/lessons/${lesson.id}/test`,
+          detailsContent: renderLessonSummary,
+          extraActions: renderTeacherLessonActions,
         },
       });
       this.moduleList.appendChild(item.render());
@@ -159,6 +481,12 @@ export default class TeacherGroupPage {
           return;
         case "deleteLesson":
           await this.deleteLesson(event);
+          return;
+        case "viewHomework":
+          await this.openHomeworkModal(event);
+          return;
+        case "viewTestAttempts":
+          await this.openTestAttemptsModal(event);
           return;
         case "deleteTest":
           await this.deleteTest(event);
@@ -223,6 +551,40 @@ export default class TeacherGroupPage {
         cancelHandler: () => modal.destroy(),
       },
       title: lessonId ? "Изменить урок" : "Создать урок",
+    });
+
+    await modal.draw();
+  }
+
+  async openHomeworkModal(event) {
+    const lessonId = Number(event.target.closest("[data-lesson-id]")?.dataset.lessonId);
+    if (!lessonId) return;
+
+    const lesson = this.data.course_instance?.lessons?.find((item) => item.id === lessonId);
+    const modal = new ModalWithComponent({
+      Component: TeacherHomeworkReviewPanel,
+      componentProps: {
+        groupId: this.groupId,
+        lessonId,
+      },
+      title: lesson ? `Проверка ДЗ · Урок ${lesson.lesson_number}` : "Проверка ДЗ",
+    });
+
+    await modal.draw();
+  }
+
+  async openTestAttemptsModal(event) {
+    const lessonId = Number(event.target.closest("[data-lesson-id]")?.dataset.lessonId);
+    if (!lessonId) return;
+
+    const lesson = this.data.course_instance?.lessons?.find((item) => item.id === lessonId);
+    const modal = new ModalWithComponent({
+      Component: TeacherTestAttemptsPanel,
+      componentProps: {
+        groupId: this.groupId,
+        lessonId,
+      },
+      title: lesson ? `Результаты теста · Урок ${lesson.lesson_number}` : "Результаты тестов",
     });
 
     await modal.draw();

@@ -1,8 +1,21 @@
-export const LessonCardTemplate = (lesson, { testHref = `/admin/courses/${lesson.course_id}/lessons/${lesson.id}/test` } = {}) => {
+export const LessonCardTemplate = (
+  lesson,
+  {
+    testHref = `/admin/courses/${lesson.course_id}/lessons/${lesson.id}/test`,
+    detailsContent = "",
+    extraActions = "",
+  } = {}
+) => {
   const hasMaterials = Array.isArray(lesson.materials) && lesson.materials.length > 0;
   const resolvedTestHref = typeof testHref === "function"
     ? testHref(lesson)
     : testHref;
+  const resolvedDetailsContent = typeof detailsContent === "function"
+    ? detailsContent(lesson)
+    : detailsContent;
+  const resolvedExtraActions = typeof extraActions === "function"
+    ? extraActions(lesson)
+    : extraActions;
   return `
     <li class="course-lesson" data-lesson-id="${lesson.id}">
       <h5 class="course-lesson__title">
@@ -20,7 +33,9 @@ export const LessonCardTemplate = (lesson, { testHref = `/admin/courses/${lesson
           ${!hasMaterials ? "Отсутствуют материалы" : `Материалы прикреплены (${lesson.materials.length})`}
         </span>
       </div>
+      ${resolvedDetailsContent ? `<div class="course-lesson__details">${resolvedDetailsContent}</div>` : ""}
       <div class="course-lesson__actions">
+        ${resolvedExtraActions}
         <button
             class="btn btn-danger"
             data-action="deleteTest"

@@ -10,6 +10,9 @@ export const counters = {
   materials: 4,
   tests: 3,
   questions: 3,
+  homeworkSubmissions: 2,
+  testAttempts: 3,
+  submissionFiles: 2,
 };
 
 export function nextId(entity) {
@@ -244,6 +247,64 @@ export const db = {
       text: "Вопрос 1",
       type: "text",
       options: null,
+    },
+  ],
+  homework_submissions: [
+    {
+      id: 1,
+      student_id: 1,
+      lesson_id: 4,
+      course_id: 2,
+      text: "Решил задания в тетради, прикладываю фото.",
+      status: "pending",
+      feedback: "",
+      checked_at: null,
+      checked_by: null,
+      files: [
+        {
+          id: 1,
+          name: "homework-answer-anna.pdf",
+          size: 24000,
+          url: "/submission/1",
+        },
+      ],
+      created_at: "2026-04-19T15:30:00.000Z",
+    },
+  ],
+  test_attempts: [
+    {
+      id: 1,
+      student_id: 1,
+      lesson_id: 4,
+      course_id: 2,
+      test_id: 2,
+      score: 1,
+      total: 1,
+      answers: [
+        {
+          question_id: 2,
+          value: ["Ответ на вопрос 1"],
+          is_correct: true,
+        },
+      ],
+      created_at: "2026-04-19T16:00:00.000Z",
+    },
+    {
+      id: 2,
+      student_id: 2,
+      lesson_id: 4,
+      course_id: 2,
+      test_id: 2,
+      score: 0,
+      total: 1,
+      answers: [
+        {
+          question_id: 2,
+          value: ["Неверный ответ"],
+          is_correct: false,
+        },
+      ],
+      created_at: "2026-04-19T16:20:00.000Z",
     },
   ],
 };

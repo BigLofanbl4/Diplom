@@ -5,11 +5,11 @@ export default class LessonService extends BaseService {
     const formData = new FormData();
     for (const key in data) {
       if (data[key] === null || data[key] === undefined) continue;
-      if (key === "materials") {
+      if (key === "materials" || key === "materials[]") {
         const arr = data[key];
         arr.forEach(material => {
           if (material instanceof File && material.size > 0 && material.name) {
-            formData.append(key, material);
+            formData.append("materials", material);
           }
         })
       } else if (Array.isArray(data[key])) {

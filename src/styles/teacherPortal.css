@@ -369,3 +369,163 @@
     align-items: stretch;
   }
 }
+
+.teacher-lesson-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: var(--mg-200);
+}
+
+.teacher-lesson-summary__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: var(--pd-300);
+  border-radius: var(--radius-md);
+  background: var(--cl-surface-muted);
+  border: 1px solid var(--cl-border-light);
+}
+
+.teacher-lesson-summary__label,
+.teacher-review-card__meta {
+  color: var(--cl-text-secondary);
+  font-size: var(--fz-100);
+}
+
+.teacher-lesson-summary__hint {
+  color: var(--cl-text-muted);
+  font-size: var(--fz-100);
+}
+
+.teacher-review {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mg-400);
+}
+
+.teacher-review__header {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--mg-300);
+  align-items: flex-start;
+}
+
+.teacher-review__stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--mg-200);
+}
+
+.teacher-review__stat {
+  display: inline-flex;
+  align-items: center;
+  min-height: 3.6rem;
+  padding: 0 var(--pd-300);
+  border-radius: 999px;
+  background: var(--cl-surface-muted);
+  border: 1px solid var(--cl-border-light);
+  font-weight: 700;
+}
+
+.teacher-review__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mg-300);
+  max-height: 64vh;
+  overflow: auto;
+  padding-right: var(--pd-100);
+}
+
+.teacher-review-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mg-300);
+  padding: var(--pd-400);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--cl-border-light);
+  background: var(--cl-surface);
+}
+
+.teacher-review-card__header,
+.teacher-review-card__footer {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--mg-300);
+  align-items: flex-start;
+}
+
+.teacher-review-card__title {
+  margin: 0;
+}
+
+.teacher-review-card__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mg-100);
+}
+
+.teacher-review-card__text {
+  margin: 0;
+  color: var(--cl-text-primary);
+}
+
+.teacher-review-card__files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mg-200);
+}
+
+.teacher-review-card__file {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-height: 3.6rem;
+  padding: 0 var(--pd-300);
+  border-radius: 999px;
+  background: var(--cl-surface-muted);
+  border: 1px solid var(--cl-border-light);
+  color: var(--cl-text-primary);
+}
+
+.teacher-review-card__status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 3.2rem;
+  padding: 0 1.2rem;
+  border-radius: 999px;
+  font-size: var(--fz-100);
+  font-weight: 800;
+}
+
+.teacher-review-card__status--approved {
+  background: var(--cl-success-light);
+  color: var(--cl-success);
+}
+
+.teacher-review-card__status--revision {
+  background: var(--cl-danger-light);
+  color: var(--cl-danger);
+}
+
+.teacher-review-card__status--pending {
+  background: rgba(255, 189, 46, 0.18);
+  color: #8a5a00;
+}
+
+.teacher-review-card__status--muted {
+  background: var(--cl-surface-muted);
+  color: var(--cl-text-secondary);
+}
+
+@media (max-width: 768px) {
+  .teacher-review__header,
+  .teacher-review-card__header,
+  .teacher-review-card__footer {
+    flex-direction: column;
+  }
+
+  .teacher-review__stats {
+    justify-content: flex-start;
+  }
+}

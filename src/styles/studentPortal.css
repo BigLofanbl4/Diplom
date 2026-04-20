@@ -1,0 +1,117 @@
+.student-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mg-500);
+}
+
+.student-course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(28rem, 1fr));
+  gap: var(--mg-400);
+}
+
+.student-course-card,
+.student-module,
+.student-test-question {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mg-300);
+  padding: var(--pd-500);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--cl-border-light);
+  background: var(--cl-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.student-course-card__eyebrow,
+.student-lesson-card__eyebrow,
+.student-test-question__number {
+  color: var(--cl-text-secondary);
+  font-size: var(--fz-100);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.student-course-card__title,
+.student-module__title,
+.student-lesson-card__title,
+.student-test-question__title {
+  margin: 0;
+}
+
+.student-course-card__description,
+.student-lesson-card__description,
+.student-test-question__header p {
+  color: var(--cl-text-secondary);
+}
+
+.student-course-card__meta,
+.student-lesson-card__actions,
+.student-course-card__actions,
+.student-lesson-card__files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mg-200);
+}
+
+.student-course-card__badge,
+.student-lesson-card__badge {
+  align-self: flex-start;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  background: var(--cl-surface-glass);
+  font-size: var(--fz-100);
+  font-weight: 700;
+}
+
+.student-module-list,
+.student-lesson-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mg-400);
+}
+
+.student-lesson-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mg-300);
+  padding: var(--pd-400);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--cl-border-light);
+  background: var(--cl-surface);
+}
+
+.student-lesson-card__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mg-100);
+}
+
+.student-lesson-card__section p {
+  margin: 0;
+  color: var(--cl-text-secondary);
+}
+
+.student-lesson-card__file {
+  color: var(--cl-primary);
+  text-decoration: none;
+}
+
+.student-test-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mg-400);
+}
+
+.student-test-question__options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mg-200);
+}
+
+.student-test-question__option {
+  display: flex;
+  align-items: center;
+  gap: var(--mg-200);
+}

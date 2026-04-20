@@ -9,7 +9,10 @@ import {
 import {
   getMyGroupById,
   getMyGroups,
+  getMyLessonHomeworkSubmissions,
+  getMyLessonTestAttempts,
   getMyPreferences,
+  reviewMyLessonHomeworkSubmission,
   updateMyPreferences,
 } from "./handlers/teacherPortal.js";
 import {
@@ -19,6 +22,13 @@ import {
   getStudents,
   updateStudent,
 } from "./handlers/students.js";
+import {
+  getMyCourseById as getMyStudentCourseById,
+  getMyCourses as getMyStudentCourses,
+  getMyLessonTest,
+  submitMyHomework,
+  submitMyLessonTest,
+} from "./handlers/studentPortal.js";
 import {
   createGroup,
   deleteGroup,
@@ -67,8 +77,16 @@ export const routes = [
   { method: "POST", path: `${API_PREFIX}/auth/logout`, handler: logoutUser },
   { method: "GET", path: `${API_PREFIX}/teachers/me/groups`, handler: getMyGroups },
   { method: "GET", path: `${API_PREFIX}/teachers/me/groups/:groupId`, handler: getMyGroupById },
+  { method: "GET", path: `${API_PREFIX}/teachers/me/groups/:groupId/lessons/:lessonId/homework-submissions`, handler: getMyLessonHomeworkSubmissions },
+  { method: "PATCH", path: `${API_PREFIX}/teachers/me/groups/:groupId/lessons/:lessonId/homework-submissions/:submissionId`, handler: reviewMyLessonHomeworkSubmission },
+  { method: "GET", path: `${API_PREFIX}/teachers/me/groups/:groupId/lessons/:lessonId/test-attempts`, handler: getMyLessonTestAttempts },
   { method: "GET", path: `${API_PREFIX}/teachers/me/preferences`, handler: getMyPreferences },
   { method: "PUT", path: `${API_PREFIX}/teachers/me/preferences`, handler: updateMyPreferences },
+  { method: "GET", path: `${API_PREFIX}/students/me/courses`, handler: getMyStudentCourses },
+  { method: "GET", path: `${API_PREFIX}/students/me/courses/:courseId`, handler: getMyStudentCourseById },
+  { method: "GET", path: `${API_PREFIX}/students/me/courses/:courseId/lessons/:lessonId/test`, handler: getMyLessonTest },
+  { method: "POST", path: `${API_PREFIX}/students/me/courses/:courseId/lessons/:lessonId/test-attempts`, handler: submitMyLessonTest },
+  { method: "POST", path: `${API_PREFIX}/students/me/courses/:courseId/lessons/:lessonId/homework-submission`, handler: submitMyHomework },
   { method: "GET", path: `${API_PREFIX}/teachers`, handler: getTeachers },
   { method: "GET", path: `${API_PREFIX}/teachers/:id`, handler: getTeacherById },
   { method: "POST", path: `${API_PREFIX}/teachers`, handler: createTeacher },
