@@ -15,6 +15,8 @@ export default class ModalWithComponent {
     this.componentContainer = null;
     this.modal = null;
     this.boundClickHandler = null;
+    this.boundPointerDownHandler = null;
+    this.shouldCloseOnBackdropClick = false;
   }
 
   async mount() {
@@ -25,15 +27,22 @@ export default class ModalWithComponent {
   }
 
   handleEvents() {
+    this.boundPointerDownHandler = (e) => {
+      this.shouldCloseOnBackdropClick = e.target === this.modal;
+    };
+
     this.boundClickHandler = (e) => {
       const isClose = e.target.closest("[data-action='close']");
-      const isBackdrop = e.target === this.modal;
+      const isBackdrop = e.target === this.modal && this.shouldCloseOnBackdropClick;
+
+      this.shouldCloseOnBackdropClick = false;
 
       if (isClose || isBackdrop) {
         this.destroy();
       }
     };
 
+    this.modal.addEventListener("pointerdown", this.boundPointerDownHandler);
     this.modal.addEventListener("click", this.boundClickHandler);
   }
 
@@ -44,6 +53,7 @@ export default class ModalWithComponent {
 
   destroy() {
     if (!this.modal) return;
+    this.modal.removeEventListener("pointerdown", this.boundPointerDownHandler);
     this.modal.removeEventListener("click", this.boundClickHandler);
     this._playCloseAnimation(() => {
       this.componentInstance?.destroy()

@@ -1,3 +1,5 @@
+import { showAlert } from "../../../../utils/dialogs.js";
+
 export default class AssignTeacherController {
   constructor({ groupStore, teacherStore, view }) {
     this.groupStore = groupStore;
@@ -11,7 +13,11 @@ export default class AssignTeacherController {
       await this.groupStore.fetchGroupData();
       await this.teacherStore.fetchTeachers({ groupId: this.groupStore.groupId });
     } catch (error) {
-      alert("Ошибка загрузки данных");
+      await showAlert({
+        title: "Ошибка загрузки",
+        message: "Ошибка загрузки данных",
+        variant: "danger",
+      });
       console.error(error);
     }
 
@@ -57,7 +63,11 @@ export default class AssignTeacherController {
       await this.teacherStore.fetchTeachers({ groupId: this.groupStore.groupId });
       this.syncView();
     } catch (error) {
-      alert("Ошибка при попытке назначить учителя");
+      await showAlert({
+        title: "Ошибка назначения",
+        message: "Ошибка при попытке назначить учителя",
+        variant: "danger",
+      });
       console.error(error);
     }
   }
@@ -68,7 +78,11 @@ export default class AssignTeacherController {
       await this.teacherStore.fetchTeachers({ groupId: this.groupStore.groupId });
       this.syncView();
     } catch (error) {
-      alert("Ошибка при попытке снять преподавателя");
+      await showAlert({
+        title: "Ошибка назначения",
+        message: "Ошибка при попытке снять преподавателя",
+        variant: "danger",
+      });
       console.error(error);
     }
   }
@@ -79,7 +93,11 @@ export default class AssignTeacherController {
       await this.teacherStore.fetchTeachers({ groupId: this.groupStore.groupId });
       this.syncView();
     } catch (error) {
-      alert("Ошибка при обновлении расписания группы");
+      await showAlert({
+        title: "Ошибка расписания",
+        message: "Ошибка при обновлении расписания группы",
+        variant: "danger",
+      });
       console.error(error);
     }
   }
@@ -101,7 +119,11 @@ export default class AssignTeacherController {
     } catch (error) {
       if (requestId !== this.lastFilterRequestId) return;
 
-      alert('Возникла ошибка при фильтрации преподавателей');
+      await showAlert({
+        title: "Ошибка фильтрации",
+        message: "Возникла ошибка при фильтрации преподавателей",
+        variant: "danger",
+      });
       console.log(error);
     }
   }

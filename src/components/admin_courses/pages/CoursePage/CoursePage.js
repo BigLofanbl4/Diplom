@@ -9,6 +9,7 @@ import ModuleItem from "../../ui/ModuleItem/ModuleItem.js";
 import LessonCard from "../../ui/LessonCard/LessonCard.js";
 import {getModuleData} from "../../../../utils/courseUtils.js";
 import TestService from "../../../../services/TestService.js";
+import { showAlert, showConfirm } from "../../../../utils/dialogs.js";
 
 class ModuleController {
   constructor(courseId, getData, moduleList, _openModal) {
@@ -113,7 +114,11 @@ class ModuleController {
     const moduleContainer = event.target.closest('[data-module-id]');
     const moduleId = Number(event.target.closest("[data-module-id]").dataset.moduleId);
 
-    const accept = confirm(`Удалить модуль ${moduleId}?`);
+    const accept = await showConfirm({
+      title: "Удаление модуля",
+      message: `Удалить модуль ${moduleId}?`,
+      confirmText: "Удалить",
+    });
     if (!accept) return;
 
     const success = await ModuleService.delete(this.courseId, moduleId);
@@ -189,7 +194,11 @@ class LessonController {
   async _onDeleteLesson(event) {
     const lessonContainer = event.target.closest('[data-lesson-id]');
     const lessonId = Number(lessonContainer.dataset.lessonId);
-    const accept = confirm(`Удалить урок ${lessonId}?`)
+    const accept = await showConfirm({
+      title: "Удаление урока",
+      message: `Удалить урок ${lessonId}?`,
+      confirmText: "Удалить",
+    });
     if (!accept) return;
     const success = await LessonService.delete(this.courseId, lessonId);
     if (success) {
@@ -211,13 +220,21 @@ class LessonController {
   async _onDeleteLessonTest(event) {
     const lessonContainer = event.target.closest('[data-lesson-id]');
     const lessonId = Number(lessonContainer.dataset.lessonId);
-    const accept = confirm(`Удалить тест у урока ${lessonId}`);
+    const accept = await showConfirm({
+      title: "Удаление теста",
+      message: `Удалить тест у урока ${lessonId}?`,
+      confirmText: "Удалить",
+    });
     if (!accept) return;
 
     try {
       const success = await TestService.delete(this.courseId, lessonId);
       if (success) {
-        alert("Тест удален!");
+        await showAlert({
+          title: "Готово",
+          message: "Тест удален!",
+          variant: "success",
+        });
         const data = this.getData();
         const targetLessonData = data.lessons.find(l => l.id === lessonId);
         if (!targetLessonData) return;
@@ -226,7 +243,11 @@ class LessonController {
         return success;
       }
     } catch (error) {
-      alert("Возникла ошибка при удалении теста!");
+      await showAlert({
+        title: "Ошибка удаления",
+        message: "Возникла ошибка при удалении теста!",
+        variant: "danger",
+      });
       console.error(error);
     }
   }

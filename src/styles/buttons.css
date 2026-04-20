@@ -48,7 +48,7 @@
 
 .createBtn:hover,
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--cl-primary-hover), #2f68f6);
+  background: var(--gradient-accent-hover);
   color: #fff;
 }
 

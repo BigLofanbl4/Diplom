@@ -101,8 +101,8 @@ select {
 }
 
 ::selection {
-  background: rgba(31, 94, 255, 0.18);
-  color: var(--cl-text-primary);
+  background: var(--selection-bg);
+  color: var(--selection-text);
 }
 
 button:focus-visible,

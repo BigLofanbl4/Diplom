@@ -1,3 +1,5 @@
+import { showConfirm } from "../utils/dialogs.js";
+
 export default class TableComponent {
   constructor({Service, template, rowRenderer, idAttr, entityName, emptyRow = "", containerElement } ) {
     this.response = null;
@@ -57,7 +59,11 @@ export default class TableComponent {
 
       if (btn.dataset.action === "delete") {
         const id = tr.dataset[this.idAttr];
-        const accept = confirm(`Удалить ${this.entityName} ID: ${id}`);
+        const accept = await showConfirm({
+          title: "Удаление записи",
+          message: `Удалить ${this.entityName} ID: ${id}?`,
+          confirmText: "Удалить",
+        });
         if (!accept) return;
 
         try {

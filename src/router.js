@@ -1,6 +1,7 @@
 import NotFoundPage from "./components/common/pages/NotFoundPage.js";
 import { initAuthState, getAuthState } from "./core/auth/state.js";
 import { HOME_BY_ROLE } from "./core/auth/constants.js";
+import { showAlert } from "./utils/dialogs.js";
 
 export class Router {
   constructor(routes) {
@@ -116,7 +117,11 @@ export class Router {
       }
 
       if (route.meta.access === "requiresAuth" && route.meta.role !== role) {
-        alert("Отказано в доступе");
+        await showAlert({
+          title: "Доступ закрыт",
+          message: "Отказано в доступе",
+          variant: "danger",
+        });
         return this.navigate(HOME_BY_ROLE[role] || "/login");
       }
 

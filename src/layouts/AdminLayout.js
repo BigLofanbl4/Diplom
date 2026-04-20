@@ -4,6 +4,7 @@ import {themeToggle, setTheme} from '../utils/themeToggle.js';
 import {getAuthUser} from "../core/auth/state.js";
 import {logout} from "../core/auth/api.js";
 import { getPanelBasePath, getPanelPath, getPanelRoleLabel, isAdminRole } from "../utils/panelRoute.js";
+import { showAlert, showConfirm } from "../utils/dialogs.js";
 
 function getOverviewCardsMarkup(role) {
   const cards = [
@@ -199,14 +200,22 @@ export class AdminLayout extends Layout {
 
     this.logoutButton = document.querySelector('[data-action="logout"]');
     this.boundLogoutHandler = async () => {
-      const isExit = confirm("Вы уверены, что хотите выйти?");
+      const isExit = await showConfirm({
+        title: "Выход из аккаунта",
+        message: "Вы уверены, что хотите выйти?",
+        confirmText: "Выйти",
+      });
       if (!isExit) return;
 
       try {
         await logout();
         await window.router.navigate("/login");
       } catch (error) {
-        alert("Произошла ошибка при попытке выхода");
+        await showAlert({
+          title: "Не удалось выйти",
+          message: "Произошла ошибка при попытке выхода",
+          variant: "danger",
+        });
         console.error(error);
       }
     };

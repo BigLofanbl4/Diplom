@@ -2,6 +2,7 @@ import {TestConstructorTemplate} from './TestConstructor.template.js';
 import TestService from "../../../../services/TestService.js";
 import ModalWithComponent from "../../../common/ModalWithComponent/ModalWithComponent.js";
 import { QuestionEditorForm, renderQuestionCard } from "./questions/index.js";
+import { showAlert } from "../../../../utils/dialogs.js";
 
 const getCourseIdFromPathname = (pathname = window.location.pathname) => {
   const match = pathname.match(/\/(?:admin\/courses|teacher\/groups\/\d+\/courses)\/(\d+)/);
@@ -265,11 +266,19 @@ class TestBuilderController {
         this.store.testId = response.id;
       }
 
-      alert(isEdit ? "Тест обновлен!" : "Тест создан!");
+      await showAlert({
+        title: "Готово",
+        message: isEdit ? "Тест обновлен!" : "Тест создан!",
+        variant: "success",
+      });
       return response;
     } catch (error) {
       console.error(error);
-      alert("Возникла ошибка при сохранении теста!");
+      await showAlert({
+        title: "Ошибка сохранения",
+        message: "Возникла ошибка при сохранении теста!",
+        variant: "danger",
+      });
     }
   }
 

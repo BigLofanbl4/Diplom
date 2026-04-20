@@ -51,6 +51,12 @@
     radial-gradient(circle at bottom left, rgba(14, 139, 97, 0.11), transparent 30%),
     linear-gradient(140deg, rgba(255, 255, 255, 0.98), rgba(243, 248, 254, 0.95));
   --gradient-accent: linear-gradient(135deg, var(--cl-primary), #4a84ff);
+  --gradient-accent-hover: linear-gradient(135deg, var(--cl-primary-hover), #2f68f6);
+
+  --cl-header-bg: rgba(238, 243, 248, 0.78);
+  --cl-header-border: var(--cl-border-light);
+  --selection-bg: rgba(31, 94, 255, 0.18);
+  --selection-text: var(--cl-text-primary);
 
   --shadow-sm: 0 8px 18px rgba(20, 38, 63, 0.06);
   --shadow-md: 0 18px 34px rgba(20, 38, 63, 0.1);

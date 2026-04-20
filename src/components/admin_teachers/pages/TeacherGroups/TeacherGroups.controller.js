@@ -1,4 +1,5 @@
 import TeacherService from '../../../../services/TeacherService';
+import { showAlert } from '../../../../utils/dialogs.js';
 
 export class TeacherGroupsController {
   constructor({ teacherStore, groupsStore, view }) {
@@ -50,12 +51,20 @@ export class TeacherGroupsController {
     try {
       const teacherData = this.teacherStore.getSnapshot();
       await TeacherService.update(teacherData.id, { group_ids: teacherData.group_ids });
-      alert('Сохранено!');
+      await showAlert({
+        title: "Готово",
+        message: "Сохранено!",
+        variant: "success",
+      });
       this.teacherStore.commitDraft();
       this.syncView();
     } catch (error) {
       console.log(error);
-      alert('Возникла ошибка при сохранении');
+      await showAlert({
+        title: "Ошибка сохранения",
+        message: "Возникла ошибка при сохранении",
+        variant: "danger",
+      });
     }
   }
 
@@ -71,7 +80,11 @@ export class TeacherGroupsController {
     } catch (error) {
       if (requestId !== this.lastFilterRequestId) return;
 
-      alert('Возникла ошибка при фильтрации групп');
+      await showAlert({
+        title: "Ошибка фильтрации",
+        message: "Возникла ошибка при фильтрации групп",
+        variant: "danger",
+      });
       console.log(error);
     }
   }

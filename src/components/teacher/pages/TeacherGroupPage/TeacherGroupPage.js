@@ -7,6 +7,7 @@ import LessonService from "../../../../services/LessonService.js";
 import TeacherPortalService from "../../../../services/TeacherPortalService.js";
 import TestService from "../../../../services/TestService.js";
 import { getModuleData } from "../../../../utils/courseUtils.js";
+import { showConfirm } from "../../../../utils/dialogs.js";
 
 function formatDateTime(value) {
   if (!value) return "";
@@ -595,7 +596,11 @@ export default class TeacherGroupPage {
     const moduleId = Number(event.target.closest("[data-module-id]")?.dataset.moduleId);
     if (!groupCourseId || !moduleId) return;
 
-    const accept = confirm(`Удалить модуль ${moduleId}?`);
+    const accept = await showConfirm({
+      title: "Удаление модуля",
+      message: `Удалить модуль ${moduleId}?`,
+      confirmText: "Удалить",
+    });
     if (!accept) return;
 
     await ModuleService.delete(groupCourseId, moduleId);
@@ -607,7 +612,11 @@ export default class TeacherGroupPage {
     const lessonId = Number(event.target.closest("[data-lesson-id]")?.dataset.lessonId);
     if (!groupCourseId || !lessonId) return;
 
-    const accept = confirm(`Удалить урок ${lessonId}?`);
+    const accept = await showConfirm({
+      title: "Удаление урока",
+      message: `Удалить урок ${lessonId}?`,
+      confirmText: "Удалить",
+    });
     if (!accept) return;
 
     await LessonService.delete(groupCourseId, lessonId);
@@ -619,7 +628,11 @@ export default class TeacherGroupPage {
     const lessonId = Number(event.target.closest("[data-lesson-id]")?.dataset.lessonId);
     if (!groupCourseId || !lessonId) return;
 
-    const accept = confirm(`Удалить тест у урока ${lessonId}?`);
+    const accept = await showConfirm({
+      title: "Удаление теста",
+      message: `Удалить тест у урока ${lessonId}?`,
+      confirmText: "Удалить",
+    });
     if (!accept) return;
 
     await TestService.delete(groupCourseId, lessonId);

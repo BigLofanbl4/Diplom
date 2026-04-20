@@ -1,6 +1,7 @@
 import { TeacherGroupsController } from './TeacherGroups.controller';
 import { TeacherStore, GroupsStore } from './TeacherGroups.stores';
 import { TeacherGroupsView } from './TeacherGroups.view';
+import { showAlert } from '../../../../utils/dialogs.js';
 
 export default class TeacherGroups {
   constructor({ teacherId, containerElement }) {
@@ -45,7 +46,11 @@ export default class TeacherGroups {
       this.mount();
     } catch (error) {
       // TODO: сделать состояние при ошибке
-      alert('Возникла ошибка при получении информации о группах');
+      await showAlert({
+        title: "Ошибка загрузки",
+        message: "Возникла ошибка при получении информации о группах",
+        variant: "danger",
+      });
       console.error(error);
     }
   }

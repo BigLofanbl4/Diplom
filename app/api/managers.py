@@ -66,7 +66,7 @@ def _scoped_manager_or_404(repo: ManagerRepository, manager_id: int, user: User)
     return manager
 
 
-@router.get("/", response_model=ManagersListResponse)
+@router.get("", response_model=ManagersListResponse)
 def list_managers(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
@@ -100,7 +100,7 @@ def get_manager(
     return ManagerListItem.model_validate(serialize_manager(manager))
 
 
-@router.post("/", response_model=ManagerListItem, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=ManagerListItem, status_code=status.HTTP_201_CREATED)
 def create_manager(
     data: ManagerCreateRequest,
     db: Annotated[Session, Depends(get_db)],

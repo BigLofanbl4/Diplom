@@ -14,8 +14,8 @@
   z-index: 40;
   padding: var(--pd-400) 0;
   backdrop-filter: blur(18px);
-  background: rgba(238, 243, 248, 0.78);
-  border-bottom: 1px solid var(--cl-border-light);
+  background: var(--cl-header-bg);
+  border-bottom: 1px solid var(--cl-header-border);
 }
 
 .header__container {

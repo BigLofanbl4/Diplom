@@ -1,4 +1,5 @@
 import FormValidator from "./FormValidator";
+import { showAlert } from "../utils/dialogs.js";
 
 export default class FormComponent {
   constructor({Service, mode = "create", id = null, containerElement = null }) {
@@ -37,7 +38,11 @@ export default class FormComponent {
     this.render();
     this.mount();
     if (!this.form) {
-      alert("Ошибка при загрузке формы!");
+      await showAlert({
+        title: "Ошибка формы",
+        message: "Ошибка при загрузке формы!",
+        variant: "danger",
+      });
       throw new Error("Произошла ошибка при загрузке формы!");
     }
     if (this.id && this.mode === "update") {
@@ -126,7 +131,11 @@ export default class FormComponent {
         const result = await this.submit(payload);
         this.successHandler?.(result);
       } catch (error) {
-        alert("Произошла ошибка при отправке формы");
+        await showAlert({
+          title: "Ошибка сохранения",
+          message: "Произошла ошибка при отправке формы",
+          variant: "danger",
+        });
         console.error(error);
         this.cancelHandler?.();
       }

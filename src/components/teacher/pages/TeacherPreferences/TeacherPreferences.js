@@ -1,5 +1,6 @@
 import ModalWithComponent from "../../../common/ModalWithComponent/ModalWithComponent.js";
 import TeacherPortalService from "../../../../services/TeacherPortalService.js";
+import { showAlert } from "../../../../utils/dialogs.js";
 
 const DAY_OPTIONS = [
   { value: "monday", label: "Понедельник" },
@@ -314,7 +315,11 @@ export default class TeacherPreferences {
         schedule_preferences: serializeCalendarSelection(this.selectedCalendarCells),
       });
 
-      alert("Настройки сохранены");
+      await showAlert({
+        title: "Готово",
+        message: "Настройки сохранены",
+        variant: "success",
+      });
       await this.reload();
     };
 

@@ -1,4 +1,5 @@
 import StudentPortalService from "../../../../services/StudentPortalService.js";
+import { showAlert } from "../../../../utils/dialogs.js";
 
 function normalizeOption(option) {
   if (option && typeof option === "object") {
@@ -130,7 +131,11 @@ export default class StudentTestPage {
       });
 
       const result = await StudentPortalService.submitLessonTest(this.courseId, this.lessonId, answers);
-      alert(`Тест отправлен. Результат: ${result.score}/${result.total}`);
+      await showAlert({
+        title: "Тест отправлен",
+        message: `Результат: ${result.score}/${result.total}`,
+        variant: "success",
+      });
       await window.router.navigate(`/student/courses/${this.courseId}`);
     };
 

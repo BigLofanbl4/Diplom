@@ -4,6 +4,7 @@ import {getCurrentUser, login} from "../core/auth/api.js";
 import {setUser} from "../core/auth/state.js";
 import {HOME_BY_ROLE} from "../core/auth/constants.js";
 import { themeToggle } from "../utils/themeToggle.js";
+import { showAlert } from "../utils/dialogs.js";
 
 export class LoginLayout extends Layout {
   async fetchData() {}
@@ -36,11 +37,19 @@ export class LoginLayout extends Layout {
         await window.router.navigate(HOME_BY_ROLE[user.role]);
       } catch (error) {
         if (error.status === 401) {
-          alert("Неправильный логин или пароль");
+          await showAlert({
+            title: "Ошибка входа",
+            message: "Неправильный логин или пароль",
+            variant: "danger",
+          });
           return;
         }
 
-        alert("Ошибка авторизации");
+        await showAlert({
+          title: "Ошибка авторизации",
+          message: "Не удалось выполнить вход",
+          variant: "danger",
+        });
       }
 
     };
