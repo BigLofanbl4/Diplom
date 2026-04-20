@@ -4,12 +4,13 @@ import enum
 from datetime import date
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Date, ForeignKey, String, Enum
+from sqlalchemy import Date, Enum, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
 
 if TYPE_CHECKING:
+    from .managers import Manager
     from .teachers import Teacher
     from .courses import Course
     from .groups import Group
@@ -46,6 +47,7 @@ class Admin(Base):
 
 class UserType(enum.Enum):
     admin = 'admin'
+    manager = 'manager'
     teacher = 'teacher'
     student = 'student'
 
@@ -59,6 +61,7 @@ class User(Base):
     role: Mapped[UserType] = mapped_column(Enum(UserType, name='user_type_enum'), nullable=False)
 
     admin: Mapped["Admin"] = relationship('Admin', back_populates="user", uselist=False)
+    manager: Mapped["Manager"] = relationship('Manager', back_populates="user", uselist=False)
     teacher: Mapped["Teacher"] = relationship('Teacher', back_populates="user", uselist=False)
     student: Mapped["Student"] = relationship('Student', back_populates="user", uselist=False)
 

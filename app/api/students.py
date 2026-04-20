@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models.organization import User
 from ..models.students import Student
-from ..repositories import StudentRepository
+from ..repositories import GroupRepository, StudentRepository
 from ..schemas import GroupRef
 from ..utils.api_errors import not_found
 from .auth import get_current_user
@@ -48,6 +48,10 @@ class StudentListItem(BaseModel):
     login: str
     groups_count: int
     model_config = ConfigDict(from_attributes=True)
+
+
+class StudentsListResponse(BaseModel):
+    data: list[StudentListItem]
 
 
 class StudentDetail(BaseModel):
@@ -95,13 +99,23 @@ def _to_detail(student: Student) -> StudentDetail:
     )
 
 
-@router.get('/', response_model=list[StudentListItem])
+def _validate_group_ids(db: Session, group_ids: list[int] | None, organization_id: int) -> None:
+    if group_ids is None:
+        return
+    repo = GroupRepository(db)
+    for group_id in group_ids:
+        group = repo.get(group_id)
+        if group is None or group.organization_id != organization_id:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Validation error")
+
+
+@router.get('', response_model=StudentsListResponse)
 def list_students(
         db: Annotated[Session, Depends(get_db)],
         current_user: Annotated[User, Depends(get_current_user)],
-) -> list[StudentListItem]:
+) -> StudentsListResponse:
     students = StudentRepository(db).list(organization_id=current_user.organization_id)
-    return [_to_list_item(student) for student in students]
+    return StudentsListResponse(data=[_to_list_item(student) for student in students])
 
 
 @router.get('/{student_id}', response_model=StudentDetail)
@@ -114,12 +128,13 @@ def get_student(
     return _to_detail(student)
 
 
-@router.post('/', response_model=StudentDetail, status_code=status.HTTP_201_CREATED)
+@router.post('', response_model=StudentDetail, status_code=status.HTTP_201_CREATED)
 def create_student(
         data: StudentCreateRequest,
         db: Annotated[Session, Depends(get_db)],
         current_user: Annotated[User, Depends(get_current_user)],
 ) -> StudentDetail:
+    _validate_group_ids(db, data.group_ids, current_user.organization_id)
     repo = StudentRepository(db)
     try:
         student = repo.create(
@@ -155,6 +170,7 @@ def update_student(
 
     repo = StudentRepository(db)
     _get_scoped_student_or_404(repo, student_id, current_user)
+    _validate_group_ids(db, payload.get("group_ids"), current_user.organization_id)
 
     try:
         student = repo.update(

@@ -31,6 +31,8 @@ class CourseRepository(BaseRepository):
             selectinload(Course.lessons),
             selectinload(Course.materials),
             selectinload(Course.groups),
+            selectinload(Course.lessons).selectinload(CourseLesson.test),
+            selectinload(Course.lessons).selectinload(CourseLesson.materials).selectinload(CourseMaterial.files),
         )
         if organization_id is not None:
             stmt = stmt.where(Course.organization_id == organization_id)
@@ -45,12 +47,34 @@ class CourseRepository(BaseRepository):
                 selectinload(Course.lessons),
                 selectinload(Course.materials),
                 selectinload(Course.groups),
+                selectinload(Course.lessons).selectinload(CourseLesson.test),
+                selectinload(Course.lessons).selectinload(CourseLesson.materials).selectinload(CourseMaterial.files),
             )
         )
         return self.db.scalar(stmt)
 
-    def create(self, title: str, organization_id: int, description: str | None = None) -> Course:
-        course = Course(title=title, description=description, organization_id=organization_id)
+    def create(
+        self,
+        title: str,
+        organization_id: int,
+        description: str | None = None,
+        *,
+        kind: str = "template",
+        template_course_id: int | None = None,
+        group_id: int | None = None,
+        teacher_id: int | None = None,
+        max_modules_count: int = 0,
+    ) -> Course:
+        course = Course(
+            title=title,
+            description=description,
+            organization_id=organization_id,
+            kind=kind,
+            template_course_id=template_course_id,
+            group_id=group_id,
+            teacher_id=teacher_id,
+            max_modules_count=max_modules_count,
+        )
         return self._save(course)
 
     def update(
@@ -60,6 +84,14 @@ class CourseRepository(BaseRepository):
         title: str | None = None,
         description: str | None = None,
         organization_id: int | None = None,
+        kind: str | None = None,
+        template_course_id: int | None = None,
+        template_course_id_set: bool = False,
+        group_id: int | None = None,
+        group_id_set: bool = False,
+        teacher_id: int | None = None,
+        teacher_id_set: bool = False,
+        max_modules_count: int | None = None,
     ) -> Course | None:
         course = self.db.get(Course, course_id)
         if course is None:
@@ -71,6 +103,16 @@ class CourseRepository(BaseRepository):
             course.description = description
         if organization_id is not None:
             course.organization_id = organization_id
+        if kind is not None:
+            course.kind = kind
+        if template_course_id_set:
+            course.template_course_id = template_course_id
+        if group_id_set:
+            course.group_id = group_id
+        if teacher_id_set:
+            course.teacher_id = teacher_id
+        if max_modules_count is not None:
+            course.max_modules_count = max_modules_count
 
         self.db.commit()
         self.db.refresh(course)
@@ -89,6 +131,18 @@ class CourseRepository(BaseRepository):
         self.db.delete(course)
         self.db.commit()
         return True
+
+    def get_instance_by_group_id(self, group_id: int) -> Course | None:
+        stmt = (
+            select(Course)
+            .where(Course.group_id == group_id, Course.kind == "instance")
+            .options(
+                selectinload(Course.modules),
+                selectinload(Course.lessons).selectinload(CourseLesson.test),
+                selectinload(Course.lessons).selectinload(CourseLesson.materials).selectinload(CourseMaterial.files),
+            )
+        )
+        return self.db.scalar(stmt)
 
 
 class CourseModuleRepository(BaseRepository):
@@ -394,6 +448,10 @@ class QuestionTypeRepository(BaseRepository):
     def get(self, type_id: int) -> QuestionType | None:
         return self.db.get(QuestionType, type_id)
 
+    def get_by_name(self, type_name: str) -> QuestionType | None:
+        stmt = select(QuestionType).where(QuestionType.type == type_name)
+        return self.db.scalar(stmt)
+
     def create(self, type_name: str) -> QuestionType:
         question_type = QuestionType(type=type_name)
         return self._save(question_type)
@@ -429,7 +487,10 @@ class TestRepository(BaseRepository):
         course_id: int | None = None,
         lesson_id: int | None = None,
     ) -> list[Test]:
-        stmt = select(Test).options(selectinload(Test.questions))
+        stmt = select(Test).options(
+            selectinload(Test.questions).selectinload(Question.answers),
+            selectinload(Test.questions).selectinload(Question.type),
+        )
         if course_id is not None:
             stmt = stmt.where(Test.course_id == course_id)
         if lesson_id is not None:
@@ -440,7 +501,10 @@ class TestRepository(BaseRepository):
         stmt = (
             select(Test)
             .where(Test.id == test_id)
-            .options(selectinload(Test.questions).selectinload(Question.answers))
+            .options(
+                selectinload(Test.questions).selectinload(Question.answers),
+                selectinload(Test.questions).selectinload(Question.type),
+            )
         )
         return self.db.scalar(stmt)
 
@@ -473,6 +537,7 @@ class TestRepository(BaseRepository):
             for payload in questions:
                 question = Question(
                     front_id=payload["front_id"],
+                    number=payload["number"],
                     text=payload["text"],
                     type_id=payload["type_id"],
                 )
@@ -525,9 +590,10 @@ class QuestionRepository(BaseRepository):
         )
         return self.db.scalar(stmt)
 
-    def create(self, front_id: str, text: str, test_id: int, type_id: int) -> Question:
+    def create(self, front_id: str, text: str, test_id: int, type_id: int, number: int = 1) -> Question:
         question = Question(
             front_id=front_id,
+            number=number,
             text=text,
             test_id=test_id,
             type_id=type_id,
@@ -539,6 +605,7 @@ class QuestionRepository(BaseRepository):
         question_id: int,
         *,
         front_id: str | None = None,
+        number: int | None = None,
         text: str | None = None,
         test_id: int | None = None,
         type_id: int | None = None,
@@ -550,6 +617,8 @@ class QuestionRepository(BaseRepository):
 
         if front_id is not None:
             question.front_id = front_id
+        if number is not None:
+            question.number = number
         if text is not None:
             question.text = text
         if test_id is not None:

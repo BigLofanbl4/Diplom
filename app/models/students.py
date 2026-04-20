@@ -11,6 +11,7 @@ from app.database import Base
 from .groups import group_students
 
 if TYPE_CHECKING:
+    from .portal import HomeworkSubmission, TestAttempt
     from .groups import Group, GroupLesson
     from .organization import User
 
@@ -29,6 +30,16 @@ class Student(Base):
     )
     homeworks: Mapped[list["StudentHomework"]] = relationship(
         "StudentHomework", back_populates="student", cascade="all, delete-orphan"
+    )
+    homework_submissions: Mapped[list["HomeworkSubmission"]] = relationship(
+        "HomeworkSubmission",
+        back_populates="student",
+        cascade="all, delete-orphan",
+    )
+    test_attempts: Mapped[list["TestAttempt"]] = relationship(
+        "TestAttempt",
+        back_populates="student",
+        cascade="all, delete-orphan",
     )
 
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'), unique=True, nullable=False)

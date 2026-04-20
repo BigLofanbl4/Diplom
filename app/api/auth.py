@@ -13,6 +13,7 @@ from ..schemas import UserOut, TokenOut
 from ..services import AuthService
 from ..utils.auth import decode_jwt
 from ..utils.api_errors import forbidden
+from ..utils.serializers import serialize_current_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
@@ -96,12 +97,7 @@ def require_teacher(user: Annotated[User, Depends(get_current_user)]) -> User:
 def current_user(
         user: Annotated[User, Depends(get_current_user)],
 ) -> UserOut:
-    return UserOut(
-        id=user.id,
-        username=user.login,
-        organization_id=user.organization_id,
-        role=user.role.value if hasattr(user.role, "value") else str(user.role),
-    )
+    return UserOut.model_validate(serialize_current_user(user))
 
 
 @router.post("/logout")

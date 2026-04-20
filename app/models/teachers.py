@@ -3,13 +3,14 @@ from __future__ import annotations
 from datetime import date, datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Date, ForeignKey, String
+from sqlalchemy import Date, ForeignKey, JSON, String
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
 
 if TYPE_CHECKING:
+    from .portal import HomeworkSubmission
     from .organization import User
     from .groups import Group
 
@@ -24,6 +25,8 @@ class Teacher(Base):
     first_name: Mapped[str] = mapped_column(String(100), nullable=False)
     last_name: Mapped[str] = mapped_column(String(100), nullable=False)
     birth_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    course_ids: Mapped[list[int]] = mapped_column(JSON, nullable=False, default=list)
+    schedule_preferences: Mapped[list[dict]] = mapped_column(JSON, nullable=False, default=list)
 
     @hybrid_property
     def age(self) -> int | None:
@@ -36,6 +39,11 @@ class Teacher(Base):
         return today.year - bday.year - 1
 
     groups: Mapped[list["Group"]] = relationship("Group", back_populates="teacher")
+    reviewed_homework_submissions: Mapped[list["HomeworkSubmission"]] = relationship(
+        "HomeworkSubmission",
+        back_populates="reviewer",
+        overlaps="reviewer",
+    )
 
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'), unique=True, nullable=False)
     user: Mapped['User'] = relationship('User', back_populates="teacher")

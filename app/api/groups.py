@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import date
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
@@ -13,6 +14,7 @@ from ..models.organization import User
 from ..repositories import CourseRepository, GroupRepository, StudentRepository, TeacherRepository
 from ..schemas import CourseRef, StudentRef, TeacherRef
 from ..utils.api_errors import not_found
+from ..utils.schedule import normalize_schedule_slots
 from .auth import get_current_user
 
 router = APIRouter(prefix='/groups', tags=['groups'])
@@ -32,6 +34,9 @@ class GroupListItem(BaseModel):
     course_id: int | None = None
     course: CourseRef | None = None
     students_count: int
+    planned_start_date: date | None = None
+    planned_end_date: date | None = None
+    planned_schedule_slots: list[dict] = Field(default_factory=list)
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -45,6 +50,9 @@ class GroupCreateRequest(BaseModel):
     teacher_id: int | None = None
     student_ids: list[int] = Field(default_factory=list)
     course_id: int | None = None
+    planned_start_date: date | None = None
+    planned_end_date: date | None = None
+    planned_schedule_slots: list[dict] = Field(default_factory=list)
 
 
 class GroupUpdateRequest(BaseModel):
@@ -52,6 +60,9 @@ class GroupUpdateRequest(BaseModel):
     teacher_id: int | None = None
     student_ids: list[int] | None = None
     course_id: int | None = None
+    planned_start_date: date | None = None
+    planned_end_date: date | None = None
+    planned_schedule_slots: list[dict] | None = None
 
 
 class GroupDetail(BaseModel):
@@ -63,6 +74,9 @@ class GroupDetail(BaseModel):
     teacher: TeacherRef | None = None
     course: CourseRef | None = None
     students: list[StudentRef]
+    planned_start_date: date | None = None
+    planned_end_date: date | None = None
+    planned_schedule_slots: list[dict] = Field(default_factory=list)
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -82,6 +96,9 @@ def _to_group_list_item(group: Group) -> GroupListItem:
         course_id=group.template_course_id,
         course=course,
         students_count=len(group.students),
+        planned_start_date=group.planned_start_date,
+        planned_end_date=group.planned_end_date,
+        planned_schedule_slots=normalize_schedule_slots(group.planned_schedule_slots),
     )
 
 
@@ -98,6 +115,9 @@ def _to_group_detail(group: Group) -> GroupDetail:
         teacher=teacher,
         course=course,
         students=students,
+        planned_start_date=group.planned_start_date,
+        planned_end_date=group.planned_end_date,
+        planned_schedule_slots=normalize_schedule_slots(group.planned_schedule_slots),
     )
 
 
@@ -127,7 +147,7 @@ def _validate_student_ids(db: Session, student_ids: list[int] | None, organizati
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Validation error")
 
 
-@router.get('/', response_model=GroupsListResponse)
+@router.get('', response_model=GroupsListResponse)
 def list_groups(
         db: Annotated[Session, Depends(get_db)],
         current_user: Annotated[User, Depends(get_current_user)],
@@ -160,7 +180,7 @@ def get_group(
     return _to_group_detail(group)
 
 
-@router.post('/', response_model=GroupDetail, status_code=status.HTTP_201_CREATED)
+@router.post('', response_model=GroupDetail, status_code=status.HTTP_201_CREATED)
 def create_group(
         data: GroupCreateRequest,
         db: Annotated[Session, Depends(get_db)],
@@ -178,6 +198,9 @@ def create_group(
             teacher_id=data.teacher_id,
             student_ids=data.student_ids,
             course_id=data.course_id,
+            planned_start_date=data.planned_start_date,
+            planned_end_date=data.planned_end_date,
+            planned_schedule_slots=normalize_schedule_slots(data.planned_schedule_slots),
         )
     except IntegrityError:
         db.rollback()
@@ -213,9 +236,16 @@ def update_group(
             group_id,
             group_number=payload.get("group_number"),
             teacher_id=payload.get("teacher_id"),
+            teacher_id_set="teacher_id" in payload,
             student_ids=payload.get("student_ids"),
             course_id=payload.get("course_id"),
             course_id_set="course_id" in payload,
+            planned_start_date=payload.get("planned_start_date"),
+            planned_start_date_set="planned_start_date" in payload,
+            planned_end_date=payload.get("planned_end_date"),
+            planned_end_date_set="planned_end_date" in payload,
+            planned_schedule_slots=normalize_schedule_slots(payload.get("planned_schedule_slots")),
+            planned_schedule_slots_set="planned_schedule_slots" in payload,
         )
     except IntegrityError:
         db.rollback()

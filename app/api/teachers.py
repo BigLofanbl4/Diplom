@@ -11,9 +11,11 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models.organization import User
 from ..models.teachers import Teacher
+from ..models.groups import Group
 from ..repositories import GroupRepository, TeacherRepository
 from ..schemas import GroupRef
 from ..utils.api_errors import forbidden, not_found
+from ..utils.schedule import date_ranges_overlap, normalize_schedule_slots, schedule_contains_slot, slots_overlap
 from .auth import get_current_user
 
 router = APIRouter(prefix='/teachers', tags=['teachers'])
@@ -36,6 +38,7 @@ class TeacherListItem(BaseModel):
     is_ovz: bool
     organization_id: int
     groups_count: int
+    availability_for_group: dict | None = None
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -82,6 +85,8 @@ class TeacherDetail(BaseModel):
     login: str
     group_ids: list[int]
     groups: list[GroupRef]
+    course_ids: list[int] = Field(default_factory=list)
+    schedule_preferences: list[dict] = Field(default_factory=list)
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -107,7 +112,62 @@ def _get_scoped_teacher_or_404(repo: TeacherRepository, teacher_id: int, user: U
     return teacher
 
 
-def _to_teacher_list_item(teacher: Teacher) -> TeacherListItem:
+def _build_availability_for_group(teacher: Teacher, group: Group | None) -> dict | None:
+    if group is None:
+        return None
+
+    reasons: list[str] = []
+    conflicts: list[dict] = []
+    group_slots = normalize_schedule_slots(group.planned_schedule_slots)
+    teacher_schedule = normalize_schedule_slots(teacher.schedule_preferences)
+
+    if group.template_course_id is not None and group.template_course_id not in (teacher.course_ids or []):
+        reasons.append("Преподаватель не отметил этот курс в предпочтениях.")
+
+    if group.planned_start_date is None:
+        reasons.append("У группы не указана дата старта.")
+
+    if not group_slots:
+        reasons.append("У группы не заполнены weekly-слоты.")
+
+    for slot in group_slots:
+        if not schedule_contains_slot(teacher_schedule, slot):
+            reasons.append("Базовая доступность преподавателя не покрывает один или несколько слотов группы.")
+            break
+
+    for assigned_group in teacher.groups:
+        if assigned_group.id == group.id:
+            continue
+        if not date_ranges_overlap(
+            assigned_group.planned_start_date,
+            assigned_group.planned_end_date,
+            group.planned_start_date,
+            group.planned_end_date,
+        ):
+            continue
+        for assigned_slot in normalize_schedule_slots(assigned_group.planned_schedule_slots):
+            for requested_slot in group_slots:
+                if slots_overlap(assigned_slot, requested_slot):
+                    conflicts.append(
+                        {
+                            "group_id": assigned_group.id,
+                            "group_number": assigned_group.group_number,
+                            "slot": assigned_slot,
+                            "start_date": assigned_group.planned_start_date,
+                            "end_date": assigned_group.planned_end_date,
+                        }
+                    )
+    if conflicts:
+        reasons.append("Есть пересечение с уже назначенной группой после даты старта.")
+
+    return {
+        "is_available": len(reasons) == 0,
+        "reasons": reasons,
+        "conflicts": conflicts,
+    }
+
+
+def _to_teacher_list_item(teacher: Teacher, group: Group | None = None) -> TeacherListItem:
     organization_id = teacher.user.organization_id if teacher.user is not None else 0
     login = teacher.user.login if teacher.user is not None else ""
     return TeacherListItem(
@@ -120,6 +180,7 @@ def _to_teacher_list_item(teacher: Teacher) -> TeacherListItem:
         is_ovz=teacher.is_ovz,
         organization_id=organization_id,
         groups_count=len(teacher.groups),
+        availability_for_group=_build_availability_for_group(teacher, group),
     )
 
 
@@ -139,6 +200,8 @@ def _to_teacher_detail(teacher: Teacher) -> TeacherDetail:
         login=login,
         group_ids=[group.id for group in teacher.groups],
         groups=groups,
+        course_ids=list(teacher.course_ids or []),
+        schedule_preferences=normalize_schedule_slots(teacher.schedule_preferences),
     )
 
 
@@ -163,15 +226,21 @@ def _resolve_organization_id(
     return provided_org_id
 
 
-@router.get('/', response_model=TeachersListResponse)
+@router.get('', response_model=TeachersListResponse)
 def list_teachers(
         db: Annotated[Session, Depends(get_db)],
         current_user: Annotated[User, Depends(get_current_user)],
         limit: Annotated[int, Query(ge=1, le=200)] = 50,
         offset: Annotated[int, Query(ge=0)] = 0,
         search: str | None = None,
+        group_id: int | None = None,
 ) -> TeachersListResponse:
     teachers = TeacherRepository(db).list(organization_id=current_user.organization_id)
+    group = None
+    if group_id is not None:
+        target_group = GroupRepository(db).get(group_id)
+        if target_group is not None and target_group.organization_id == current_user.organization_id:
+            group = target_group
     teachers = sorted(teachers, key=lambda item: item.id)
 
     if search:
@@ -187,7 +256,7 @@ def list_teachers(
     totals = len(teachers)
     page = teachers[offset:offset + limit]
     return TeachersListResponse(
-        data=[_to_teacher_list_item(teacher) for teacher in page],
+        data=[_to_teacher_list_item(teacher, group) for teacher in page],
         meta=TeachersListMeta(totals=totals, limit=limit, offset=offset, search=search),
     )
 
@@ -202,7 +271,7 @@ def get_teacher(
     return _to_teacher_detail(teacher)
 
 
-@router.post('/', response_model=TeacherDetail, status_code=status.HTTP_201_CREATED)
+@router.post('', response_model=TeacherDetail, status_code=status.HTTP_201_CREATED)
 def create_teacher(
         data: TeacherCreateRequest,
         db: Annotated[Session, Depends(get_db)],
@@ -222,6 +291,8 @@ def create_teacher(
             birth_date=_resolve_birth_date(data.birth_date, data.age),
             phone=data.phone,
             is_ovz=data.is_ovz,
+            course_ids=[],
+            schedule_preferences=[],
             group_ids=data.group_ids,
         )
     except IntegrityError:
@@ -270,7 +341,12 @@ def update_teacher(
             last_name=payload.get("last_name"),
             birth_date=birth_date,
             phone=payload.get("phone"),
+            phone_set="phone" in payload,
             is_ovz=payload.get("is_ovz"),
+            course_ids=payload.get("course_ids"),
+            course_ids_set="course_ids" in payload,
+            schedule_preferences=payload.get("schedule_preferences"),
+            schedule_preferences_set="schedule_preferences" in payload,
             group_ids=payload.get("group_ids"),
         )
     except IntegrityError:

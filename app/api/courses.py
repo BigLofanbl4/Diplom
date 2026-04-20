@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, File as FastAPIFile, Form, HTTPException, Response, UploadFile, status
 from pydantic import BaseModel, ConfigDict
@@ -16,8 +16,19 @@ from ..repositories import (
     CourseModuleRepository,
     CourseRepository,
     FileRepository,
+    QuestionTypeRepository,
+    TestRepository,
 )
 from ..utils.api_errors import not_found
+from ..utils.course_instances import (
+    clone_template_test,
+    ensure_course_instance,
+    find_template_lesson,
+    find_template_module,
+    find_template_course,
+    is_instance_course,
+)
+from ..utils.serializers import serialize_course, serialize_course_detail, serialize_lesson, serialize_test
 from .auth import get_current_user
 
 router = APIRouter(prefix='/courses', tags=['courses'])
@@ -37,7 +48,16 @@ class CourseListItem(BaseModel):
     id: int
     title: str
     description: str | None = None
+    kind: str | None = None
+    template_course_id: int | None = None
+    group_id: int | None = None
+    teacher_id: int | None = None
+    max_modules_count: int | None = None
     model_config = ConfigDict(from_attributes=True)
+
+
+class CoursesListResponse(BaseModel):
+    data: list[CourseListItem]
 
 
 class CourseModuleOut(BaseModel):
@@ -53,8 +73,11 @@ class CourseLessonShortOut(BaseModel):
     title: str
     lesson_number: int
     description: str | None = None
+    homework_text: str | None = None
     course_id: int
     module_id: int | None = None
+    test_id: int | None = None
+    materials: list[dict] = []
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -62,13 +85,21 @@ class CourseDetail(BaseModel):
     id: int
     title: str
     description: str | None = None
+    kind: str | None = None
+    template_course_id: int | None = None
+    group_id: int | None = None
+    teacher_id: int | None = None
+    max_modules_count: int | None = None
+    template_course: dict | None = None
+    template_modules: list[CourseModuleOut] = []
+    template_lessons: list[CourseLessonShortOut] = []
     modules: list[CourseModuleOut]
     lessons: list[CourseLessonShortOut]
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, extra="allow")
 
 
 class CourseModuleCreateRequest(BaseModel):
-    title: str
+    title: str | None = None
     module_number: int
 
 
@@ -90,11 +121,19 @@ class CourseLessonOut(BaseModel):
     title: str
     lesson_number: int
     description: str | None = None
+    homework_text: str | None = None
     course_id: int
     module_id: int | None = None
     test_id: int | None = None
     materials: list[LessonMaterialOut]
     model_config = ConfigDict(from_attributes=True)
+
+
+class TestOut(BaseModel):
+    id: int
+    title: str
+    questions_number: int
+    questions: list[dict]
 
 
 def _get_scoped_course_or_404(repo: CourseRepository, course_id: int, user: User) -> Course:
@@ -134,33 +173,56 @@ def _get_scoped_lesson_or_404(
     return lesson
 
 
-def _serialize_course_detail(course: Course) -> CourseDetail:
-    modules = sorted(course.modules, key=lambda item: (item.module_number, item.id))
-    lessons = sorted(course.lessons, key=lambda item: (item.lesson_number, item.id))
-    return CourseDetail(
-        id=course.id,
-        title=course.title,
-        description=course.description,
-        modules=[CourseModuleOut.model_validate(module) for module in modules],
-        lessons=[CourseLessonShortOut.model_validate(lesson) for lesson in lessons],
-    )
+def _serialize_course_detail(course: Course, repo: CourseRepository) -> CourseDetail:
+    return CourseDetail.model_validate(serialize_course_detail(course, repo))
 
 
 def _serialize_lesson(lesson: CourseLesson) -> CourseLessonOut:
-    files = []
-    for material in lesson.materials:
-        files.extend(material.files)
-    files = sorted(files, key=lambda item: item.id)
-    return CourseLessonOut(
-        id=lesson.id,
-        title=lesson.title,
-        lesson_number=lesson.lesson_number,
-        description=lesson.description,
-        course_id=lesson.course_id,
-        module_id=lesson.module_id,
-        test_id=lesson.test.id if lesson.test is not None else None,
-        materials=[LessonMaterialOut.model_validate(file) for file in files],
-    )
+    return CourseLessonOut.model_validate(serialize_lesson(lesson))
+
+
+def _resolve_question_type_id(db: Session, question_type: str) -> int:
+    repo = QuestionTypeRepository(db)
+    record = repo.get_by_name(question_type)
+    if record is None:
+        record = repo.create(question_type)
+    return record.id
+
+
+def _normalize_questions_payload(db: Session, questions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    normalized: list[dict[str, Any]] = []
+    for index, question in enumerate(questions, start=1):
+        options = question.get("options") or []
+        if question.get("type") == "text":
+            answers = [
+                {"text": str(answer).strip(), "is_right": True}
+                for answer in (question.get("answer") or [])
+                if str(answer).strip()
+            ]
+        else:
+            selected = {str(answer).strip() for answer in (question.get("answer") or []) if str(answer).strip()}
+            answers = []
+            for option in options:
+                value = str(option.get("value") if isinstance(option, dict) else option).strip()
+                text = str(option.get("text") if isinstance(option, dict) else option).strip()
+                if not value:
+                    continue
+                answers.append(
+                    {
+                        "text": value,
+                        "is_right": value in selected or text in selected,
+                    }
+                )
+        normalized.append(
+            {
+                "front_id": question.get("uiId") or question.get("front_id") or f"question-{index}",
+                "number": int(question.get("number") or index),
+                "text": str(question.get("text") or ""),
+                "type_id": _resolve_question_type_id(db, str(question.get("type") or "text")),
+                "answers": answers,
+            }
+        )
+    return normalized
 
 
 def _parse_optional_module_id(module_id: str | None) -> tuple[bool, int | None]:
@@ -232,14 +294,48 @@ def _resolve_removed_ids(raw_ids: list[str] | None) -> list[int]:
     return resolved
 
 
-@router.get('/', response_model=list[CourseListItem])
+def _extract_material_homework_text(lesson: CourseLesson | None) -> str | None:
+    if lesson is None:
+        return None
+    for material in lesson.materials:
+        if material.homework_text:
+            return material.homework_text
+    return None
+
+
+def _copy_material_files(source_lesson: CourseLesson, file_repo: FileRepository, material_id: int) -> None:
+    for material in source_lesson.materials:
+        for source_file in material.files:
+            file_repo.create(
+                path=source_file.path,
+                material_id=material_id,
+                name=source_file.name,
+                size=source_file.size,
+                url=source_file.url,
+            )
+
+
+def _refresh_template_course_limits(course: Course, repo: CourseRepository) -> None:
+    if course.kind == "instance":
+        return
+    max_module_number = max((module.module_number for module in course.modules), default=0)
+    repo.update(course.id, max_modules_count=max_module_number)
+
+
+@router.get('', response_model=CoursesListResponse)
 def list_courses(
         db: Annotated[Session, Depends(get_db)],
         current_user: Annotated[User, Depends(get_current_user)],
-) -> list[CourseListItem]:
-    courses = CourseRepository(db).list(organization_id=current_user.organization_id)
+) -> CoursesListResponse:
+    repo = CourseRepository(db)
+    courses = [
+        course for course in repo.list(organization_id=current_user.organization_id)
+        if course.kind != "instance"
+    ]
     courses = sorted(courses, key=lambda item: item.id)
-    return [CourseListItem.model_validate(course) for course in courses]
+    return CoursesListResponse(
+        data=[CourseListItem.model_validate(serialize_course(course, repo)) for course in courses],
+    )
 
 
 @router.get('/{course_id}', response_model=CourseDetail)
@@ -248,26 +344,30 @@ def get_course(
         db: Annotated[Session, Depends(get_db)],
         current_user: Annotated[User, Depends(get_current_user)],
 ) -> CourseDetail:
-    course = _get_scoped_course_or_404(CourseRepository(db), course_id, current_user)
-    return _serialize_course_detail(course)
+    repo = CourseRepository(db)
+    course = _get_scoped_course_or_404(repo, course_id, current_user)
+    return _serialize_course_detail(course, repo)
 
 
-@router.post('/', response_model=CourseListItem, status_code=status.HTTP_201_CREATED)
+@router.post('', response_model=CourseListItem, status_code=status.HTTP_201_CREATED)
 def create_course(
         data: CourseCreateRequest,
         db: Annotated[Session, Depends(get_db)],
         current_user: Annotated[User, Depends(get_current_user)],
 ) -> CourseListItem:
+    repo = CourseRepository(db)
     try:
-        course = CourseRepository(db).create(
+        course = repo.create(
             title=data.title,
             description=data.description,
             organization_id=current_user.organization_id,
+            kind="template",
+            max_modules_count=0,
         )
     except IntegrityError:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Validation error')
-    return CourseListItem.model_validate(course)
+    return CourseListItem.model_validate(serialize_course(course, repo))
 
 
 @router.patch('/{course_id}', response_model=CourseListItem)
@@ -283,7 +383,6 @@ def update_course(
 
     repo = CourseRepository(db)
     _get_scoped_course_or_404(repo, course_id, current_user)
-
     try:
         updated = repo.update(
             course_id,
@@ -296,7 +395,7 @@ def update_course(
 
     if updated is None:
         raise not_found('Course not found')
-    return CourseListItem.model_validate(updated)
+    return CourseListItem.model_validate(serialize_course(updated, repo))
 
 
 @router.delete('/{course_id}', status_code=status.HTTP_204_NO_CONTENT)
@@ -347,16 +446,31 @@ def create_course_module(
         db: Annotated[Session, Depends(get_db)],
         current_user: Annotated[User, Depends(get_current_user)],
 ) -> CourseModuleOut:
-    _get_scoped_course_or_404(CourseRepository(db), course_id, current_user)
+    course_repo = CourseRepository(db)
+    module_repo = CourseModuleRepository(db)
+    course = _get_scoped_course_or_404(course_repo, course_id, current_user)
+
+    title = data.title
+    if is_instance_course(course):
+        template_module = find_template_module(course, data.module_number, course_repo)
+        if template_module is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Validation error')
+        title = title or template_module.title
+    elif not title:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Validation error')
+
     try:
-        module = CourseModuleRepository(db).create(
-            title=data.title,
+        module = module_repo.create(
+            title=title,
             module_number=data.module_number,
             course_id=course_id,
         )
     except IntegrityError:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Validation error')
+
+    course = course_repo.get(course.id) or course
+    _refresh_template_course_limits(course, course_repo)
     return CourseModuleOut.model_validate(module)
 
 
@@ -372,18 +486,31 @@ def update_course_module(
     if not payload:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail='No fields to update')
 
-    course_exists = _get_scoped_course_or_404(CourseRepository(db), course_id, current_user) is not None
+    course_repo = CourseRepository(db)
+    module_repo = CourseModuleRepository(db)
+    course = _get_scoped_course_or_404(course_repo, course_id, current_user)
+    course_exists = course is not None
     _get_scoped_module_or_404(
-        CourseModuleRepository(db),
+        module_repo,
         course_id=course_id,
         module_id=module_id,
         course_exists=course_exists,
     )
+
+    next_title = payload.get("title")
+    next_number = payload.get("module_number")
+    if is_instance_course(course) and next_number is not None:
+        template_module = find_template_module(course, next_number, course_repo)
+        if template_module is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Validation error')
+        if not next_title:
+            next_title = template_module.title
+
     try:
-        module = CourseModuleRepository(db).update(
+        module = module_repo.update(
             module_id,
-            title=payload.get('title'),
-            module_number=payload.get('module_number'),
+            title=next_title,
+            module_number=next_number,
         )
     except IntegrityError:
         db.rollback()
@@ -391,6 +518,8 @@ def update_course_module(
 
     if module is None:
         raise not_found('Module not found')
+    refreshed_course = course_repo.get(course.id) or course
+    _refresh_template_course_limits(refreshed_course, course_repo)
     return CourseModuleOut.model_validate(module)
 
 
@@ -401,10 +530,13 @@ def delete_course_module(
         db: Annotated[Session, Depends(get_db)],
         current_user: Annotated[User, Depends(get_current_user)],
 ) -> Response:
-    course_exists = _get_scoped_course_or_404(CourseRepository(db), course_id, current_user) is not None
+    course_repo = CourseRepository(db)
+    course = _get_scoped_course_or_404(course_repo, course_id, current_user)
     repo = CourseModuleRepository(db)
-    _get_scoped_module_or_404(repo, course_id=course_id, module_id=module_id, course_exists=course_exists)
+    _get_scoped_module_or_404(repo, course_id=course_id, module_id=module_id, course_exists=True)
     repo.delete(module_id)
+    refreshed_course = course_repo.get(course.id) or course
+    _refresh_template_course_limits(refreshed_course, course_repo)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
@@ -416,7 +548,7 @@ def list_course_lessons(
 ) -> list[CourseLessonOut]:
     _get_scoped_course_or_404(CourseRepository(db), course_id, current_user)
     lessons = CourseLessonRepository(db).list(course_id=course_id)
-    lessons = sorted(lessons, key=lambda item: (item.lesson_number, item.id))
+    lessons = sorted(lessons, key=lambda item: (item.module_id or 0, item.lesson_number, item.id))
     return [_serialize_lesson(lesson) for lesson in lessons]
 
 
@@ -427,12 +559,11 @@ def get_course_lesson(
         db: Annotated[Session, Depends(get_db)],
         current_user: Annotated[User, Depends(get_current_user)],
 ) -> CourseLessonOut:
-    course_exists = _get_scoped_course_or_404(CourseRepository(db), course_id, current_user) is not None
     lesson = _get_scoped_lesson_or_404(
         CourseLessonRepository(db),
         course_id=course_id,
         lesson_id=lesson_id,
-        course_exists=course_exists,
+        course_exists=_get_scoped_course_or_404(CourseRepository(db), course_id, current_user) is not None,
     )
     return _serialize_lesson(lesson)
 
@@ -442,18 +573,38 @@ def create_course_lesson(
         course_id: int,
         db: Annotated[Session, Depends(get_db)],
         current_user: Annotated[User, Depends(get_current_user)],
-        title: Annotated[str, Form()],
-        lesson_number: Annotated[int, Form()],
+        title: Annotated[str | None, Form()] = None,
+        lesson_number: Annotated[int, Form()] = 1,
         description: Annotated[str | None, Form()] = None,
         homework_text: Annotated[str | None, Form()] = None,
         module_id_raw: Annotated[str | None, Form(alias='module_id')] = None,
         materials: Annotated[list[UploadFile] | None, FastAPIFile(alias='materials')] = None,
 ) -> CourseLessonOut:
-    _get_scoped_course_or_404(CourseRepository(db), course_id, current_user)
+    course_repo = CourseRepository(db)
+    course = _get_scoped_course_or_404(course_repo, course_id, current_user)
     module_id_set, module_id = _parse_optional_module_id(module_id_raw)
     if not module_id_set:
         module_id = None
     _ensure_module_belongs_to_course(CourseModuleRepository(db), course_id=course_id, module_id=module_id)
+
+    module = CourseModuleRepository(db).get(module_id) if module_id is not None else None
+    template_lesson = None
+    resolved_title = title
+    resolved_description = description
+    resolved_homework_text = homework_text
+
+    if is_instance_course(course):
+        if module is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Validation error')
+        template_lesson = find_template_lesson(course, module.module_number, lesson_number, course_repo)
+        if template_lesson is not None:
+            resolved_title = resolved_title or template_lesson.title
+            resolved_description = resolved_description or template_lesson.description
+            if resolved_homework_text is None:
+                resolved_homework_text = _extract_material_homework_text(template_lesson)
+
+    if not resolved_title:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Validation error')
 
     lesson_repo = CourseLessonRepository(db)
     material_repo = CourseMaterialRepository(db)
@@ -461,18 +612,26 @@ def create_course_lesson(
 
     try:
         lesson = lesson_repo.create(
-            title=title,
+            title=resolved_title,
             lesson_number=lesson_number,
-            description=description,
+            description=resolved_description,
             course_id=course_id,
             module_id=module_id,
         )
-        if homework_text is not None or (materials and len(materials) > 0):
+
+        should_create_material = (
+            resolved_homework_text is not None
+            or bool(materials)
+            or bool(template_lesson and any(item.files for item in template_lesson.materials))
+        )
+        if should_create_material:
             material = material_repo.create(
                 course_id=course_id,
                 lesson_id=lesson.id,
-                homework_text=homework_text,
+                homework_text=resolved_homework_text,
             )
+            if template_lesson is not None:
+                _copy_material_files(template_lesson, file_repo, material.id)
             for upload in materials or []:
                 upload.file.seek(0, 2)
                 size = upload.file.tell()
@@ -485,6 +644,9 @@ def create_course_lesson(
                     size=size,
                     url=f'/api/v1/courses/{course_id}/lessons/{lesson.id}/materials/{filename}',
                 )
+
+        if template_lesson is not None and template_lesson.test is not None:
+            clone_template_test(template_lesson.test, course_id, lesson.id, TestRepository(db))
     except IntegrityError:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Validation error')
@@ -509,13 +671,12 @@ def update_course_lesson(
         removed_material_ids_raw: Annotated[list[str] | None, Form(alias='removed_material_ids')] = None,
         materials: Annotated[list[UploadFile] | None, FastAPIFile(alias='materials')] = None,
 ) -> CourseLessonOut:
-    course_exists = _get_scoped_course_or_404(CourseRepository(db), course_id, current_user) is not None
     lesson_repo = CourseLessonRepository(db)
     lesson = _get_scoped_lesson_or_404(
         lesson_repo,
         course_id=course_id,
         lesson_id=lesson_id,
-        course_exists=course_exists,
+        course_exists=_get_scoped_course_or_404(CourseRepository(db), course_id, current_user) is not None,
     )
 
     lesson_number_set, lesson_number = _parse_optional_int('lesson_number', lesson_number_raw)
@@ -526,7 +687,6 @@ def update_course_lesson(
     removed_material_ids = _resolve_removed_ids(removed_material_ids_raw)
     should_add_files = bool(materials and len(materials) > 0)
     should_update_material_text = homework_text is not None
-
     if (
             title is None
             and not lesson_number_set
@@ -540,7 +700,6 @@ def update_course_lesson(
 
     material_repo = CourseMaterialRepository(db)
     file_repo = FileRepository(db)
-
     try:
         updated = lesson_repo.update(
             lesson_id,
@@ -555,28 +714,19 @@ def update_course_lesson(
         default_material = lesson_materials[0] if lesson_materials else None
         if should_update_material_text:
             if default_material is None:
-                default_material = material_repo.create(
-                    course_id=course_id,
-                    lesson_id=lesson_id,
-                    homework_text=homework_text,
-                )
+                default_material = material_repo.create(course_id=course_id, lesson_id=lesson_id, homework_text=homework_text)
             else:
                 material_repo.update(default_material.id, homework_text=homework_text)
 
         if removed_material_ids:
-            owned_material_file_ids = {
-                file.id for material in lesson_materials for file in material.files
-            }
+            owned_material_file_ids = {file.id for material in lesson_materials for file in material.files}
             for file_id in removed_material_ids:
                 if file_id in owned_material_file_ids:
                     file_repo.delete(file_id)
 
         if should_add_files:
             if default_material is None:
-                default_material = material_repo.create(
-                    course_id=course_id,
-                    lesson_id=lesson_id,
-                )
+                default_material = material_repo.create(course_id=course_id, lesson_id=lesson_id)
             for upload in materials or []:
                 upload.file.seek(0, 2)
                 size = upload.file.tell()
@@ -608,13 +758,114 @@ def delete_course_lesson(
         db: Annotated[Session, Depends(get_db)],
         current_user: Annotated[User, Depends(get_current_user)],
 ) -> Response:
-    course_exists = _get_scoped_course_or_404(CourseRepository(db), course_id, current_user) is not None
     repo = CourseLessonRepository(db)
     _get_scoped_lesson_or_404(
         repo,
         course_id=course_id,
         lesson_id=lesson_id,
-        course_exists=course_exists,
+        course_exists=_get_scoped_course_or_404(CourseRepository(db), course_id, current_user) is not None,
     )
     repo.delete(lesson_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.get('/{course_id}/lessons/{lesson_id}/test', response_model=TestOut)
+def get_lesson_test(
+        course_id: int,
+        lesson_id: int,
+        db: Annotated[Session, Depends(get_db)],
+        current_user: Annotated[User, Depends(get_current_user)],
+) -> TestOut:
+    _get_scoped_lesson_or_404(
+        CourseLessonRepository(db),
+        course_id=course_id,
+        lesson_id=lesson_id,
+        course_exists=_get_scoped_course_or_404(CourseRepository(db), course_id, current_user) is not None,
+    )
+    tests = TestRepository(db).list(course_id=course_id, lesson_id=lesson_id)
+    test = tests[0] if tests else None
+    if test is None:
+        raise not_found('Test not found')
+    return TestOut.model_validate(serialize_test(test))
+
+
+@router.post('/{course_id}/lessons/{lesson_id}/test', response_model=TestOut, status_code=status.HTTP_201_CREATED)
+def create_lesson_test(
+        course_id: int,
+        lesson_id: int,
+        payload: dict[str, Any],
+        db: Annotated[Session, Depends(get_db)],
+        current_user: Annotated[User, Depends(get_current_user)],
+) -> TestOut:
+    _get_scoped_lesson_or_404(
+        CourseLessonRepository(db),
+        course_id=course_id,
+        lesson_id=lesson_id,
+        course_exists=_get_scoped_course_or_404(CourseRepository(db), course_id, current_user) is not None,
+    )
+    test_repo = TestRepository(db)
+    if test_repo.list(course_id=course_id, lesson_id=lesson_id):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Validation error')
+    try:
+        test = test_repo.create(course_id=course_id, title=str(payload.get("title") or ""), lesson_id=lesson_id)
+        questions = _normalize_questions_payload(db, list(payload.get("questions") or []))
+        updated = test_repo.update(test.id, title=str(payload.get("title") or ""), questions=questions)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Validation error')
+    return TestOut.model_validate(serialize_test(updated or test))
+
+
+@router.put('/{course_id}/lessons/{lesson_id}/test', response_model=TestOut)
+def update_lesson_test(
+        course_id: int,
+        lesson_id: int,
+        payload: dict[str, Any],
+        db: Annotated[Session, Depends(get_db)],
+        current_user: Annotated[User, Depends(get_current_user)],
+) -> TestOut:
+    _get_scoped_lesson_or_404(
+        CourseLessonRepository(db),
+        course_id=course_id,
+        lesson_id=lesson_id,
+        course_exists=_get_scoped_course_or_404(CourseRepository(db), course_id, current_user) is not None,
+    )
+    test_repo = TestRepository(db)
+    tests = test_repo.list(course_id=course_id, lesson_id=lesson_id)
+    test = tests[0] if tests else None
+    if test is None:
+        raise not_found('Test not found')
+    try:
+        updated = test_repo.update(
+            test.id,
+            title=str(payload.get("title") or ""),
+            questions=_normalize_questions_payload(db, list(payload.get("questions") or [])),
+        )
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Validation error')
+    if updated is None:
+        raise not_found('Test not found')
+    return TestOut.model_validate(serialize_test(updated))
+
+
+@router.delete('/{course_id}/lessons/{lesson_id}/test', status_code=status.HTTP_204_NO_CONTENT)
+def delete_lesson_test(
+        course_id: int,
+        lesson_id: int,
+        db: Annotated[Session, Depends(get_db)],
+        current_user: Annotated[User, Depends(get_current_user)],
+) -> Response:
+    _get_scoped_lesson_or_404(
+        CourseLessonRepository(db),
+        course_id=course_id,
+        lesson_id=lesson_id,
+        course_exists=_get_scoped_course_or_404(CourseRepository(db), course_id, current_user) is not None,
+    )
+    test_repo = TestRepository(db)
+    tests = test_repo.list(course_id=course_id, lesson_id=lesson_id)
+    test = tests[0] if tests else None
+    if test is None:
+        raise not_found('Test not found')
+    test_repo.delete(test.id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

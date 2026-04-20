@@ -16,6 +16,7 @@ from .groups import (
     GroupModuleRepository,
     GroupRepository,
 )
+from .managers import ManagerRepository
 from .organization import AdminRepository, OrganizationRepository, UserRepository
 from .students import StudentHomeworkRepository, StudentRepository
 from .teachers import TeacherRepository
@@ -25,6 +26,7 @@ __all__ = [
     "OrganizationRepository",
     "AdminRepository",
     "UserRepository",
+    "ManagerRepository",
     "TeacherRepository",
     "StudentRepository",
     "StudentHomeworkRepository",

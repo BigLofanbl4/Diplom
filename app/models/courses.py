@@ -10,6 +10,7 @@ from app.database import Base
 if TYPE_CHECKING:
     from .groups import Group
     from .organization import Organization
+    from .portal import HomeworkSubmission, TestAttempt
 
 
 class Course(Base):
@@ -18,6 +19,14 @@ class Course(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    kind: Mapped[str] = mapped_column(String(32), nullable=False, default="template")
+    template_course_id: Mapped[int | None] = mapped_column(
+        ForeignKey("courses.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    group_id: Mapped[int | None] = mapped_column(ForeignKey("groups.id", ondelete="SET NULL"), nullable=True, unique=True)
+    teacher_id: Mapped[int | None] = mapped_column(ForeignKey("teachers.id", ondelete="SET NULL"), nullable=True)
+    max_modules_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
     organization_id: Mapped[int] = mapped_column(ForeignKey('organizations.id', ondelete="CASCADE"), nullable=False)
 
@@ -34,7 +43,13 @@ class Course(Base):
     materials: Mapped[list["CourseMaterial"]] = relationship(
         "CourseMaterial", back_populates="course", cascade="all, delete-orphan"
     )
-    groups: Mapped[list["Group"]] = relationship("Group", back_populates="template_course")
+    groups: Mapped[list["Group"]] = relationship(
+        "Group",
+        back_populates="template_course",
+        foreign_keys="Group.template_course_id",
+    )
+    homework_submissions: Mapped[list["HomeworkSubmission"]] = relationship("HomeworkSubmission", back_populates="course")
+    test_attempts: Mapped[list["TestAttempt"]] = relationship("TestAttempt", back_populates="course")
 
 
 class CourseModule(Base):
@@ -76,8 +91,20 @@ class CourseLesson(Base):
         uselist=False,
         cascade="all, delete-orphan",
     )
+    homework_submissions: Mapped[list["HomeworkSubmission"]] = relationship(
+        "HomeworkSubmission",
+        back_populates="lesson",
+        cascade="all, delete-orphan",
+    )
+    test_attempts: Mapped[list["TestAttempt"]] = relationship(
+        "TestAttempt",
+        back_populates="lesson",
+        cascade="all, delete-orphan",
+    )
 
-    __table_args__ = (UniqueConstraint("course_id", "lesson_number", name="uq_course_lesson_number"),)
+    __table_args__ = (
+        UniqueConstraint("course_id", "module_id", "lesson_number", name="uq_course_lesson_number"),
+    )
 
 
 class CourseMaterial(Base):
@@ -117,6 +144,7 @@ class Question(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     front_id: Mapped[str] = mapped_column(String(50), nullable=False)
+    number: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     text: Mapped[str] = mapped_column(Text, nullable=False)
 
     test_id: Mapped[int] = mapped_column(ForeignKey("tests.id", ondelete="CASCADE"), nullable=False)
@@ -124,7 +152,7 @@ class Question(Base):
 
     type: Mapped["QuestionType"] = relationship("QuestionType")
     test: Mapped["Test"] = relationship("Test", back_populates="questions")
-    answers: Mapped[list['Answer']] = relationship("Answer", back_populates="question")
+    answers: Mapped[list['Answer']] = relationship("Answer", back_populates="question", cascade="all, delete-orphan")
 
 
 class QuestionType(Base):

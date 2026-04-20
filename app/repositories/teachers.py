@@ -49,6 +49,8 @@ class TeacherRepository(BaseRepository):
         birth_date: date | None = None,
         phone: str | None = None,
         is_ovz: bool = False,
+        course_ids: Sequence[int] | None = None,
+        schedule_preferences: list[dict] | None = None,
         group_ids: Sequence[int] | None = None,
     ) -> Teacher:
         user = UserRepository.make_user(
@@ -64,6 +66,8 @@ class TeacherRepository(BaseRepository):
             birth_date=birth_date,
             phone=phone,
             is_ovz=is_ovz,
+            course_ids=list(course_ids or []),
+            schedule_preferences=list(schedule_preferences or []),
         )
         if group_ids is not None:
             teacher.groups = self._load_groups(group_ids)
@@ -77,6 +81,8 @@ class TeacherRepository(BaseRepository):
         birth_date: date | None = None,
         phone: str | None = None,
         is_ovz: bool = False,
+        course_ids: Sequence[int] | None = None,
+        schedule_preferences: list[dict] | None = None,
         group_ids: Sequence[int] | None = None,
     ) -> Teacher:
         teacher = Teacher(
@@ -86,6 +92,8 @@ class TeacherRepository(BaseRepository):
             birth_date=birth_date,
             phone=phone,
             is_ovz=is_ovz,
+            course_ids=list(course_ids or []),
+            schedule_preferences=list(schedule_preferences or []),
         )
         if group_ids is not None:
             teacher.groups = self._load_groups(group_ids)
@@ -102,7 +110,12 @@ class TeacherRepository(BaseRepository):
         last_name: str | None = None,
         birth_date: date | None = None,
         phone: str | None = None,
+        phone_set: bool = False,
         is_ovz: bool | None = None,
+        course_ids: Sequence[int] | None = None,
+        course_ids_set: bool = False,
+        schedule_preferences: list[dict] | None = None,
+        schedule_preferences_set: bool = False,
         group_ids: Sequence[int] | None = None,
     ) -> Teacher | None:
         teacher = self.db.get(Teacher, teacher_id)
@@ -115,10 +128,14 @@ class TeacherRepository(BaseRepository):
             teacher.last_name = last_name
         if birth_date is not None:
             teacher.birth_date = birth_date
-        if phone is not None:
+        if phone_set:
             teacher.phone = phone
         if is_ovz is not None:
             teacher.is_ovz = is_ovz
+        if course_ids_set:
+            teacher.course_ids = list(course_ids or [])
+        if schedule_preferences_set:
+            teacher.schedule_preferences = list(schedule_preferences or [])
 
         if group_ids is not None:
             teacher.groups = self._load_groups(group_ids)

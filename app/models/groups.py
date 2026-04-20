@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from datetime import date
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, ForeignKey, Integer, String, Table, Text, UniqueConstraint, JSON
+from sqlalchemy import JSON, Column, Date, ForeignKey, Integer, String, Table, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -32,6 +33,9 @@ class Group(Base):
     )
     organization_id: Mapped[int] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False)
     teacher_id: Mapped[int | None] = mapped_column(ForeignKey("teachers.id", ondelete="SET NULL"), nullable=True)
+    planned_start_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    planned_end_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    planned_schedule_slots: Mapped[list[dict]] = mapped_column(JSON, nullable=False, default=list)
 
     template_course: Mapped["Course | None"] = relationship(
         "Course",

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import date
 from typing import Sequence
 
 from sqlalchemy import select
@@ -26,6 +27,7 @@ class GroupRepository(BaseRepository):
             selectinload(Group.teacher),
             selectinload(Group.lessons),
             selectinload(Group.custom_course),
+            selectinload(Group.template_course),
         )
         if organization_id is not None:
             stmt = stmt.where(Group.organization_id == organization_id)
@@ -42,6 +44,7 @@ class GroupRepository(BaseRepository):
                 selectinload(Group.teacher),
                 selectinload(Group.lessons),
                 selectinload(Group.custom_course),
+                selectinload(Group.template_course),
             )
         )
         return self.db.scalar(stmt)
@@ -54,6 +57,9 @@ class GroupRepository(BaseRepository):
         teacher_id: int | None = None,
         student_ids: Sequence[int] | None = None,
         course_id: int | None = None,
+        planned_start_date: date | None = None,
+        planned_end_date: date | None = None,
+        planned_schedule_slots: list[dict] | None = None,
     ) -> Group:
         resolved_course_id = template_course_id if template_course_id is not None else course_id
         if organization_id is None:
@@ -64,6 +70,9 @@ class GroupRepository(BaseRepository):
             template_course_id=resolved_course_id,
             organization_id=organization_id,
             teacher_id=teacher_id,
+            planned_start_date=planned_start_date,
+            planned_end_date=planned_end_date,
+            planned_schedule_slots=list(planned_schedule_slots or []),
         )
         if student_ids is not None:
             group.students = self._load_students(student_ids)
@@ -80,7 +89,14 @@ class GroupRepository(BaseRepository):
         course_id_set: bool = False,
         organization_id: int | None = None,
         teacher_id: int | None = None,
+        teacher_id_set: bool = False,
         student_ids: Sequence[int] | None = None,
+        planned_start_date: date | None = None,
+        planned_start_date_set: bool = False,
+        planned_end_date: date | None = None,
+        planned_end_date_set: bool = False,
+        planned_schedule_slots: list[dict] | None = None,
+        planned_schedule_slots_set: bool = False,
     ) -> Group | None:
         group = self.db.get(Group, group_id)
         if group is None:
@@ -94,10 +110,16 @@ class GroupRepository(BaseRepository):
             group.template_course_id = course_id
         if organization_id is not None:
             group.organization_id = organization_id
-        if teacher_id is not None:
+        if teacher_id_set:
             group.teacher_id = teacher_id
         if student_ids is not None:
             group.students = self._load_students(student_ids)
+        if planned_start_date_set:
+            group.planned_start_date = planned_start_date
+        if planned_end_date_set:
+            group.planned_end_date = planned_end_date
+        if planned_schedule_slots_set:
+            group.planned_schedule_slots = list(planned_schedule_slots or [])
 
         self.db.commit()
         self.db.refresh(group)

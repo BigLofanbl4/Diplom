@@ -121,6 +121,7 @@ class UserRepository(BaseRepository):
     ) -> list[User]:
         stmt = select(User).options(
             selectinload(User.admin),
+            selectinload(User.manager),
             selectinload(User.teacher),
             selectinload(User.student),
         )
@@ -136,6 +137,7 @@ class UserRepository(BaseRepository):
             .where(User.id == user_id)
             .options(
                 selectinload(User.admin),
+                selectinload(User.manager),
                 selectinload(User.teacher),
                 selectinload(User.student),
             )
@@ -151,6 +153,7 @@ class UserRepository(BaseRepository):
                 .where(User.login == user_login)
                 .options(
                     selectinload(User.admin),
+                    selectinload(User.manager),
                     selectinload(User.teacher),
                     selectinload(User.student),
                 )
