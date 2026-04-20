@@ -13,6 +13,8 @@ const TEACHER_UPDATABLE_FIELDS = new Set([
   "birth_date",
   "is_ovz",
   "organization_id",
+  "course_ids",
+  "schedule_preferences",
 ]);
 
 export function getTeachers(req, res) {
@@ -81,6 +83,8 @@ export async function createTeacher(req, res) {
     birth_date: normalizeNullableField(payload.birth_date),
     is_ovz: normalizeNullableField(payload.is_ovz),
     organization_id: normalizeNullableId(payload.organization_id),
+    course_ids: Array.isArray(payload.course_ids) ? payload.course_ids.map((id) => Number(id)).filter((id) => !Number.isNaN(id)) : [],
+    schedule_preferences: Array.isArray(payload.schedule_preferences) ? payload.schedule_preferences : [],
   };
 
   const userRecord = {
@@ -129,6 +133,16 @@ export async function updateTeacher(req, res, params) {
 
     if (key === "organization_id" || key === "age") {
       teacherRecord[key] = normalizeNullableId(payload[key]);
+      continue;
+    }
+    if (key === "course_ids") {
+      teacherRecord[key] = Array.isArray(payload[key])
+        ? payload[key].map((id) => Number(id)).filter((id) => !Number.isNaN(id))
+        : [];
+      continue;
+    }
+    if (key === "schedule_preferences") {
+      teacherRecord[key] = Array.isArray(payload[key]) ? payload[key] : [];
       continue;
     }
     if (key === "phone" || key === "birth_date" || key === "is_ovz") {
@@ -220,6 +234,8 @@ function serializeTeacherDetails(teacherRecord) {
     ...teacherRecord,
     login: userData.login,
     group_ids: groups.map((group) => group.id),
-    groups
+    groups,
+    course_ids: teacherRecord.course_ids ?? [],
+    schedule_preferences: teacherRecord.schedule_preferences ?? [],
   }
 }

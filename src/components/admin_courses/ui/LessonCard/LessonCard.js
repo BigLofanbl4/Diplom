@@ -1,17 +1,18 @@
 import { LessonCardTemplate } from "./LessonCard.template.js";
 
 export default class LessonCard {
-  constructor(lessonData) {
+  constructor(lessonData, options = {}) {
     if (!lessonData) {
       throw new Error("lessonData is required");
     }
     this.data = lessonData;
+    this.options = options;
     this.lessonElement = null;
   }
 
   render() {
     const wrapper = document.createElement("div");
-    wrapper.innerHTML = LessonCardTemplate(this.data);
+    wrapper.innerHTML = LessonCardTemplate(this.data, this.options);
     this.lessonElement = wrapper.querySelector('[data-lesson-id]');
     return this.lessonElement;
   }

@@ -2,6 +2,12 @@ import { db, nextId } from "../db.js";
 import { parseMultipartBody, sendJson, sendNoContent } from "../utils/http.js";
 import { normalizeNullableField, normalizeNullableId } from "../utils/normalize.js";
 import { serializeLesson } from "../utils/serializers.js";
+import {
+  cloneLessonMaterials,
+  cloneLessonTest,
+  findTemplateLesson,
+  isInstanceCourse,
+} from "../utils/courseTemplates.js";
 import { requireAuth } from "./auth.js";
 
 const LESSON_UPDATABLE_FIELDS = new Set([
@@ -49,16 +55,45 @@ export async function createLesson(req, res, params) {
 
   const lessonId = nextId("lessons");
   const { fields, files } = await parseMultipartBody(req);
+  const moduleId = normalizeNullableId(fields.module_id);
+  const moduleRecord = db.modules.find(
+    (moduleRecord) => moduleRecord.id === moduleId && moduleRecord.course_id === courseId
+  );
+  if (!moduleRecord) {
+    return sendJson(res, 400, { detail: "Module not found in course" });
+  }
+
+  const lessonNumber = Number(fields.lesson_number);
+  if (Number.isNaN(lessonNumber)) {
+    return sendJson(res, 400, { detail: "Invalid lesson_number" });
+  }
+
+  const templateLesson = isInstanceCourse(courseRecord)
+    ? findTemplateLesson(courseRecord, moduleRecord.module_number, lessonNumber)
+    : null;
+
+  if (!templateLesson && !fields.title) {
+    return sendJson(res, 400, { detail: "Title is required for custom lesson" });
+  }
 
   const lesson = {
     id: lessonId,
-    title: fields.title,
-    lesson_number: Number(fields.lesson_number),
-    description: normalizeNullableField(fields.description),
-    homework_text: normalizeNullableField(fields.homework_text),
-    module_id: normalizeNullableId(fields.module_id),
-    course_id: normalizeNullableId(courseId),
+    title: normalizeNullableField(fields.title) ?? templateLesson?.title ?? null,
+    lesson_number: lessonNumber,
+    description: normalizeNullableField(fields.description) ?? templateLesson?.description ?? null,
+    homework_text: normalizeNullableField(fields.homework_text) ?? templateLesson?.homework_text ?? null,
+    module_id: moduleId,
+    course_id: courseId,
   };
+
+  if (templateLesson) {
+    cloneLessonMaterials({
+      fromLessonId: templateLesson.id,
+      fromCourseId: templateLesson.course_id,
+      toLessonId: lessonId,
+      toCourseId: courseId,
+    });
+  }
 
   if (files.materials) {
     for (const material of files.materials) {
@@ -76,6 +111,15 @@ export async function createLesson(req, res, params) {
   }
 
   db.lessons.push(lesson);
+
+  if (templateLesson) {
+    cloneLessonTest({
+      fromLessonId: templateLesson.id,
+      fromCourseId: templateLesson.course_id,
+      toLessonId: lessonId,
+      toCourseId: courseId,
+    });
+  }
 
   return sendJson(res, 201, serializeLesson(lesson));
 }
@@ -101,7 +145,12 @@ export async function updateLesson(req, res, params) {
       continue;
     }
     if (key === "module_id") {
-      lessonRecord[key] = normalizeNullableId(fields[key]);
+      const nextModuleId = normalizeNullableId(fields[key]);
+      const targetModule = db.modules.find(
+        (moduleRecord) => moduleRecord.id === nextModuleId && moduleRecord.course_id === courseId
+      );
+      if (!targetModule) continue;
+      lessonRecord[key] = nextModuleId;
       continue;
     }
     lessonRecord[key] = normalizeNullableField(fields[key]);
@@ -154,6 +203,11 @@ export function deleteLesson(req, res, params) {
   db.materials = db.materials.filter(
     materialRecord => materialRecord.lesson_id !== lessonId
   );
+  const deletedTestIds = db.tests
+    .filter((testRecord) => testRecord.lesson_id === lessonId && testRecord.course_id === courseId)
+    .map((testRecord) => testRecord.id);
+  db.tests = db.tests.filter((testRecord) => !deletedTestIds.includes(testRecord.id));
+  db.questions = db.questions.filter((questionRecord) => !deletedTestIds.includes(questionRecord.test_id));
 
   return sendNoContent(res, 204);
 }

@@ -103,6 +103,7 @@ export function getCurrentUser(req, res) {
         }
         return sendJson(res, 200, {
           ...basePayload,
+          id: adminProfile.id,
           first_name: adminProfile.first_name,
           last_name: adminProfile.last_name,
         });
@@ -115,6 +116,7 @@ export function getCurrentUser(req, res) {
         }
         return sendJson(res, 200, {
           ...basePayload,
+          id: teacherProfile.id,
           first_name: teacherProfile.first_name,
           last_name: teacherProfile.last_name,
           is_ovz: teacherProfile.is_ovz,
@@ -130,6 +132,7 @@ export function getCurrentUser(req, res) {
         }
         return sendJson(res, 200, {
           ...basePayload,
+          id: studentProfile.id,
           first_name: studentProfile.first_name,
           last_name: studentProfile.last_name,
           phone: studentProfile.phone,

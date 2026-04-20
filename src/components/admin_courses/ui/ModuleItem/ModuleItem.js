@@ -2,12 +2,13 @@ import { ModuleItemTemplate } from './ModuleItem.template.js';
 import LessonCard from '../LessonCard/LessonCard.js';
 
 export default class ModuleItem {
-  constructor(moduleData) {
+  constructor(moduleData, options = {}) {
     if (!moduleData) {
       throw new Error('moduleData is required');
     }
 
     this.moduleData = moduleData;
+    this.options = options;
     this.moduleElement = null;
     this.lessonsContainer = null;
   }
@@ -38,7 +39,7 @@ export default class ModuleItem {
       return;
     }
     lessons.forEach((lessonData) => {
-      const card = new LessonCard(lessonData);
+      const card = new LessonCard(lessonData, this.options.lessonCardOptions);
       card.mount(this.lessonsContainer);
     });
   }

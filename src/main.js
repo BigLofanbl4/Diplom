@@ -1,6 +1,7 @@
 import './styles/index.css'
 import { Router } from "./router";
 import { AdminLayout } from "./layouts/AdminLayout";
+import { TeacherLayout } from "./layouts/TeacherLayout.js";
 import { LoginLayout } from "./layouts/LoginLayout.js";
 import { PublicLayout } from "./layouts/PublicLayout.js";
 import { setTheme } from "./utils/themeToggle.js";
@@ -11,6 +12,7 @@ import { CourseForm, CoursePage, CoursesList } from "./components/admin_courses/
 import TestConstructor from "./components/admin_courses/features/TestConstructor/TestConstructor.js";
 import TeacherGroups from "./components/admin_teachers/pages/TeacherGroups/TeacherGroups.js";
 import AssignTeacher from "./components/admin_groups/pages/AssignTeacher/AssignTeacher.js";
+import { TeacherDashboard, TeacherGroupPage, TeacherPreferences } from "./components/teacher/index.js";
 
 setTheme();
 
@@ -162,6 +164,46 @@ const ROUTES = {
     meta: {
       access: "requiresAuth",
       role: "admin"
+    }
+  },
+  "/teacher": {
+    Layout: TeacherLayout,
+    Component: TeacherDashboard,
+    meta: {
+      access: "requiresAuth",
+      role: "teacher"
+    }
+  },
+  "/teacher/groups": {
+    Layout: TeacherLayout,
+    Component: TeacherDashboard,
+    meta: {
+      access: "requiresAuth",
+      role: "teacher"
+    }
+  },
+  "/teacher/groups/:groupId": {
+    Layout: TeacherLayout,
+    Component: TeacherGroupPage,
+    meta: {
+      access: "requiresAuth",
+      role: "teacher"
+    }
+  },
+  "/teacher/preferences": {
+    Layout: TeacherLayout,
+    Component: TeacherPreferences,
+    meta: {
+      access: "requiresAuth",
+      role: "teacher"
+    }
+  },
+  "/teacher/groups/:groupId/courses/:courseId/lessons/:lessonId/test": {
+    Layout: TeacherLayout,
+    Component: TestConstructor,
+    meta: {
+      access: "requiresAuth",
+      role: "teacher"
     }
   }
 };

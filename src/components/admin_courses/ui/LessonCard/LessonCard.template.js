@@ -1,5 +1,8 @@
-export const LessonCardTemplate = (lesson) => {
+export const LessonCardTemplate = (lesson, { testHref = `/admin/courses/${lesson.course_id}/lessons/${lesson.id}/test` } = {}) => {
   const hasMaterials = Array.isArray(lesson.materials) && lesson.materials.length > 0;
+  const resolvedTestHref = typeof testHref === "function"
+    ? testHref(lesson)
+    : testHref;
   return `
     <li class="course-lesson" data-lesson-id="${lesson.id}">
       <h5 class="course-lesson__title">
@@ -26,7 +29,7 @@ export const LessonCardTemplate = (lesson) => {
         >
           Удалить тест
         </button>
-        <a href="/admin/courses/${lesson.course_id}/lessons/${lesson.id}/test" class="btn btn-secondary course-lesson__action-btn" data-spa-link>
+        <a href="${resolvedTestHref}" class="btn btn-secondary course-lesson__action-btn" data-spa-link>
             <i class="fa-regular fa-rectangle-list"></i>
         </a>
         <button class="btn btn-secondary course-lesson__edit-btn course-lesson__action-btn" data-action="updateLesson">

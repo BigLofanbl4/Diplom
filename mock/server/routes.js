@@ -7,6 +7,12 @@ import {
   updateTeacher,
 } from "./handlers/teachers.js";
 import {
+  getMyGroupById,
+  getMyGroups,
+  getMyPreferences,
+  updateMyPreferences,
+} from "./handlers/teacherPortal.js";
+import {
   createStudent,
   deleteStudent,
   getStudentById,
@@ -59,6 +65,10 @@ export const routes = [
   { method: "POST", path: `${API_PREFIX}/auth/refresh`, handler: refreshToken },
   { method: "GET", path: `${API_PREFIX}/auth/current_user`, handler: getCurrentUser },
   { method: "POST", path: `${API_PREFIX}/auth/logout`, handler: logoutUser },
+  { method: "GET", path: `${API_PREFIX}/teachers/me/groups`, handler: getMyGroups },
+  { method: "GET", path: `${API_PREFIX}/teachers/me/groups/:groupId`, handler: getMyGroupById },
+  { method: "GET", path: `${API_PREFIX}/teachers/me/preferences`, handler: getMyPreferences },
+  { method: "PUT", path: `${API_PREFIX}/teachers/me/preferences`, handler: updateMyPreferences },
   { method: "GET", path: `${API_PREFIX}/teachers`, handler: getTeachers },
   { method: "GET", path: `${API_PREFIX}/teachers/:id`, handler: getTeacherById },
   { method: "POST", path: `${API_PREFIX}/teachers`, handler: createTeacher },

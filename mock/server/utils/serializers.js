@@ -1,4 +1,5 @@
 import { db } from "../db.js";
+import { getTemplateCourse, getTemplateModuleLimit } from "./courseTemplates.js";
 
 export function serializeModule(moduleRecord) {
   return {
@@ -45,6 +46,11 @@ export function serializeCourse(courseRecord) {
     id: courseRecord.id,
     title: courseRecord.title,
     description: courseRecord.description,
+    kind: courseRecord.kind ?? "template",
+    template_course_id: courseRecord.template_course_id ?? null,
+    group_id: courseRecord.group_id ?? null,
+    teacher_id: courseRecord.teacher_id ?? null,
+    max_modules_count: getTemplateModuleLimit(courseRecord),
   };
 }
 
@@ -57,8 +63,30 @@ export function serializeCourseDetails(courseRecord) {
     .filter((lessonRecord) => lessonRecord.course_id === courseRecord.id)
     .map((lessonRecord) => serializeLesson(lessonRecord));
 
+  const templateCourse = getTemplateCourse(courseRecord);
+  const templateModules = templateCourse
+    ? db.modules
+        .filter((moduleRecord) => moduleRecord.course_id === templateCourse.id)
+        .map((moduleRecord) => serializeModule(moduleRecord))
+    : [];
+  const templateLessons = templateCourse
+    ? db.lessons
+        .filter((lessonRecord) => lessonRecord.course_id === templateCourse.id)
+        .map((lessonRecord) => serializeLesson(lessonRecord))
+    : [];
+
   return {
     ...serializeCourse(courseRecord),
+    template_course: templateCourse
+      ? {
+          id: templateCourse.id,
+          title: templateCourse.title,
+          description: templateCourse.description,
+          max_modules_count: getTemplateModuleLimit(templateCourse),
+        }
+      : null,
+    template_modules: templateModules,
+    template_lessons: templateLessons,
     modules: courseModules,
     lessons: courseLessons,
   };

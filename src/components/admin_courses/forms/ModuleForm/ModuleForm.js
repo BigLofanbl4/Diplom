@@ -8,7 +8,8 @@ export default class ModuleForm extends FormComponent {
                 containerElement = null,
                 successHandler = null,
                 cancelHandler = null,
-                courseId = null
+                courseId = null,
+                allowTemplateAutofill = false,
   }) {
     const mode = id ? "update" : "create";
     super({Service: ModuleService, mode, id, containerElement});
@@ -21,6 +22,7 @@ export default class ModuleForm extends FormComponent {
     this.cancelHandler = cancelHandler ? cancelHandler : this.cancelHandler;
 
     this.courseId = courseId;
+    this.allowTemplateAutofill = allowTemplateAutofill;
   }
 
   getFormData() {
@@ -35,6 +37,20 @@ export default class ModuleForm extends FormComponent {
     if (!this.id) return;
     if (this.courseId === null) throw new Error("ModuleForm: courseId is required for update mode");
     this.data = await this.Service.getById(this.courseId, this.id);
+  }
+
+  initCustomFields() {
+    if (!this.allowTemplateAutofill || this.mode === "update") return;
+
+    const titleInput = this.form?.querySelector('[name="title"]');
+    const titleLabel = this.form?.querySelector('label[for="module-title"]');
+    if (titleInput) {
+      titleInput.required = false;
+      titleInput.placeholder = "Можно оставить пустым: название скопируется из шаблона";
+    }
+    if (titleLabel) {
+      titleLabel.textContent = "Название модуля (необязательно)";
+    }
   }
 
   async submit(data) {

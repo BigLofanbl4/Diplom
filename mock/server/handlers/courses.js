@@ -16,7 +16,9 @@ const COURSE_UPDATABLE_FIELDS = new Set([
 export function getCourses(req, res) {
   if (!requireAuth(req, res)) return;
   return sendJson(res, 200, {
-    data: db.courses.map(courseRecord => serializeCourse(courseRecord))
+    data: db.courses
+      .filter((courseRecord) => courseRecord.kind !== "instance")
+      .map(courseRecord => serializeCourse(courseRecord))
   });
 }
 
@@ -44,6 +46,11 @@ export async function createCourse(req, res) {
     id: courseId,
     title: payload.title,
     description: normalizeNullableField(payload.description),
+    kind: "template",
+    template_course_id: null,
+    group_id: null,
+    teacher_id: null,
+    max_modules_count: 0,
   };
 
   db.courses.push(courseRecord);
@@ -85,11 +92,19 @@ export function deleteCourse(req, res, params) {
     if (groupRecord.course_id !== courseId) return;
     groupRecord.course_id = null;
   });
-  db.modules = db.modules.filter(moduleRecord => moduleRecord.course_id !== courseId);
+
+  const removedCourseIds = [courseId];
+  const relatedInstances = db.courses
+    .filter((courseRecord) => courseRecord.kind === "instance" && courseRecord.template_course_id === courseId)
+    .map((courseRecord) => courseRecord.id);
+  removedCourseIds.push(...relatedInstances);
+
+  db.courses = db.courses.filter((courseRecord) => !removedCourseIds.includes(courseRecord.id));
+  db.modules = db.modules.filter(moduleRecord => !removedCourseIds.includes(moduleRecord.course_id));
 
   const deletedLessonIds = [];
   db.lessons = db.lessons.filter(lessonRecord => {
-    if (lessonRecord.course_id === courseId) {
+    if (removedCourseIds.includes(lessonRecord.course_id)) {
       deletedLessonIds.push(lessonRecord.id);
       return false;
     }
@@ -97,6 +112,11 @@ export function deleteCourse(req, res, params) {
   });
 
   db.materials = db.materials.filter(materialRecord => !deletedLessonIds.includes(materialRecord.lesson_id));
+  const deletedTestIds = db.tests
+    .filter((testRecord) => removedCourseIds.includes(testRecord.course_id) || deletedLessonIds.includes(testRecord.lesson_id))
+    .map((testRecord) => testRecord.id);
+  db.tests = db.tests.filter((testRecord) => !deletedTestIds.includes(testRecord.id));
+  db.questions = db.questions.filter((questionRecord) => !deletedTestIds.includes(questionRecord.test_id));
 
   return sendNoContent(res, 204);
 }

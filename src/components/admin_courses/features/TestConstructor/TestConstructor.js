@@ -4,8 +4,22 @@ import ModalWithComponent from "../../../common/ModalWithComponent/ModalWithComp
 import { QuestionEditorForm, renderQuestionCard } from "./questions/index.js";
 
 const getCourseIdFromPathname = (pathname = window.location.pathname) => {
-  const match = pathname.match(/\/admin\/courses\/(\d+)/);
+  const match = pathname.match(/\/(?:admin\/courses|teacher\/groups\/\d+\/courses)\/(\d+)/);
   return match?.[1] ?? null;
+};
+
+const getBackHrefFromPathname = (pathname = window.location.pathname) => {
+  const teacherMatch = pathname.match(/\/teacher\/groups\/(\d+)\/courses\/(\d+)\/lessons\/\d+\/test/);
+  if (teacherMatch) {
+    return `/teacher/groups/${teacherMatch[1]}`;
+  }
+
+  const adminMatch = pathname.match(/\/admin\/courses\/(\d+)/);
+  if (adminMatch) {
+    return `/admin/courses/${adminMatch[1]}`;
+  }
+
+  return "/admin/courses";
 };
 
 
@@ -105,8 +119,7 @@ class TestBuilderView {
   }
 
   resolveBackHref() {
-    const pathnameCourseId = getCourseIdFromPathname();
-    return pathnameCourseId ? `/admin/courses/${pathnameCourseId}` : "/admin/courses";
+    return getBackHrefFromPathname();
   }
 
   drawQuestionList(state) {
@@ -179,9 +192,7 @@ class TestBuilderController {
   }
 
   async handleTestAction(action, payload = {}) {
-    const { courseId } = this.store.getContext();
-    const resolvedCourseId = courseId || getCourseIdFromPathname();
-    const backHref = resolvedCourseId ? `/admin/courses/${resolvedCourseId}` : "/admin/courses";
+    const backHref = getBackHrefFromPathname();
     if (action === "save") await this.saveTest();
     if (action === "cancel") await window.router.navigate(backHref);
     if (action === "createQuestion") {
