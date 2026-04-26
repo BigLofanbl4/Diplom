@@ -1,5 +1,5 @@
 import { refresh } from "../core/auth/api.js";
-import {clearAuth, getAccessToken} from "../core/auth/state.js";
+import { getAccessToken } from "../core/auth/state.js";
 
 
 let refreshPromise = null;
@@ -74,7 +74,11 @@ export default class BaseService {
 
       let response;
       try {
-        response = await fetch(url, { ...options, headers });
+        response = await fetch(url, {
+          credentials: "include",
+          ...options,
+          headers,
+        });
       } catch (error) {
         // network / CORS / abort / invalid JSON etc.
         throw {
@@ -94,13 +98,9 @@ export default class BaseService {
           await refreshWithLock();
           continue;
         } catch {
-          clearAuth();
           throw apiError(response, data);
         }
       }
-
-      if (response.status === 401 && auth) clearAuth();
-
 
       throw apiError(response, data);
     }

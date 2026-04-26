@@ -37,7 +37,7 @@ export default class SelectComponent {
 
   getValue() {
     const selectedValues = Array.from(this.selectedValues);
-    return this.mode === "single" ? selectedValues[0] : selectedValues;
+    return this.mode === "single" ? (selectedValues[0] ?? null) : selectedValues;
   }
 
   destroy() {

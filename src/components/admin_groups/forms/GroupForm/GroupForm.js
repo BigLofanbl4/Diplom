@@ -64,9 +64,9 @@ export default class GroupForm extends SelectFormComponent {
   initCustomFields() {
     super.initCustomFields();
     this.scheduleContainer = this.form.querySelector("[data-schedule-slots]");
-    this.scheduleRows = Array.isArray(this.data.planned_schedule_slots) && this.data.planned_schedule_slots.length > 0
+    this.scheduleRows = Array.isArray(this.data.planned_schedule_slots)
       ? this.data.planned_schedule_slots.map((slot) => ({ ...slot }))
-      : [buildDefaultSlot()];
+      : [];
     this.renderScheduleRows();
   }
 
@@ -74,6 +74,15 @@ export default class GroupForm extends SelectFormComponent {
     if (!this.scheduleContainer) return;
 
     this.scheduleContainer.innerHTML = "";
+    if (this.scheduleRows.length === 0) {
+      this.scheduleContainer.innerHTML = `
+        <p class="group-slots-editor__hint">
+          Слоты не добавлены. Нажмите "Добавить слот", чтобы создать расписание.
+        </p>
+      `;
+      return;
+    }
+
     const fragment = document.createDocumentFragment();
 
     this.scheduleRows.forEach((slot, index) => {
@@ -118,6 +127,26 @@ export default class GroupForm extends SelectFormComponent {
     this.scheduleContainer.appendChild(fragment);
   }
 
+  syncScheduleRowsFromDom() {
+    if (!this.scheduleContainer) return;
+
+    const rows = Array.from(this.scheduleContainer.querySelectorAll("[data-slot-index]"));
+    if (rows.length === 0) {
+      this.scheduleRows = [];
+      return;
+    }
+
+    this.scheduleRows = rows.map((row) => {
+      const index = Number(row.dataset.slotIndex);
+      return {
+        id: this.scheduleRows[index]?.id ?? crypto.randomUUID(),
+        day: row.querySelector("[data-slot-field='day']")?.value ?? "",
+        start: row.querySelector("[data-slot-field='start']")?.value ?? "",
+        end: row.querySelector("[data-slot-field='end']")?.value ?? "",
+      };
+    });
+  }
+
   getSlotSummary(slot = {}) {
     const dayLabel = DAY_LABELS[slot.day] ?? "День не выбран";
     const start = slot.start || "--:--";
@@ -157,6 +186,15 @@ export default class GroupForm extends SelectFormComponent {
     return payload;
   }
 
+  normalizePayload(payload) {
+    return {
+      ...payload,
+      planned_start_date: payload.planned_start_date || null,
+      planned_end_date: payload.planned_end_date || null,
+      course_id: payload.course_id ?? null,
+    };
+  }
+
   handleEvents() {
     super.handleEvents();
 
@@ -165,19 +203,18 @@ export default class GroupForm extends SelectFormComponent {
       if (!action) return;
 
       if (action === "addSlot") {
+        this.syncScheduleRowsFromDom();
         this.scheduleRows.push(buildDefaultSlot());
         this.renderScheduleRows();
         return;
       }
 
       if (action === "removeSlot") {
+        this.syncScheduleRowsFromDom();
         const row = event.target.closest("[data-slot-index]");
         const index = Number(row?.dataset.slotIndex);
         if (!Number.isNaN(index)) {
           this.scheduleRows.splice(index, 1);
-          if (this.scheduleRows.length === 0) {
-            this.scheduleRows.push(buildDefaultSlot());
-          }
           this.renderScheduleRows();
         }
       }
@@ -186,6 +223,15 @@ export default class GroupForm extends SelectFormComponent {
     this.boundSlotsInputHandler = (event) => {
       const row = event.target.closest("[data-slot-index]");
       if (!row) return;
+      const index = Number(row.dataset.slotIndex);
+      if (!Number.isNaN(index) && this.scheduleRows[index]) {
+        this.scheduleRows[index] = {
+          ...this.scheduleRows[index],
+          day: row.querySelector("[data-slot-field='day']")?.value ?? "",
+          start: row.querySelector("[data-slot-field='start']")?.value ?? "",
+          end: row.querySelector("[data-slot-field='end']")?.value ?? "",
+        };
+      }
       this.refreshSlotSummary(row);
     };
 

@@ -123,9 +123,9 @@ export default class AssignTeacherView {
       this.endDateInput.value = group.planned_end_date ?? "";
     }
 
-    const slots = Array.isArray(group.planned_schedule_slots) && group.planned_schedule_slots.length > 0
+    const slots = Array.isArray(group.planned_schedule_slots)
       ? group.planned_schedule_slots
-      : [buildDefaultSlot()];
+      : [];
 
     this.scheduleRows = slots.map((slot) => ({ ...slot }));
     this.renderScheduleSlots();
@@ -135,6 +135,15 @@ export default class AssignTeacherView {
     if (!this.scheduleSlotsContainer) return;
 
     this.scheduleSlotsContainer.innerHTML = "";
+    if (this.scheduleRows.length === 0) {
+      this.scheduleSlotsContainer.innerHTML = `
+        <p class="group-slots-editor__hint">
+          Слоты не добавлены. Нажмите "Добавить слот", чтобы создать расписание.
+        </p>
+      `;
+      return;
+    }
+
     const fragment = document.createDocumentFragment();
 
     this.scheduleRows.forEach((slot, index) => {
@@ -171,6 +180,26 @@ export default class AssignTeacherView {
     });
 
     this.scheduleSlotsContainer.appendChild(fragment);
+  }
+
+  syncScheduleRowsFromDom() {
+    if (!this.scheduleSlotsContainer) return;
+
+    const rows = Array.from(this.scheduleSlotsContainer.querySelectorAll("[data-slot-index]"));
+    if (rows.length === 0) {
+      this.scheduleRows = [];
+      return;
+    }
+
+    this.scheduleRows = rows.map((row) => {
+      const index = Number(row.dataset.slotIndex);
+      return {
+        id: this.scheduleRows[index]?.id ?? crypto.randomUUID(),
+        day: row.querySelector("[data-slot-field='day']")?.value ?? "",
+        start: row.querySelector("[data-slot-field='start']")?.value ?? "",
+        end: row.querySelector("[data-slot-field='end']")?.value ?? "",
+      };
+    });
   }
 
   getSchedulingPayload() {
@@ -228,19 +257,18 @@ export default class AssignTeacherView {
       if (!action) return;
 
       if (action === "addSlot") {
+        this.syncScheduleRowsFromDom();
         this.scheduleRows.push(buildDefaultSlot());
         this.renderScheduleSlots();
         return;
       }
 
       if (action === "removeSlot") {
+        this.syncScheduleRowsFromDom();
         const row = event.target.closest("[data-slot-index]");
         const index = Number(row?.dataset.slotIndex);
         if (!Number.isNaN(index)) {
           this.scheduleRows.splice(index, 1);
-          if (this.scheduleRows.length === 0) {
-            this.scheduleRows.push(buildDefaultSlot());
-          }
           this.renderScheduleSlots();
         }
         return;

@@ -26,7 +26,6 @@ export default class SelectFormComponent extends FormComponent {
     } catch (error) {
       console.error(error);
     }
-    console.log(this.data);
   }
 
   initCustomFields() {
@@ -65,7 +64,6 @@ export default class SelectFormComponent extends FormComponent {
     this.selectConfigs.forEach(config => {
       const currentValue = current?.[config.field];
       const initialValue = config.getInitialValue(original);
-      console.log(initialValue, currentValue);
 
       if (config.mode === "single") {
         if (currentValue !== initialValue) {
