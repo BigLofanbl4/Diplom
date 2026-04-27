@@ -28,6 +28,7 @@ from ..utils.course_instances import (
     find_template_course,
     is_instance_course,
 )
+from ..utils.file_storage import copy_stored_file, remove_stored_file, save_upload_file
 from ..utils.serializers import serialize_course, serialize_course_detail, serialize_lesson, serialize_test
 from .auth import get_current_user
 
@@ -303,16 +304,63 @@ def _extract_material_homework_text(lesson: CourseLesson | None) -> str | None:
     return None
 
 
-def _copy_material_files(source_lesson: CourseLesson, file_repo: FileRepository, material_id: int) -> None:
+def _copy_material_files(
+        source_lesson: CourseLesson,
+        file_repo: FileRepository,
+        *,
+        material_id: int,
+        course_id: int,
+        lesson_id: int,
+) -> None:
     for material in source_lesson.materials:
         for source_file in material.files:
-            file_repo.create(
-                path=source_file.path,
+            try:
+                copied_path = copy_stored_file(
+                    source_file.path,
+                    "course-materials",
+                    str(course_id),
+                    str(lesson_id),
+                )
+            except HTTPException:
+                copied_path = source_file.path
+            record = file_repo.create(
+                path=copied_path,
                 material_id=material_id,
                 name=source_file.name,
                 size=source_file.size,
-                url=source_file.url,
+                url="",
             )
+            file_repo.update(record.id, url=f"/api/v1/files/course-materials/{record.id}")
+
+
+def _create_material_file_record(
+        upload: UploadFile,
+        file_repo: FileRepository,
+        *,
+        course_id: int,
+        lesson_id: int,
+        material_id: int,
+) -> None:
+    stored_file = save_upload_file(upload, "course-materials", str(course_id), str(lesson_id))
+    record = file_repo.create(
+        path=stored_file.relative_path,
+        material_id=material_id,
+        name=stored_file.original_name,
+        size=stored_file.size,
+        url="",
+    )
+    file_repo.update(record.id, url=f"/api/v1/files/course-materials/{record.id}")
+
+
+def _delete_material_file_record(file_repo: FileRepository, file_id: int) -> None:
+    file = file_repo.get(file_id)
+    if file is None:
+        return
+
+    stored_path = file.path
+    file_repo.delete(file_id)
+    if stored_path and not any(item.path == stored_path for item in file_repo.list()):
+        remove_stored_file(stored_path)
 
 
 def _refresh_template_course_limits(course: Course, repo: CourseRepository) -> None:
@@ -631,18 +679,20 @@ def create_course_lesson(
                 homework_text=resolved_homework_text,
             )
             if template_lesson is not None:
-                _copy_material_files(template_lesson, file_repo, material.id)
-            for upload in materials or []:
-                upload.file.seek(0, 2)
-                size = upload.file.tell()
-                upload.file.seek(0)
-                filename = upload.filename or f'material-{lesson.id}'
-                file_repo.create(
-                    path=filename,
+                _copy_material_files(
+                    template_lesson,
+                    file_repo,
                     material_id=material.id,
-                    name=filename,
-                    size=size,
-                    url=f'/api/v1/courses/{course_id}/lessons/{lesson.id}/materials/{filename}',
+                    course_id=course_id,
+                    lesson_id=lesson.id,
+                )
+            for upload in materials or []:
+                _create_material_file_record(
+                    upload,
+                    file_repo,
+                    course_id=course_id,
+                    lesson_id=lesson.id,
+                    material_id=material.id,
                 )
 
         if template_lesson is not None and template_lesson.test is not None:
@@ -722,22 +772,18 @@ def update_course_lesson(
             owned_material_file_ids = {file.id for material in lesson_materials for file in material.files}
             for file_id in removed_material_ids:
                 if file_id in owned_material_file_ids:
-                    file_repo.delete(file_id)
+                    _delete_material_file_record(file_repo, file_id)
 
         if should_add_files:
             if default_material is None:
                 default_material = material_repo.create(course_id=course_id, lesson_id=lesson_id)
             for upload in materials or []:
-                upload.file.seek(0, 2)
-                size = upload.file.tell()
-                upload.file.seek(0)
-                filename = upload.filename or f'material-{lesson_id}'
-                file_repo.create(
-                    path=filename,
+                _create_material_file_record(
+                    upload,
+                    file_repo,
+                    course_id=course_id,
+                    lesson_id=lesson_id,
                     material_id=default_material.id,
-                    name=filename,
-                    size=size,
-                    url=f'/api/v1/courses/{course_id}/lessons/{lesson_id}/materials/{filename}',
                 )
     except IntegrityError:
         db.rollback()

@@ -15,7 +15,7 @@ def serialize_file(file: File) -> dict:
         "id": file.id,
         "name": file.name,
         "size": file.size,
-        "url": file.url,
+        "url": f"/api/v1/files/course-materials/{file.id}",
     }
 
 
@@ -159,13 +159,25 @@ def serialize_manager(manager: Manager) -> dict:
 
 
 def serialize_homework_submission(submission: HomeworkSubmission) -> dict:
+    files = []
+    for file in submission.files or []:
+        file_id = file.get("id")
+        files.append(
+            {
+                "id": file_id,
+                "name": file.get("name", "file"),
+                "size": file.get("size", 0),
+                "url": f"/api/v1/files/homework-submissions/{submission.id}/{file_id}",
+            }
+        )
+
     return {
         "id": submission.id,
         "student_id": submission.student_id,
         "lesson_id": submission.lesson_id,
         "course_id": submission.course_id,
         "text": submission.text or "",
-        "files": submission.files or [],
+        "files": files,
         "status": submission.status,
         "feedback": submission.feedback or "",
         "checked_at": submission.checked_at.isoformat() if submission.checked_at else None,

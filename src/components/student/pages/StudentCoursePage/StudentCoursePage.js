@@ -2,6 +2,7 @@ import ModalWithComponent from "../../../common/ModalWithComponent/ModalWithComp
 import FileDropzoneController from "../../../common/FileDropzone/FileDropzoneController.js";
 import StudentPortalService from "../../../../services/StudentPortalService.js";
 import { getModuleData } from "../../../../utils/courseUtils.js";
+import { handleAuthenticatedFileLinkClick } from "../../../../utils/fileDownload.js";
 
 class HomeworkSubmissionForm {
   constructor({ lesson, courseId, onSuccess = null, onCancel = null, containerElement = null }) {
@@ -37,6 +38,7 @@ class HomeworkSubmissionForm {
           </label>
           <input id="student-homework-files" name="files" type="file" class="form-file-input" multiple data-files-input>
         </div>
+        <p class="form-error" data-form-error hidden></p>
         <div class="teacher-form-actions">
           <button type="button" class="btn btn-secondary" data-action="cancel">Отмена</button>
           <button type="submit" class="btn btn-primary">Отправить</button>
@@ -76,10 +78,36 @@ class HomeworkSubmissionForm {
 
     this.boundSubmitHandler = async (event) => {
       event.preventDefault();
+      const submitButton = this.form.querySelector('button[type="submit"]');
+      const errorElement = this.form.querySelector("[data-form-error]");
       const files = this.filesController?.getLocalFiles() ?? [];
       const text = this.form.querySelector('[name="text"]').value;
-      const result = await StudentPortalService.submitHomework(this.courseId, this.lesson.id, { text, files });
-      this.onSuccess?.(result);
+
+      if (errorElement) {
+        errorElement.hidden = true;
+        errorElement.textContent = "";
+        errorElement.dataset.visible = "false";
+      }
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = "Отправка...";
+      }
+
+      try {
+        const result = await StudentPortalService.submitHomework(this.courseId, this.lesson.id, { text, files });
+        this.onSuccess?.(result);
+      } catch (error) {
+        if (errorElement) {
+          errorElement.textContent = error?.message || "Не удалось отправить домашнее задание";
+          errorElement.hidden = false;
+          errorElement.dataset.visible = "true";
+        }
+      } finally {
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.textContent = "Отправить";
+        }
+      }
     };
 
     this.form.addEventListener("click", this.boundClickHandler);
@@ -103,7 +131,11 @@ class HomeworkSubmissionForm {
 }
 
 function renderMaterialLink(material) {
-  return `<a href="${material.url ?? "#"}" class="student-lesson-card__file" target="_blank" rel="noreferrer">${material.name}</a>`;
+  return `
+    <a href="${material.url ?? "#"}" class="student-lesson-card__file" data-auth-download data-download-name="${material.name}">
+      ${material.name}
+    </a>
+  `;
 }
 
 function renderLessonCard(courseId, lesson) {
@@ -208,6 +240,8 @@ export default class StudentCoursePage {
 
   handleEvents() {
     this.boundClickHandler = async (event) => {
+      if (await handleAuthenticatedFileLinkClick(event)) return;
+
       const submitButton = event.target.closest('[data-action="submit-homework"]');
       if (!submitButton) return;
 

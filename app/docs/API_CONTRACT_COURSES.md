@@ -251,7 +251,7 @@
         "id": 5,
         "name": "intro.pdf",
         "size": 12345,
-        "url": "/api/v1/courses/1/lessons/10/materials/intro.pdf"
+        "url": "/api/v1/files/course-materials/5"
       }
     ]
   }
@@ -320,7 +320,7 @@
 
 - В выдаче урока `test_id` равен `null`, если тест к уроку не привязан.
 - `materials` в уроке это метаданные файлов: `[{ id, name, size, url }]`.
-- Реального хранения файлов на диске в этом API-контракте нет.
+- Файлы хранятся на диске в приватном upload-каталоге сервера и скачиваются через защищённые `/api/v1/files/...` endpoints.
 
 ## Common errors
 

@@ -23,6 +23,18 @@ class Settings:
     api_v1_prefix: str = field(default_factory=lambda: os.getenv("API_V1_PREFIX", "/api/v1"))
     database_url: str = field(default_factory=lambda: os.getenv("DATABASE_URL", "sqlite:///./app.db"))
     app_name: str = field(default_factory=lambda: os.getenv("APP_NAME", "Diplom API"))
+    upload_dir: str = field(default_factory=lambda: os.getenv("UPLOAD_DIR", "./uploads"))
+    upload_max_bytes: int = field(default_factory=lambda: int(os.getenv("UPLOAD_MAX_BYTES", str(20 * 1024 * 1024))))
+    upload_allowed_extensions: set[str] = field(
+        default_factory=lambda: {
+            extension.strip().lower()
+            for extension in os.getenv(
+                "UPLOAD_ALLOWED_EXTENSIONS",
+                ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.gif,.txt,.csv,.zip,.rar,.7z,.mp3,.mp4,.py,.js,.ts,.html,.css,.json,.md",
+            ).split(",")
+            if extension.strip()
+        }
+    )
     cors_origins: list[str] = field(
         default_factory=lambda: [
             origin.strip()

@@ -8,6 +8,7 @@ import TeacherPortalService from "../../../../services/TeacherPortalService.js";
 import TestService from "../../../../services/TestService.js";
 import { getModuleData } from "../../../../utils/courseUtils.js";
 import { showConfirm } from "../../../../utils/dialogs.js";
+import { handleAuthenticatedFileLinkClick } from "../../../../utils/fileDownload.js";
 
 function formatDateTime(value) {
   if (!value) return "";
@@ -27,7 +28,7 @@ function renderFileLinks(files = []) {
   }
 
   return files.map((file) => `
-    <a href="${file.url ?? "#"}" class="teacher-review-card__file" target="_blank" rel="noreferrer">
+    <a href="${file.url ?? "#"}" class="teacher-review-card__file" data-auth-download data-download-name="${file.name}">
       <i class="fa-regular fa-file-lines"></i>
       <span>${file.name}</span>
     </a>
@@ -213,6 +214,8 @@ class TeacherHomeworkReviewPanel {
 
   handleEvents() {
     this.boundClickHandler = async (event) => {
+      if (await handleAuthenticatedFileLinkClick(event)) return;
+
       const saveButton = event.target.closest('[data-action="saveHomeworkReview"]');
       if (!saveButton) return;
 

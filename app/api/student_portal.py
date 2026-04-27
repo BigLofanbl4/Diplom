@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import Annotated
+from uuid import uuid4
 
-from fastapi import APIRouter, Depends, File as FastAPIFile, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File as FastAPIFile, Form, UploadFile
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -13,6 +14,7 @@ from app.models.organization import User
 from app.repositories import CourseRepository, GroupRepository
 from app.utils.api_errors import forbidden, not_found
 from app.utils.course_instances import ensure_course_instance
+from app.utils.file_storage import remove_stored_file, save_upload_file
 from app.utils.serializers import (
     serialize_course_detail,
     serialize_homework_submission,
@@ -49,6 +51,47 @@ def _normalize_answer(value):
     if value is None:
         return []
     return [str(value).strip().lower()] if str(value).strip() else []
+
+
+def _remove_submission_files(files: list[dict] | None) -> None:
+    for file in files or []:
+        remove_stored_file(file.get("path"))
+
+
+def _save_submission_files(
+    files: list[UploadFile] | None,
+    *,
+    student_id: int,
+    lesson_id: int,
+    submission_id: int,
+) -> list[dict]:
+    payload = []
+    saved_paths: list[str] = []
+    try:
+        for upload in files or []:
+            file_id = uuid4().hex
+            stored_file = save_upload_file(
+                upload,
+                "homework-submissions",
+                str(student_id),
+                str(lesson_id),
+                str(submission_id),
+            )
+            saved_paths.append(stored_file.relative_path)
+            payload.append(
+                {
+                    "id": file_id,
+                    "name": stored_file.original_name,
+                    "size": stored_file.size,
+                    "path": stored_file.relative_path,
+                    "url": f"/api/v1/files/homework-submissions/{submission_id}/{file_id}",
+                }
+            )
+    except Exception:
+        for path in saved_paths:
+            remove_stored_file(path)
+        raise
+    return payload
 
 
 @router.get("/courses")
@@ -227,21 +270,6 @@ def submit_my_homework(
     if lesson is None:
         raise not_found("Lesson not found")
 
-    file_payload = []
-    for index, upload in enumerate(files or [], start=1):
-        upload.file.seek(0, 2)
-        size = upload.file.tell()
-        upload.file.seek(0)
-        filename = upload.filename or f"submission-{index}"
-        file_payload.append(
-            {
-                "id": index,
-                "name": filename,
-                "size": size,
-                "url": f"/api/v1/submissions/{user.student.id}/{lesson_id}/{filename}",
-            }
-        )
-
     submission = db.scalar(
         select(HomeworkSubmission).where(
             HomeworkSubmission.student_id == user.student.id,
@@ -249,27 +277,48 @@ def submit_my_homework(
             HomeworkSubmission.lesson_id == lesson_id,
         )
     )
+    old_files = list(submission.files or []) if submission is not None else []
+    created_submission = submission is None
     if submission is None:
         submission = HomeworkSubmission(
             student_id=user.student.id,
             lesson_id=lesson_id,
             course_id=course_id,
             text=text or "",
-            files=file_payload,
+            files=[],
             status="pending",
             feedback="",
             created_at=datetime.now(timezone.utc),
         )
         db.add(submission)
+        db.commit()
+        db.refresh(submission)
     else:
         submission.text = text or ""
-        submission.files = file_payload
         submission.status = "pending"
         submission.feedback = ""
         submission.checked_at = None
         submission.checked_by = None
         submission.created_at = datetime.now(timezone.utc)
 
-    db.commit()
-    db.refresh(submission)
+    file_payload: list[dict] = []
+    try:
+        file_payload = _save_submission_files(
+            files,
+            student_id=user.student.id,
+            lesson_id=lesson_id,
+            submission_id=submission.id,
+        )
+        submission.files = file_payload
+        db.commit()
+        db.refresh(submission)
+    except Exception:
+        _remove_submission_files(file_payload)
+        if created_submission:
+            db.rollback()
+            db.delete(submission)
+            db.commit()
+        raise
+
+    _remove_submission_files(old_files)
     return serialize_homework_submission(submission)

@@ -1,3 +1,5 @@
+import { handleAuthenticatedFileLinkClick } from "../../../utils/fileDownload.js";
+
 export default class FileDropzoneController {
   constructor({ inputEl, dropzoneEl, listEl, hintEl = null, serverFiles = [] }) {
     if (!inputEl || !dropzoneEl || !listEl) {
@@ -21,6 +23,7 @@ export default class FileDropzoneController {
     this.boundDragDropHandler = null;
     this.boundInputChangeHandler = null;
     this.boundFileRemoveHandler = null;
+    this.boundFileDownloadHandler = null;
 
     this._init();
   }
@@ -32,6 +35,7 @@ export default class FileDropzoneController {
     this.boundDragDropHandler = (event) => this._handleDrop(event);
     this.boundInputChangeHandler = (event) => this._handleInputChange(event);
     this.boundFileRemoveHandler = (event) => this._handleFileRemove(event);
+    this.boundFileDownloadHandler = (event) => handleAuthenticatedFileLinkClick(event);
 
     this.dropzoneEl.addEventListener("dragenter", this.boundDragEnterHandler);
     this.dropzoneEl.addEventListener("dragleave", this.boundDragLeaveHandler);
@@ -40,6 +44,7 @@ export default class FileDropzoneController {
 
     this.inputEl.addEventListener("change", this.boundInputChangeHandler);
     this.listEl.addEventListener("click", this.boundFileRemoveHandler);
+    this.listEl.addEventListener("click", this.boundFileDownloadHandler);
   }
 
   getRemovedServerFiles() {
@@ -138,6 +143,12 @@ export default class FileDropzoneController {
     const fileNameElement = fileElement.querySelector("[data-file-name]");
     fileNameElement.textContent = `${fileData.name.slice(0, 5)}...${fileExtension}`;
     fileNameElement.href = fileData.url;
+    fileNameElement.dataset.downloadName = fileData.name;
+    if (fileData.source === "server") {
+      fileNameElement.dataset.authDownload = "";
+    } else {
+      fileNameElement.download = fileData.name;
+    }
     return fileElement;
   }
 
@@ -212,5 +223,6 @@ export default class FileDropzoneController {
     this.dropzoneEl.removeEventListener("drop", this.boundDragDropHandler);
     this.inputEl.removeEventListener("change", this.boundInputChangeHandler);
     this.listEl.removeEventListener("click", this.boundFileRemoveHandler);
+    this.listEl.removeEventListener("click", this.boundFileDownloadHandler);
   }
 }
