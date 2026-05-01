@@ -68,6 +68,8 @@ class TaskRepository(BaseRepository):
         assignee_user_id: int | None,
         type: str,
         description: str,
+        source: str | None = None,
+        source_key: str | None = None,
         status: str = "new",
     ) -> Task:
         task = Task(
@@ -76,6 +78,8 @@ class TaskRepository(BaseRepository):
             assignee_user_id=assignee_user_id,
             type=type,
             description=description,
+            source=source,
+            source_key=source_key,
             status=status,
         )
         return self._save(task)

@@ -21,6 +21,8 @@ class Task(Base):
     assignee_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     type: Mapped[str] = mapped_column(String(64), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    source: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    source_key: Mapped[str | None] = mapped_column(String(128), nullable=True)
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="new")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(
@@ -40,4 +42,3 @@ class Task(Base):
         foreign_keys=[assignee_user_id],
         back_populates="assigned_tasks",
     )
-

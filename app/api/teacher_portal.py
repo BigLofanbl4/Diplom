@@ -12,6 +12,7 @@ from app.database import get_db
 from app.models.portal import HomeworkSubmission, TestAttempt
 from app.models.organization import User
 from app.repositories import CourseRepository, GroupRepository, TeacherRepository
+from app.services.homework_monitoring import sync_homework_monitoring
 from app.utils.api_errors import forbidden, not_found
 from app.utils.course_instances import ensure_course_instance
 from app.utils.schedule import normalize_schedule_slots
@@ -246,6 +247,7 @@ def review_homework_submission(
         submission.checked_by = user.teacher.id
     db.commit()
     db.refresh(submission)
+    sync_homework_monitoring(db, user.organization_id, teacher_id=user.teacher.id)
     return serialize_homework_submission(submission)
 
 

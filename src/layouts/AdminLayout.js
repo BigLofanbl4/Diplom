@@ -32,6 +32,12 @@ function getOverviewCardsMarkup(role) {
       title: "Задачи",
       text: "Фиксируйте операционные запросы, назначайте проверки учителям и отслеживайте статусы выполнения.",
     },
+    {
+      href: getPanelPath("/homework-monitoring", role),
+      icon: "fa-solid fa-clipboard-check",
+      title: "Контроль ДЗ",
+      text: "Смотрите по всем преподавателям, где не заполнено ДЗ и где копится долг по проверке.",
+    },
   ];
 
   if (isAdminRole(role)) {
@@ -92,6 +98,12 @@ function getNavigationMarkup(role) {
       match: getPanelPath("/tasks", role),
       icon: "fa-solid fa-list-check",
       label: "Задачи",
+    },
+    {
+      href: getPanelPath("/homework-monitoring", role),
+      match: getPanelPath("/homework-monitoring", role),
+      icon: "fa-solid fa-clipboard-check",
+      label: "Контроль ДЗ",
     },
   ];
 

@@ -19,6 +19,7 @@ from ..repositories import (
     QuestionTypeRepository,
     TestRepository,
 )
+from ..services.homework_monitoring import sync_homework_monitoring
 from ..utils.api_errors import not_found
 from ..utils.course_instances import (
     clone_template_test,
@@ -180,6 +181,11 @@ def _serialize_course_detail(course: Course, repo: CourseRepository) -> CourseDe
 
 def _serialize_lesson(lesson: CourseLesson) -> CourseLessonOut:
     return CourseLessonOut.model_validate(serialize_lesson(lesson))
+
+
+def _sync_homework_monitoring_for_course(db: Session, course: Course) -> None:
+    if is_instance_course(course) and course.teacher_id is not None:
+        sync_homework_monitoring(db, course.organization_id, teacher_id=course.teacher_id)
 
 
 def _resolve_question_type_id(db: Session, question_type: str) -> int:
@@ -704,6 +710,7 @@ def create_course_lesson(
     reloaded = lesson_repo.get(lesson.id)
     if reloaded is None:
         raise not_found('Lesson not found')
+    _sync_homework_monitoring_for_course(db, course)
     return _serialize_lesson(reloaded)
 
 
@@ -794,6 +801,9 @@ def update_course_lesson(
     reloaded = lesson_repo.get(lesson_id)
     if reloaded is None:
         raise not_found('Lesson not found')
+    course = CourseRepository(db).get(course_id)
+    if course is not None:
+        _sync_homework_monitoring_for_course(db, course)
     return _serialize_lesson(reloaded)
 
 
@@ -804,14 +814,16 @@ def delete_course_lesson(
         db: Annotated[Session, Depends(get_db)],
         current_user: Annotated[User, Depends(get_current_user)],
 ) -> Response:
+    course = _get_scoped_course_or_404(CourseRepository(db), course_id, current_user)
     repo = CourseLessonRepository(db)
     _get_scoped_lesson_or_404(
         repo,
         course_id=course_id,
         lesson_id=lesson_id,
-        course_exists=_get_scoped_course_or_404(CourseRepository(db), course_id, current_user) is not None,
+        course_exists=course is not None,
     )
     repo.delete(lesson_id)
+    _sync_homework_monitoring_for_course(db, course)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 

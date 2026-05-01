@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.organization import User
 from app.repositories import TaskRepository, TeacherRepository
+from app.services.homework_monitoring import sync_homework_monitoring
 from app.utils.api_errors import forbidden, not_found
 from .auth import get_current_user
 
@@ -40,6 +41,7 @@ TASK_TYPE_LABELS = {
     "other": "Другое",
     "check_homework": "Проверить дз",
     "check_tests": "Проверить тесты",
+    "homework_monitoring": "Контроль ДЗ",
 }
 TASK_STATUS_LABELS = {
     "new": "Новая",
@@ -86,6 +88,7 @@ class TeacherOption(BaseModel):
 
 class TaskListResponse(BaseModel):
     data: list[TaskItem]
+    monitoring: list[dict] | None = None
 
 
 class TaskOptionsResponse(BaseModel):
@@ -219,14 +222,19 @@ def list_tasks(
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> TaskListResponse:
     repo = TaskRepository(db)
+    monitoring = None
     if _is_admin_or_manager(current_user):
+        monitoring = [item.to_dict() for item in sync_homework_monitoring(db, current_user.organization_id)]
         tasks = repo.list_for_organization(current_user.organization_id)
     elif _is_teacher(current_user):
         tasks = repo.list_for_assignee(current_user.organization_id, current_user.id)
     else:
         raise forbidden()
 
-    return TaskListResponse(data=[_serialize_task(task, current_user) for task in tasks])
+    return TaskListResponse(
+        data=[_serialize_task(task, current_user) for task in tasks],
+        monitoring=monitoring,
+    )
 
 
 @router.get("/options", response_model=TaskOptionsResponse)

@@ -12,6 +12,7 @@ from app.database import get_db
 from app.models.portal import HomeworkSubmission, TestAttempt
 from app.models.organization import User
 from app.repositories import CourseRepository, GroupRepository
+from app.services.homework_monitoring import sync_homework_monitoring
 from app.utils.api_errors import forbidden, not_found
 from app.utils.course_instances import ensure_course_instance
 from app.utils.file_storage import remove_stored_file, save_upload_file
@@ -321,4 +322,6 @@ def submit_my_homework(
         raise
 
     _remove_submission_files(old_files)
+    if course.teacher_id is not None:
+        sync_homework_monitoring(db, user.organization_id, teacher_id=course.teacher_id)
     return serialize_homework_submission(submission)
