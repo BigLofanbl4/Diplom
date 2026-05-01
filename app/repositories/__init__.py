@@ -19,6 +19,7 @@ from .groups import (
 from .managers import ManagerRepository
 from .organization import AdminRepository, OrganizationRepository, UserRepository
 from .students import StudentHomeworkRepository, StudentRepository
+from .tasks import TaskRepository
 from .teachers import TeacherRepository
 
 __all__ = [
@@ -30,6 +31,7 @@ __all__ = [
     "TeacherRepository",
     "StudentRepository",
     "StudentHomeworkRepository",
+    "TaskRepository",
     "GroupRepository",
     "GroupCourseRepository",
     "GroupModuleRepository",

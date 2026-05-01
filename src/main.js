@@ -16,6 +16,7 @@ import TeacherGroups from "./components/admin_teachers/pages/TeacherGroups/Teach
 import AssignTeacher from "./components/admin_groups/pages/AssignTeacher/AssignTeacher.js";
 import { TeacherDashboard, TeacherGroupPage, TeacherPreferences } from "./components/teacher/index.js";
 import { StudentDashboard, StudentCoursePage, StudentTestPage } from "./components/student/index.js";
+import { TasksDashboard } from "./components/tasks/index.js";
 
 setTheme();
 
@@ -193,6 +194,14 @@ const ROUTES = {
       role: "admin"
     }
   },
+  "/admin/tasks": {
+    Layout: AdminLayout,
+    Component: TasksDashboard,
+    meta: {
+      access: "requiresAuth",
+      role: "admin"
+    }
+  },
   "/manager": {
     Layout: AdminLayout,
     meta: {
@@ -264,6 +273,14 @@ const ROUTES = {
       role: "manager"
     }
   },
+  "/manager/tasks": {
+    Layout: AdminLayout,
+    Component: TasksDashboard,
+    meta: {
+      access: "requiresAuth",
+      role: "manager"
+    }
+  },
   "/teacher": {
     Layout: TeacherLayout,
     Component: TeacherDashboard,
@@ -291,6 +308,14 @@ const ROUTES = {
   "/teacher/preferences": {
     Layout: TeacherLayout,
     Component: TeacherPreferences,
+    meta: {
+      access: "requiresAuth",
+      role: "teacher"
+    }
+  },
+  "/teacher/tasks": {
+    Layout: TeacherLayout,
+    Component: TasksDashboard,
     meta: {
       access: "requiresAuth",
       role: "teacher"

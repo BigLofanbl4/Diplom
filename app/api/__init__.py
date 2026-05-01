@@ -1,4 +1,4 @@
-from . import auth, courses, files, groups, managers, organization, student_portal, students, teacher_portal, teachers
+from . import auth, courses, files, groups, managers, organization, student_portal, students, tasks, teacher_portal, teachers
 
 __all__ = [
     "auth",
@@ -9,6 +9,7 @@ __all__ = [
     "organization",
     "student_portal",
     "students",
+    "tasks",
     "teacher_portal",
     "teachers",
 ]

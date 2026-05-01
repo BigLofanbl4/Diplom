@@ -5,6 +5,7 @@ from .managers import Manager
 from .organization import Admin, Organization, User
 from .portal import HomeworkSubmission, TestAttempt
 from .students import Student, StudentHomework
+from .tasks import Task
 from .teachers import Teacher
 
 __all__ = [
@@ -30,4 +31,5 @@ __all__ = [
     "Answer",
     "HomeworkSubmission",
     "TestAttempt",
+    "Task",
 ]

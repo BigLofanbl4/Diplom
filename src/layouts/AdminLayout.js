@@ -26,6 +26,12 @@ function getOverviewCardsMarkup(role) {
       title: "Студенты",
       text: "Создавайте карточки учеников и сразу привязывайте их к нужным учебным группам.",
     },
+    {
+      href: getPanelPath("/tasks", role),
+      icon: "fa-solid fa-list-check",
+      title: "Задачи",
+      text: "Фиксируйте операционные запросы, назначайте проверки учителям и отслеживайте статусы выполнения.",
+    },
   ];
 
   if (isAdminRole(role)) {
@@ -80,6 +86,12 @@ function getNavigationMarkup(role) {
       match: getPanelPath("/students", role),
       icon: "fa-solid fa-user-graduate",
       label: "Студенты",
+    },
+    {
+      href: getPanelPath("/tasks", role),
+      match: getPanelPath("/tasks", role),
+      icon: "fa-solid fa-list-check",
+      label: "Задачи",
     },
   ];
 

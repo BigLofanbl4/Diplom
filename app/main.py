@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import auth, courses, files, groups, managers, organization, student_portal, students, teacher_portal, teachers
+from app.api import auth, courses, files, groups, managers, organization, student_portal, students, tasks, teacher_portal, teachers
 from app.config import settings
 from app.database import init_db
 
@@ -36,6 +36,7 @@ app.include_router(student_portal.router, prefix=settings.api_v1_prefix)
 app.include_router(teachers.router, prefix=settings.api_v1_prefix)
 app.include_router(managers.router, prefix=settings.api_v1_prefix)
 app.include_router(students.router, prefix=settings.api_v1_prefix)
+app.include_router(tasks.router, prefix=settings.api_v1_prefix)
 app.include_router(groups.router, prefix=settings.api_v1_prefix)
 app.include_router(courses.router, prefix=settings.api_v1_prefix)
 app.include_router(organization.router, prefix=settings.api_v1_prefix)

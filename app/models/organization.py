@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from .courses import Course
     from .groups import Group
     from .students import Student
+    from .tasks import Task
 
 
 class Organization(Base):
@@ -64,6 +65,16 @@ class User(Base):
     manager: Mapped["Manager"] = relationship('Manager', back_populates="user", uselist=False)
     teacher: Mapped["Teacher"] = relationship('Teacher', back_populates="user", uselist=False)
     student: Mapped["Student"] = relationship('Student', back_populates="user", uselist=False)
+    created_tasks: Mapped[list["Task"]] = relationship(
+        "Task",
+        foreign_keys="Task.creator_user_id",
+        back_populates="creator",
+    )
+    assigned_tasks: Mapped[list["Task"]] = relationship(
+        "Task",
+        foreign_keys="Task.assignee_user_id",
+        back_populates="assignee",
+    )
 
     organization_id: Mapped[int] = mapped_column(ForeignKey('organizations.id', ondelete='CASCADE'), nullable=False)
     organization = relationship("Organization", back_populates="users")

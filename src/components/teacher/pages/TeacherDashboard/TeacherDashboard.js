@@ -62,7 +62,10 @@ export default class TeacherDashboard {
             </div>
             <div class="page-hero__meta-card">
               <span class="page-hero__meta-label">Быстрый доступ</span>
-              <a href="/teacher/preferences" class="btn btn-secondary" data-spa-link>Настроить предметы</a>
+              <div class="teacher-dashboard__quick-actions">
+                <a href="/teacher/preferences" class="btn btn-secondary" data-spa-link>Настроить предметы</a>
+                <a href="/teacher/tasks" class="btn btn-secondary" data-spa-link>Открыть задачи</a>
+              </div>
             </div>
           </div>
         </div>
