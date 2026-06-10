@@ -28,6 +28,10 @@ backend/__pycache__
 app/__pycache__
 
 .vite/
+.npm-cache/
+.pytest_cache/
+tmp/
+output/
 
 certs/
 __pycache__/

@@ -1,7 +1,7 @@
 """add task source fields
 
 Revision ID: 64d0d8ea6fd2
-Revises: b7a2d0f7c9e1, d1e8f6a7b3c2
+Revises: d1e8f6a7b3c2
 Create Date: 2026-05-01 00:00:00.000000
 """
 
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 revision = "64d0d8ea6fd2"
-down_revision = ("b7a2d0f7c9e1", "d1e8f6a7b3c2")
+down_revision = "d1e8f6a7b3c2"
 branch_labels = None
 depends_on = None
 

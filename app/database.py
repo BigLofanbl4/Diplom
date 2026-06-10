@@ -28,13 +28,17 @@ def get_db() -> Generator[Session, None, None]:
 
 
 def init_db() -> None:
-    from app import models  # noqa: F401
     from app.bootstrap import bootstrap_default_data
-
-    Base.metadata.create_all(bind=engine)
 
     db = SessionLocal()
     try:
         bootstrap_default_data(db)
     finally:
         db.close()
+
+
+def create_test_db() -> None:
+    from app import models  # noqa: F401
+
+    Base.metadata.create_all(bind=engine)
+    init_db()

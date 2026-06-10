@@ -18,7 +18,7 @@ os.environ["DATABASE_URL"] = f"sqlite:///{TEST_DB}"
 os.environ["UPLOAD_DIR"] = str(TEST_UPLOADS)
 os.environ["APP_SECRET_KEY"] = "test-secret-key-for-diplom-api-suite"
 
-from app.database import Base, engine, init_db  # noqa: E402
+from app.database import Base, create_test_db, engine  # noqa: E402
 from app.main import app  # noqa: E402
 
 
@@ -31,7 +31,7 @@ def reset_database() -> None:
     shutil.rmtree(TEST_UPLOADS, ignore_errors=True)
     TEST_UPLOADS.mkdir(parents=True, exist_ok=True)
     Base.metadata.drop_all(bind=engine)
-    init_db()
+    create_test_db()
     yield
     app.dependency_overrides.clear()
 
