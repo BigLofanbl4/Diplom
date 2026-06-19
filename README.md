@@ -1,51 +1,121 @@
 # Diplom
 
-## Run project
+Веб-приложение для управления учебным процессом: организациями, курсами, группами, преподавателями, студентами, заданиями и учебными материалами.
 
-The frontend requests API under `/api/v1` (through Vite proxy to `http://127.0.0.1:8000`).
+Проект состоит из двух частей:
+- бэкенд на `FastAPI` с `PostgreSQL`
+- фронтенд на `Vite`, который обращается к API через префикс `/api/v1`
 
-1. Create local environment file:
+## Что умеет проект
+
+- авторизация и роли пользователей
+- кабинеты администратора, преподавателя и студента
+- управление курсами, модулями, уроками и тестами
+- управление группами, преподавателями и студентами
+- загрузка и скачивание файлов
+- работа с домашними заданиями и материалами курса
+
+## Технологии
+
+- Python 3
+- FastAPI
+- SQLAlchemy
+- Alembic
+- PostgreSQL
+- Vite
+- JavaScript
+
+## Структура проекта
+
+- `app/` - бэкенд: API, сервисы, модели, схемы, репозитории, миграции и служебные скрипты
+- `src/` - фронтенд: страницы, компоненты, сервисы, стили и роутинг
+- `alembic/` - миграции базы данных
+- `tests/` - тесты бэкенда
+
+## Локальный запуск
+
+### 1. Подготовить переменные окружения
+
+Скопируйте шаблон и при необходимости поправьте значения:
+
 ```bash
 cp .env.example .env
 ```
 
-2. Install backend dependencies:
+В `.env` уже заданы базовые параметры для локального запуска:
+- `DATABASE_URL`
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+- `UPLOAD_DIR`
+- `CORS_ORIGINS`
+- `APP_SECRET_KEY`
+
+### 2. Установить зависимости бэкенда
+
+Рекомендуется создать виртуальное окружение, если его еще нет:
+
 ```bash
-./.venv/bin/python -m ensurepip --upgrade
+python3 -m venv .venv
+```
+
+Затем установить зависимости:
+
+```bash
+./.venv/bin/python -m pip install --upgrade pip
 ./.venv/bin/python -m pip install -r requirements.txt
 ```
 
-3. Start PostgreSQL:
+### 3. Установить зависимости фронтенда
+
+```bash
+npm install
+```
+
+### 4. Запустить PostgreSQL
+
+База поднимается через Docker Compose:
+
 ```bash
 docker compose up -d db
 ```
 
-4. Apply database migrations:
+### 5. Применить миграции
+
 ```bash
 ./.venv/bin/alembic upgrade head
 ```
 
-5. Start backend:
+### 6. Запустить бэкенд
+
 ```bash
 ./.venv/bin/uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-6. In another terminal start frontend:
+### 7. Запустить фронтенд
+
+В отдельном терминале:
+
 ```bash
 npm run dev
 ```
 
-Demo auth credentials:
+После этого приложение будет доступно по адресу:
+
+- фронтенд: `http://localhost:5173`
+- бэкенд: `http://127.0.0.1:8000`
+
+Vite проксирует запросы на `/api` к `http://127.0.0.1:8000`, поэтому фронтенд и бэкенд можно запускать отдельно.
+
+## Демонстрационные учетные данные
+
 - `admin` / `AdminDemo!2026`
 - `manager` / `ManagerDemo!2026`
 - `teacher` / `TeacherDemo!2026`
 - `student` / `StudentDemo!2026`
 
-## PostgreSQL
+## Полезные команды для PostgreSQL
 
-The local database runs in Docker Compose as `diplom-postgres`.
-
-Useful commands:
 ```bash
 docker compose ps
 docker compose logs db
@@ -53,12 +123,26 @@ docker exec -it diplom-postgres psql -U diplom -d diplom
 docker compose stop db
 ```
 
-To remove the container but keep data:
+Чтобы остановить контейнер, но сохранить данные:
+
 ```bash
 docker compose down
 ```
 
-To remove the container and database data:
+Чтобы удалить контейнер и данные базы:
+
 ```bash
 docker compose down -v
 ```
+
+## Тесты
+
+```bash
+pytest
+```
+
+## Примечания
+
+- API использует базовый префикс `/api/v1`
+- загруженные файлы хранятся в локальной папке `UPLOAD_DIR`
+- для продакшена обязательно замените `APP_SECRET_KEY` на надежный секрет
